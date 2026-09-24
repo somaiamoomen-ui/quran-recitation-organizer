@@ -43,6 +43,23 @@ Deno.serve(async(req)=>{
   if(action==="tracks")return json({tracks:await getOpenTracks()});
   if(action==="all-tracks"){const body=await req.json();if(!(await requireRole(body,"teacher")))return json({error:"كلمة مرور المعلمة غير صحيحة."},401);const {data,error}=await db.from("tracks").select("id,name").order("sort_order");if(error)throw error;return json({tracks:data||[]})}
   if(action==="result"){const body=await req.json();const name=normalizeName(String(body.name||""));if(!validName(name))return json({error:"برجاء إدخال الاسم."},400);return json(await getResult(name))}
+  if(action==="register-companion"){
+   const body=await req.json(),name=normalizeName(String(body.name||"")),name2=normalizeName(String(body.name2||"")),riwaya=String(body.riwaya||"");
+   if(!validName(name)||!validName(name2)||!["حفص","قالون"].includes(riwaya))return json({error:"بيانات الرفقة غير مكتملة."},400);
+   const n1=name.toLocaleLowerCase("ar-EG"),n2=name2.toLocaleLowerCase("ar-EG");
+   if(n1===n2)return json({error:"لا يمكن تسجيل الطالبة مع نفسها."},400);
+   const getAccepted=async(n:string)=>{const {data,error}=await db.from("registrations").select("id,student_name,student_name_normalized,track_id,latest_status,tracks(name,primary_group_link)").eq("student_name_normalized",n).order("updated_at",{ascending:false}).limit(1).maybeSingle();if(error)throw error;return data};
+   const a:any=await getAccepted(n1),b:any=await getAccepted(n2);
+   if(!a||a.latest_status!=="accepted")return json({error:"الطالبة الأولى غير موجودة ضمن الطالبات المقبولات."},403);
+   if(!b||b.latest_status!=="accepted")return json({error:"الطالبة الثانية غير موجودة ضمن الطالبات المقبولات."},403);
+   if(a.track_id!==b.track_id)return json({error:"يجب أن تكون الطالبتان من نفس المسار."},400);
+   const {data:existing,error:pe}=await db.from("companion_pairs").select("id,student1_registration_id,student2_registration_id");if(pe)throw pe;
+   if((existing||[]).some((p:any)=>p.student1_registration_id===a.id||p.student2_registration_id===a.id||p.student1_registration_id===b.id||p.student2_registration_id===b.id))return json({error:"إحدى الطالبتين مسجلة بالفعل مع رفيقة أخرى."},409);
+   const inserted=await db.from("companion_pairs").insert({student1_registration_id:a.id,student2_registration_id:b.id,riwaya}).select("id").single();if(inserted.error)throw inserted.error;
+   const sameTrack=(existing||[]).filter((p:any)=>[a.id,b.id].includes(p.student1_registration_id)||[a.id,b.id].includes(p.student2_registration_id));
+   const pairNumber=(existing||[]).filter((p:any)=>p.student1_registration_id===a.id||p.student2_registration_id===a.id||p.student1_registration_id===b.id||p.student2_registration_id===b.id).length+1;
+   return json({ok:true,pairNumber:pairNumber,student1Name:a.student_name,student2Name:b.student_name,riwaya,primaryGroupLink:(Array.isArray(a.tracks)?a.tracks[0]:a.tracks)?.primary_group_link||""});
+  }
   if(action==="use-companion-group-link"){
    const body=await req.json(),name=normalizeName(String(body.name||""));if(!validName(name))return json({error:"برجاء إدخال الاسم."},400);
    const normalized=name.toLocaleLowerCase("ar-EG");
@@ -99,27 +116,42 @@ Deno.serve(async(req)=>{
    return json({ok:true,status});
   }
   if(action==="history"){const body=await req.json();if(!(await requireRole(body,"teacher")))return json({error:"كلمة مرور المعلمة غير صحيحة."},401);const {data,error}=await db.from("evaluations").select("id,status,evaluated_at,registrations(student_name,tracks(name))").order("evaluated_at",{ascending:false}).limit(200);if(error)throw error;return json({items:data||[]})}
-  if(action==="companion-control"){
-   const body=await req.json();if(!(await requireRole(body,"admin")))return json({error:"كلمة مرور الإدارة غير صحيحة."},401);
-   const open=body.open===true;
-   const r=await db.from("app_settings").update({companion_registration_open:open,updated_at:new Date().toISOString()}).eq("id",1);
-   if(r.error)throw r.error;
-   return json({ok:true,companionRegistrationOpen:open});
-  }
   if(action==="admin-data"){
    const body=await req.json();if(!(await requireRole(body,"admin")))return json({error:"كلمة مرور الإدارة غير صحيحة."},401);
    const {data:tracks,error}=await db.from("tracks").select("*").order("sort_order");if(error)throw error;
-   const {data:regs,error:re}=await db.from("registrations").select("track_id,latest_status");if(re)throw re;
-   const {data:settings,error:se}=await db.from("app_settings").select("companion_registration_open").eq("id",1).single();if(se)throw se;
+   const {data:regs,error:re}=await db.from("registrations").select("id,student_name,track_id,latest_status");if(re)throw re;
+   const {data:pairs,error:pe}=await db.from("companion_pairs").select("id,riwaya,student1_registration_id,student2_registration_id");if(pe)throw pe;
    const stats:Record<string,any>={};for(const t of tracks||[])stats[t.id]={accepted:0,rejected:0,pending:0,retry:0};
    for(const r of regs||[])if(stats[r.track_id])stats[r.track_id][r.latest_status]=(stats[r.track_id][r.latest_status]||0)+1;
-   return json({tracks:(tracks||[]).map(t=>({...t,stats:stats[t.id]})),rejectionMessage:REJECTION_MESSAGE,companionRegistrationOpen:!!settings?.companion_registration_open});
+   const acceptedStudents=(regs||[]).filter((r:any)=>r.latest_status==="accepted").map((r:any)=>({id:r.id,studentName:r.student_name,trackId:r.track_id}));
+   const byId:Record<string,any>={};for(const r of regs||[])byId[r.id]=r;
+   const companionPairs=(pairs||[]).map((p:any)=>({id:p.id,riwaya:p.riwaya,student1RegistrationId:p.student1_registration_id,student2RegistrationId:p.student2_registration_id,student1Name:byId[p.student1_registration_id]?.student_name||"",student2Name:byId[p.student2_registration_id]?.student_name||"",trackId:byId[p.student1_registration_id]?.track_id||""})).filter((p:any)=>p.trackId);
+   return json({tracks:(tracks||[]).map(t=>({...t,stats:stats[t.id]})),rejectionMessage:REJECTION_MESSAGE,acceptedStudents,companionPairs});
+  }
+  if(action==="edit-companion-list"){
+   const body=await req.json();if(!(await requireRole(body,"admin")))return json({error:"كلمة مرور الإدارة غير صحيحة."},401);
+   const trackId=String(body.trackId||""),pairs=Array.isArray(body.pairs)?body.pairs:[];
+   if(!trackId)return json({error:"المسار غير محدد."},400);
+   const {data:accepted,error:ae}=await db.from("registrations").select("id,student_name,track_id,latest_status").eq("track_id",trackId).eq("latest_status","accepted");if(ae)throw ae;
+   const allowed=new Set((accepted||[]).map((x:any)=>x.id)),used=new Set<string>();
+   for(const p of pairs){
+     if(!p||!allowed.has(String(p.student1Id))||!allowed.has(String(p.student2Id)))return json({error:"كل الطالبات في القائمة يجب أن يكن مقبولات وفي نفس المسار."},400);
+     if(String(p.student1Id)===String(p.student2Id))return json({error:"لا يمكن أن تكون الطالبة رفيقة لنفسها."},400);
+     if(!["حفص","قالون"].includes(String(p.riwaya)))return json({error:"الرواية غير صحيحة."},400);
+     if(used.has(String(p.student1Id))||used.has(String(p.student2Id)))return json({error:"لا يمكن تكرار نفس الطالبة في أكثر من رفيقة."},400);
+     used.add(String(p.student1Id));used.add(String(p.student2Id));
+   }
+   const {data:allPairs,error:pe}=await db.from("companion_pairs").select("id,student1_registration_id,student2_registration_id");if(pe)throw pe;
+   const oldIds=(allPairs||[]).filter((p:any)=>allowed.has(p.student1_registration_id)||allowed.has(p.student2_registration_id)).map((p:any)=>p.id);
+   if(oldIds.length){const del=await db.from("companion_pairs").delete().in("id",oldIds);if(del.error)throw del.error;}
+   if(pairs.length){const ins=await db.from("companion_pairs").insert(pairs.map((p:any)=>({student1_registration_id:String(p.student1Id),student2_registration_id:String(p.student2Id),riwaya:String(p.riwaya)})));if(ins.error)throw ins.error;}
+   return json({ok:true,count:pairs.length});
   }
   if(action==="admin-track"){
    const body=await req.json();if(!(await requireRole(body,"admin")))return json({error:"كلمة مرور الإدارة غير صحيحة."},401);
    const op=String(body.op||"");
-   if(op==="create"){const name=String(body.name||"").trim();if(!name)return json({error:"اسم المسار مطلوب."},400);const {data:maxRow}=await db.from("tracks").select("sort_order").order("sort_order",{ascending:false}).limit(1).maybeSingle();const r=await db.from("tracks").insert({name,whatsapp_link:String(body.whatsappLink||"").trim(),is_open:true,sort_order:(maxRow?.sort_order||0)+1}).select().single();if(r.error)throw r.error;return json({track:r.data})}
-   if(op==="update"){const r=await db.from("tracks").update({name:String(body.name||"").trim(),whatsapp_link:String(body.whatsappLink||"").trim(),is_open:!!body.isOpen,updated_at:new Date().toISOString()}).eq("id",body.id).select().single();if(r.error)throw r.error;return json({track:r.data})}
+   if(op==="create"){const name=String(body.name||"").trim();if(!name)return json({error:"اسم المسار مطلوب."},400);const {data:maxRow}=await db.from("tracks").select("sort_order").order("sort_order",{ascending:false}).limit(1).maybeSingle();const r=await db.from("tracks").insert({name,whatsapp_link:String(body.whatsappLink||"").trim(),primary_group_link:String(body.primaryGroupLink||"").trim(),is_open:true,sort_order:(maxRow?.sort_order||0)+1}).select().single();if(r.error)throw r.error;return json({track:r.data})}
+   if(op==="update"){const r=await db.from("tracks").update({name:String(body.name||"").trim(),whatsapp_link:String(body.whatsappLink||"").trim(),primary_group_link:String(body.primaryGroupLink||"").trim(),is_open:!!body.isOpen,updated_at:new Date().toISOString()}).eq("id",body.id).select().single();if(r.error)throw r.error;return json({track:r.data})}
    return json({error:"عملية غير معروفة."},400)
   }
   if(action==="reset-results"){
