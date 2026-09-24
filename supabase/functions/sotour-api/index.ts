@@ -99,13 +99,21 @@ Deno.serve(async(req)=>{
    return json({ok:true,status});
   }
   if(action==="history"){const body=await req.json();if(!(await requireRole(body,"teacher")))return json({error:"كلمة مرور المعلمة غير صحيحة."},401);const {data,error}=await db.from("evaluations").select("id,status,evaluated_at,registrations(student_name,tracks(name))").order("evaluated_at",{ascending:false}).limit(200);if(error)throw error;return json({items:data||[]})}
+  if(action==="companion-control"){
+   const body=await req.json();if(!(await requireRole(body,"admin")))return json({error:"كلمة مرور الإدارة غير صحيحة."},401);
+   const open=body.open===true;
+   const r=await db.from("app_settings").update({companion_registration_open:open,updated_at:new Date().toISOString()}).eq("id",1);
+   if(r.error)throw r.error;
+   return json({ok:true,companionRegistrationOpen:open});
+  }
   if(action==="admin-data"){
    const body=await req.json();if(!(await requireRole(body,"admin")))return json({error:"كلمة مرور الإدارة غير صحيحة."},401);
    const {data:tracks,error}=await db.from("tracks").select("*").order("sort_order");if(error)throw error;
    const {data:regs,error:re}=await db.from("registrations").select("track_id,latest_status");if(re)throw re;
+   const {data:settings,error:se}=await db.from("app_settings").select("companion_registration_open").eq("id",1).single();if(se)throw se;
    const stats:Record<string,any>={};for(const t of tracks||[])stats[t.id]={accepted:0,rejected:0,pending:0,retry:0};
    for(const r of regs||[])if(stats[r.track_id])stats[r.track_id][r.latest_status]=(stats[r.track_id][r.latest_status]||0)+1;
-   return json({tracks:(tracks||[]).map(t=>({...t,stats:stats[t.id]})),rejectionMessage:REJECTION_MESSAGE});
+   return json({tracks:(tracks||[]).map(t=>({...t,stats:stats[t.id]})),rejectionMessage:REJECTION_MESSAGE,companionRegistrationOpen:!!settings?.companion_registration_open});
   }
   if(action==="admin-track"){
    const body=await req.json();if(!(await requireRole(body,"admin")))return json({error:"كلمة مرور الإدارة غير صحيحة."},401);
