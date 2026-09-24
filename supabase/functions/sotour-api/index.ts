@@ -26,7 +26,7 @@ async function checkPassword(role:"teacher"|"admin",password:string){
  return (await sha256(password))===(role==="teacher"?data.teacher_password_hash:data.admin_password_hash);
 }
 async function requireRole(body:any,role:"teacher"|"admin"){return !!body?.password&&await checkPassword(role,String(body.password))}
-function normalizeName(name:string){return name.trim().replace(/\s+/g," ")}
+function normalizeName(name:string){return name.trim().replace(/\s+/g," ").replace(/ة$/u,"ه")}
 function validName(name:string){return normalizeName(name).length>0}
 async function getOpenTracks(){const {data,error}=await db.from("tracks").select("id,name,whatsapp_link,is_open,sort_order").eq("is_open",true).order("sort_order");if(error)throw error;return data||[]}
 async function getResult(name:string){
