@@ -8,7 +8,7 @@
 <style>
 :root{--primary:#0f766e;--primary2:#115e59;--bg:#f4f8f7;--card:#fff;--text:#16302c;--muted:#647875;--danger:#b42318;--ok:#16794c;--line:#dce8e5;--shadow:0 12px 35px #123b3514}
 *{box-sizing:border-box}body{margin:0;background:linear-gradient(160deg,#edf8f5,#f9fbfa);font-family:"Segoe UI",Tahoma,Arial,sans-serif;color:var(--text);min-height:100vh}
-button,input,select{font:inherit}button{cursor:pointer}.wrap{width:min(1100px,calc(100% - 28px));margin:auto}.top{padding:34px 0 18px;text-align:center}.brand{font-size:clamp(26px,5vw,42px);font-weight:800;color:var(--primary2);margin:0}.sub{color:var(--muted);margin:10px 0 0}.card{background:var(--card);border:1px solid var(--line);border-radius:22px;box-shadow:var(--shadow);padding:24px;margin:18px 0}.home-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin:28px 0}.choice{min-height:150px;border:1px solid var(--line);border-radius:20px;background:#fff;padding:25px;font-weight:800;font-size:21px;color:var(--primary2);box-shadow:var(--shadow);transition:.18s}.choice:hover{transform:translateY(-3px);border-color:#8fcfc4}.section-title{margin:0 0 18px;font-size:24px}.row{display:grid;grid-template-columns:1fr 1fr;gap:14px}.field{margin:12px 0}.field label{display:block;font-weight:700;margin-bottom:7px}.hint{font-size:13px;color:var(--muted);margin-top:6px}.input,.select{width:100%;padding:13px 14px;border:1px solid #cddbd8;border-radius:12px;outline:none;background:#fff}.input:focus,.select:focus{border-color:var(--primary);box-shadow:0 0 0 3px #0f766e16}.btn{border:0;border-radius:12px;padding:12px 17px;background:var(--primary);color:#fff;font-weight:800}.btn:hover{background:var(--primary2)}.btn.secondary{background:#e8f3f1;color:var(--primary2)}.btn.danger{background:#b42318}.btn.gray{background:#eef2f1;color:#314844}.btn:disabled{opacity:.55;cursor:not-allowed}.actions{display:flex;gap:9px;flex-wrap:wrap;margin-top:15px}.msg{padding:12px 14px;border-radius:12px;margin:12px 0;white-space:pre-line}.msg.ok{background:#eaf7ef;color:#14643e}.msg.err{background:#fff0ee;color:#9b2017}.msg.info{background:#edf6ff;color:#14527a}.hidden{display:none!important}.back{margin-bottom:10px}.badge{display:inline-flex;align-items:center;padding:5px 9px;border-radius:999px;background:#eef5f3;color:var(--primary2);font-size:12px;font-weight:800}.list{display:grid;gap:12px}.item{border:1px solid var(--line);border-radius:16px;padding:15px;background:#fbfdfc}.item-head{display:flex;justify-content:space-between;gap:10px;align-items:flex-start}.audio{width:100%;margin:12px 0}.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin:15px 0}.stat{background:#f4f8f7;border:1px solid var(--line);border-radius:15px;padding:13px;text-align:center}.stat strong{display:block;font-size:24px}.track-card{border:1px solid var(--line);padding:15px;border-radius:15px;background:#fff}.track-card .name{font-weight:800;font-size:17px}.pill-open{color:#14643e}.pill-closed{color:#9b2017}.pagination{display:flex;justify-content:center;align-items:center;gap:10px;margin-top:16px}.footer{text-align:center;color:var(--muted);font-size:12px;padding:18px 0 30px}a{color:var(--primary2);font-weight:800}
+button,input,select{font:inherit}button{cursor:pointer}.wrap{width:min(1100px,calc(100% - 28px));margin:auto}.top{padding:34px 0 18px;text-align:center}.brand{font-size:clamp(26px,5vw,42px);font-weight:800;color:var(--primary2);margin:0}.sub{color:var(--muted);margin:10px 0 0}.card{background:var(--card);border:1px solid var(--line);border-radius:22px;box-shadow:var(--shadow);padding:24px;margin:18px 0}.home-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin:28px 0}.choice{min-height:150px;border:1px solid var(--line);border-radius:20px;background:#fff;padding:25px;font-weight:800;font-size:21px;color:var(--primary2);box-shadow:var(--shadow);transition:.18s}.choice:hover{transform:translateY(-3px);border-color:#8fcfc4}.section-title{margin:0 0 18px;font-size:24px}.row{display:grid;grid-template-columns:1fr 1fr;gap:14px}.field{margin:12px 0}.field label{display:block;font-weight:700;margin-bottom:7px}.hint{font-size:13px;color:var(--muted);margin-top:6px}.input,.select{width:100%;padding:13px 14px;border:1px solid #cddbd8;border-radius:12px;outline:none;background:#fff}.input:focus,.select:focus{border-color:var(--primary);box-shadow:0 0 0 3px #0f766e16}.btn{border:0;border-radius:12px;padding:12px 17px;background:var(--primary);color:#fff;font-weight:800}.btn:hover{background:var(--primary2)}.btn.secondary{background:#e8f3f1;color:var(--primary2)}.btn.danger{background:#b42318}.btn.gray{background:#eef2f1;color:#314844}.btn:disabled{opacity:.55;cursor:not-allowed}.actions{display:flex;gap:9px;flex-wrap:wrap;margin-top:15px}.msg{padding:12px 14px;border-radius:12px;margin:12px 0;white-space:pre-line}.msg.ok{background:#eaf7ef;color:#14643e}.msg.err{background:#fff0ee;color:#9b2017}.msg.info{background:#edf6ff;color:#14527a}.hidden{display:none!important}.back{margin-bottom:10px}.badge{display:inline-flex;align-items:center;padding:5px 9px;border-radius:999px;background:#eef5f3;color:var(--primary2);font-size:12px;font-weight:800}.list{display:grid;gap:12px}.item{border:1px solid var(--line);border-radius:16px;padding:15px;background:#fbfdfc}.item-head{display:flex;justify-content:space-between;gap:10px;align-items:flex-start}.audio{width:100%;margin:12px 0}.record-preview{margin-top:16px;padding:16px;border:1px solid var(--line);border-radius:16px;background:#fbfdfc}.record-preview-title{font-weight:800;margin-bottom:10px}.record-preview-actions{display:flex;gap:9px;flex-wrap:wrap;margin-top:10px}.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin:15px 0}.stat{background:#f4f8f7;border:1px solid var(--line);border-radius:15px;padding:13px;text-align:center}.stat strong{display:block;font-size:24px}.track-card{border:1px solid var(--line);padding:15px;border-radius:15px;background:#fff}.track-card .name{font-weight:800;font-size:17px}.pill-open{color:#14643e}.pill-closed{color:#9b2017}.pagination{display:flex;justify-content:center;align-items:center;gap:10px;margin-top:16px}.footer{text-align:center;color:var(--muted);font-size:12px;padding:18px 0 30px}a{color:var(--primary2);font-weight:800}
 @media(max-width:760px){.home-grid{grid-template-columns:1fr}.row,.stats{grid-template-columns:1fr}.card{padding:18px}.item-head{flex-direction:column}}
 </style>
 </head>
@@ -31,6 +31,14 @@ button,input,select{font:inherit}button{cursor:pointer}.wrap{width:min(1100px,ca
 <div class="field"><label for="studentTrack">اختاري المسار</label><select id="studentTrack" class="select"></select></div>
 <div class="actions"><button class="btn" id="recordBtn" onclick="toggleRecording()">🎙️ بدء التسجيل</button><button class="btn secondary" onclick="checkResult()">معرفة النتيجة</button></div>
 <div id="recordInfo" class="hint"></div>
+<div id="recordPreview" class="record-preview hidden">
+  <div class="record-preview-title">راجعي التسجيل قبل إرساله</div>
+  <audio id="previewAudio" class="audio" controls></audio>
+  <div class="record-preview-actions">
+    <button class="btn" id="sendRecordingBtn" onclick="sendRecording()">إرسال التسجيل</button>
+    <button class="btn danger" id="deleteRecordingBtn" onclick="deleteRecording()">حذف التسجيل وتسجيل واحد آخر</button>
+  </div>
+</div>
 <div id="resultBox"></div>
 </section>
 
@@ -38,7 +46,7 @@ button,input,select{font:inherit}button{cursor:pointer}.wrap{width:min(1100px,ca
 <button class="btn secondary back" onclick="show('home')">← الرئيسية</button>
 <h2 class="section-title">دخول المعلمة</h2>
 <div id="teacherMsg"></div>
-<div id="teacherLogin"><div class="field"><label>كلمة المرور</label><input id="teacherPassword" class="input" type="password"></div><button class="btn" onclick="teacherLogin()">دخول</button></div>
+<div id="teacherLogin"><div class="field"><label>كلمة المرور</label><input id="teacherPassword" class="input" type="text" autocomplete="off" spellcheck="false"></div><button class="btn" onclick="teacherLogin()">دخول</button></div>
 <div id="teacherPanel" class="hidden">
 <div class="stats"><div class="stat"><strong id="pendingCount">0</strong>معلقة في الصفحة</div><div class="stat"><strong id="pageNo">1</strong>صفحة</div></div>
 <div class="row"><div class="field"><label>المسار</label><select id="teacherTrack" class="select" onchange="loadQueue(1)"><option value="">كل المسارات</option></select></div><div class="field"><label>عدد التسجيلات في الصفحة</label><select id="pageSize" class="select" onchange="loadQueue(1)"><option>10</option><option selected>20</option><option>30</option></select></div></div>
@@ -49,7 +57,7 @@ button,input,select{font:inherit}button{cursor:pointer}.wrap{width:min(1100px,ca
 <button class="btn secondary back" onclick="show('home')">← الرئيسية</button>
 <h2 class="section-title">لوحة الإدارة</h2>
 <div id="adminMsg"></div>
-<div id="adminLogin"><div class="field"><label>كلمة مرور الإدارة</label><input id="adminPassword" class="input" type="password"></div><button class="btn" onclick="adminLogin()">دخول</button></div>
+<div id="adminLogin"><div class="field"><label>كلمة مرور الإدارة</label><input id="adminPassword" class="input" type="text" autocomplete="off" spellcheck="false"></div><button class="btn" onclick="adminLogin()">دخول</button></div>
 <div id="adminPanel" class="hidden">
 <div class="stats"><div class="stat"><strong id="totalReg">0</strong>إجمالي التسجيلات</div><div class="stat"><strong id="totalPending">0</strong>معلقة</div><div class="stat"><strong id="totalAccepted">0</strong>مقبولة</div><div class="stat"><strong id="totalRejected">0</strong>مرفوضة</div></div>
 <h3>إدارة المسارات</h3><div id="tracksAdmin" class="list"></div>
@@ -62,7 +70,7 @@ button,input,select{font:inherit}button{cursor:pointer}.wrap{width:min(1100px,ca
 <script>
 const API='https://hhbseytjfkzonaptnldl.supabase.co/functions/v1/sotour-api';
 const API_KEY='sb_publishable_-7mggHZgrDs332m_LXXNeg_cLyw8g51';
-let mediaRecorder=null, chunks=[], recordTimer=null, seconds=0, queuePage=1, teacherPass='', adminPass='', currentTracks=[];
+let mediaRecorder=null, chunks=[], recordTimer=null, seconds=0, pendingBlob=null, pendingObjectUrl='', queuePage=1, teacherPass='', adminPass='', currentTracks=[];
 const MAX_SECONDS=300, MAX_BYTES=10*1024*1024;
 const $=id=>document.getElementById(id);
 function show(id){['home','student','teacher','admin'].forEach(x=>$(x).classList.toggle('hidden',x!==id)); if(id==='student') loadTracks(); if(id==='teacher'){}}
@@ -83,17 +91,96 @@ async function loadTracks(){
 function nameValue(){return $('studentName').value.trim().replace(/\s+/g,' ')}
 async function toggleRecording(){
  if(mediaRecorder&&mediaRecorder.state==='recording'){mediaRecorder.stop();return}
+ if(pendingBlob)return;
  if(!nameValue()) return msg('studentMsg','برجاء إدخال الاسم أولًا.','err');
  if(!$('studentTrack').value) return msg('studentMsg','برجاء اختيار المسار.','err');
  try{
-  const stream=await navigator.mediaDevices.getUserMedia({audio:true});
+  const stream=await navigator.mediaDevices.getUserMedia({
+   audio:{
+    channelCount:1,
+    sampleRate:48000,
+    sampleSize:16,
+    echoCancellation:false,
+    noiseSuppression:false,
+    autoGainControl:false
+   }
+  });
   chunks=[];seconds=0;
-  mediaRecorder=new MediaRecorder(stream,{mimeType:MediaRecorder.isTypeSupported('audio/webm;codecs=opus')?'audio/webm;codecs=opus':'audio/webm'});
+  const preferred='audio/webm;codecs=opus';
+  const mimeType=MediaRecorder.isTypeSupported(preferred)?preferred:(MediaRecorder.isTypeSupported('audio/webm')?'audio/webm':'');
+  const options={audioBitsPerSecond:128000};
+  if(mimeType)options.mimeType=mimeType;
+  mediaRecorder=new MediaRecorder(stream,options);
   mediaRecorder.ondataavailable=e=>{if(e.data.size)chunks.push(e.data)};
-  mediaRecorder.onstart=()=>{ $('recordBtn').textContent='⏹️ إيقاف التسجيل';recordTimer=setInterval(()=>{seconds++;$('recordInfo').textContent='مدة التسجيل: '+Math.floor(seconds/60)+':'+String(seconds%60).padStart(2,'0');if(seconds>=MAX_SECONDS) mediaRecorder.stop()},1000)};
-  mediaRecorder.onstop=async()=>{clearInterval(recordTimer);stream.getTracks().forEach(t=>t.stop());$('recordBtn').disabled=true;$('recordInfo').textContent='جاري رفع التسجيل...';const blob=new Blob(chunks,{type:'audio/webm'});if(blob.size>MAX_BYTES){msg('studentMsg','حجم التسجيل أكبر من الحد المسموح.','err');$('recordBtn').disabled=false;return}try{const f=new FormData();f.append('name',nameValue());f.append('trackId',$('studentTrack').value);f.append('audio',blob,'recitation.webm');await api('submit',f,true);msg('studentMsg','تم إرسال التسجيل للمعلمة بنجاح.','ok');$('recordInfo').textContent='يمكنك الرجوع لمعرفة النتيجة لاحقًا.'}catch(e){msg('studentMsg',e.message,'err');$('recordInfo').textContent=''}finally{$('recordBtn').disabled=false;mediaRecorder=null}};
-  mediaRecorder.start();
- }catch(e){msg('studentMsg','لم نتمكن من الوصول إلى الميكروفون. اسمحي للموقع باستخدام الميكروفون ثم حاولي مرة أخرى.','err')}
+  mediaRecorder.onstart=()=>{
+   $('recordBtn').textContent='⏹️ إيقاف التسجيل';
+   $('recordInfo').textContent='جاري التسجيل…';
+   $('recordPreview').classList.add('hidden');
+   recordTimer=setInterval(()=>{
+    seconds++;
+    $('recordInfo').textContent='مدة التسجيل: '+Math.floor(seconds/60)+':'+String(seconds%60).padStart(2,'0');
+    if(seconds>=MAX_SECONDS)mediaRecorder.stop();
+   },1000);
+  };
+  mediaRecorder.onstop=()=>{
+   clearInterval(recordTimer);
+   stream.getTracks().forEach(t=>t.stop());
+   mediaRecorder=null;
+   const blob=new Blob(chunks,{type:mimeType||'audio/webm'});
+   if(blob.size>MAX_BYTES){
+    msg('studentMsg','حجم التسجيل أكبر من الحد المسموح. حاولي تسجيله مرة أخرى.','err');
+    chunks=[];$('recordInfo').textContent='';
+    $('recordBtn').textContent='🎙️ بدء التسجيل';
+    return;
+   }
+   pendingBlob=blob;
+   if(pendingObjectUrl)URL.revokeObjectURL(pendingObjectUrl);
+   pendingObjectUrl=URL.createObjectURL(blob);
+   $('previewAudio').src=pendingObjectUrl;
+   $('recordPreview').classList.remove('hidden');
+   $('recordBtn').textContent='🎙️ تسجيل جديد';
+   $('recordInfo').textContent='اسمعي التسجيل أولًا، ثم اختاري إرساله أو حذفه وتسجيل واحد آخر.';
+   msg('studentMsg','','info');
+  };
+  mediaRecorder.start(250);
+ }catch(e){
+  msg('studentMsg','لم نتمكن من الوصول إلى الميكروفون. اسمحي للموقع باستخدام الميكروفون ثم حاولي مرة أخرى.','err');
+ }
+}
+async function sendRecording(){
+ if(!pendingBlob)return;
+ const btn=$('sendRecordingBtn');
+ btn.disabled=true;$('deleteRecordingBtn').disabled=true;$('recordBtn').disabled=true;
+ $('recordInfo').textContent='جاري إرسال التسجيل…';
+ try{
+  const f=new FormData();
+  f.append('name',nameValue());
+  f.append('trackId',$('studentTrack').value);
+  f.append('audio',pendingBlob,'recitation.webm');
+  await api('submit',f,true);
+  msg('studentMsg','تم إرسال التسجيل للمعلمة بنجاح.','ok');
+  $('recordInfo').textContent='تم إرسال التسجيل. يمكنك الرجوع لمعرفة النتيجة لاحقًا.';
+  $('recordPreview').classList.add('hidden');
+  if(pendingObjectUrl)URL.revokeObjectURL(pendingObjectUrl);
+  pendingObjectUrl='';pendingBlob=null;
+  $('previewAudio').removeAttribute('src');$('previewAudio').load();
+  $('recordBtn').textContent='🎙️ بدء التسجيل';
+ }catch(e){
+  msg('studentMsg',e.message,'err');
+  $('recordInfo').textContent='لم يتم الإرسال. يمكنك إعادة المحاولة من نفس التسجيل.';
+ }finally{
+  btn.disabled=false;$('deleteRecordingBtn').disabled=false;$('recordBtn').disabled=false;
+ }
+}
+function deleteRecording(){
+ if(mediaRecorder&&mediaRecorder.state==='recording')return;
+ if(pendingObjectUrl)URL.revokeObjectURL(pendingObjectUrl);
+ pendingObjectUrl='';pendingBlob=null;chunks=[];
+ $('previewAudio').removeAttribute('src');$('previewAudio').load();
+ $('recordPreview').classList.add('hidden');
+ $('recordInfo').textContent='تم حذف التسجيل. يمكنك تسجيل تسجيل جديد.';
+ $('recordBtn').textContent='🎙️ بدء التسجيل';
+ msg('studentMsg','','info');
 }
 async function checkResult(){
  const name=nameValue();if(!name)return msg('studentMsg','برجاء إدخال الاسم.','err');
@@ -116,7 +203,9 @@ async function loadQueue(page){
  try{const d=await api('teacher-queue',{password:teacherPass,page,pageSize:Number($('pageSize').value),trackId:$('teacherTrack').value});const items=d.items||[];$('queue').innerHTML=items.length?items.map(renderQueue).join(''):'<div class="msg info">لا توجد تسجيلات معلقة.</div>';$('pendingCount').textContent=d.total||0;$('pageNo').textContent=page;$('pageLabel').textContent='صفحة '+page;$('prevBtn').disabled=page<=1;$('nextBtn').disabled=!d.hasMore}catch(e){msg('teacherMsg',e.message,'err')}
 }
 function renderQueue(x){return '<div class="item"><div class="item-head"><div><b>'+escapeHtml(x.studentName)+'</b><div class="hint">'+escapeHtml(x.trackName)+' · '+new Date(x.createdAt).toLocaleString('ar-EG')+'</div></div><span class="badge">معلقة</span></div><audio class="audio" controls preload="none" src="'+escapeHtml(x.audioUrl)+'"></audio><div class="actions"><button class="btn" onclick="evaluateItem(\''+x.submissionId+'\',\'accepted\')">مقبولة</button><button class="btn danger" onclick="evaluateItem(\''+x.submissionId+'\',\'rejected\')">مرفوضة</button><button class="btn secondary" onclick="evaluateItem(\''+x.submissionId+'\',\'retry\')">إعادة</button></div></div>'}
-async function evaluateItem(id,status){if(!confirm(status==='accepted'?'تأكيد قبول التسجيل؟':status==='rejected'?'تأكيد رفض التسجيل؟':'تأكيد طلب إعادة التسجيل؟'))return;try{await api('evaluate',{password:teacherPass,submissionId:id,status});await loadQueue(queuePage)}catch(e){msg('teacherMsg',e.message,'err')}}
+async function evaluateItem(id,status){
+ const question=status==='accepted'?'هل أنتِ متأكدة من قبول هذا التسجيل؟':status==='rejected'?'هل أنتِ متأكدة من رفض هذا التسجيل؟':'هل أنتِ متأكدة من طلب إعادة تسجيل هذه الطالبة؟';
+ if(!window.confirm(question))return;try{await api('evaluate',{password:teacherPass,submissionId:id,status});await loadQueue(queuePage)}catch(e){msg('teacherMsg',e.message,'err')}}
 async function adminLogin(){
  const p=$('adminPassword').value;if(!p)return msg('adminMsg','اكتبي كلمة المرور.','err');
  try{await api('admin-data',{password:p});adminPass=p;$('adminLogin').classList.add('hidden');$('adminPanel').classList.remove('hidden');await loadAdmin();msg('adminMsg','','info')}catch(e){msg('adminMsg',e.message,'err')}
