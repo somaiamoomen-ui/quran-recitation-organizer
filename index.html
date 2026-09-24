@@ -1,0 +1,132 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#0f766e">
+<title>أكاديمية سطور الهدى</title>
+<style>
+:root{--primary:#0f766e;--primary2:#115e59;--bg:#f4f8f7;--card:#fff;--text:#16302c;--muted:#647875;--danger:#b42318;--ok:#16794c;--line:#dce8e5;--shadow:0 12px 35px #123b3514}
+*{box-sizing:border-box}body{margin:0;background:linear-gradient(160deg,#edf8f5,#f9fbfa);font-family:"Segoe UI",Tahoma,Arial,sans-serif;color:var(--text);min-height:100vh}
+button,input,select{font:inherit}button{cursor:pointer}.wrap{width:min(1100px,calc(100% - 28px));margin:auto}.top{padding:34px 0 18px;text-align:center}.brand{font-size:clamp(26px,5vw,42px);font-weight:800;color:var(--primary2);margin:0}.sub{color:var(--muted);margin:10px 0 0}.card{background:var(--card);border:1px solid var(--line);border-radius:22px;box-shadow:var(--shadow);padding:24px;margin:18px 0}.home-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin:28px 0}.choice{min-height:150px;border:1px solid var(--line);border-radius:20px;background:#fff;padding:25px;font-weight:800;font-size:21px;color:var(--primary2);box-shadow:var(--shadow);transition:.18s}.choice:hover{transform:translateY(-3px);border-color:#8fcfc4}.section-title{margin:0 0 18px;font-size:24px}.row{display:grid;grid-template-columns:1fr 1fr;gap:14px}.field{margin:12px 0}.field label{display:block;font-weight:700;margin-bottom:7px}.hint{font-size:13px;color:var(--muted);margin-top:6px}.input,.select{width:100%;padding:13px 14px;border:1px solid #cddbd8;border-radius:12px;outline:none;background:#fff}.input:focus,.select:focus{border-color:var(--primary);box-shadow:0 0 0 3px #0f766e16}.btn{border:0;border-radius:12px;padding:12px 17px;background:var(--primary);color:#fff;font-weight:800}.btn:hover{background:var(--primary2)}.btn.secondary{background:#e8f3f1;color:var(--primary2)}.btn.danger{background:#b42318}.btn.gray{background:#eef2f1;color:#314844}.btn:disabled{opacity:.55;cursor:not-allowed}.actions{display:flex;gap:9px;flex-wrap:wrap;margin-top:15px}.msg{padding:12px 14px;border-radius:12px;margin:12px 0;white-space:pre-line}.msg.ok{background:#eaf7ef;color:#14643e}.msg.err{background:#fff0ee;color:#9b2017}.msg.info{background:#edf6ff;color:#14527a}.hidden{display:none!important}.back{margin-bottom:10px}.badge{display:inline-flex;align-items:center;padding:5px 9px;border-radius:999px;background:#eef5f3;color:var(--primary2);font-size:12px;font-weight:800}.list{display:grid;gap:12px}.item{border:1px solid var(--line);border-radius:16px;padding:15px;background:#fbfdfc}.item-head{display:flex;justify-content:space-between;gap:10px;align-items:flex-start}.audio{width:100%;margin:12px 0}.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin:15px 0}.stat{background:#f4f8f7;border:1px solid var(--line);border-radius:15px;padding:13px;text-align:center}.stat strong{display:block;font-size:24px}.track-card{border:1px solid var(--line);padding:15px;border-radius:15px;background:#fff}.track-card .name{font-weight:800;font-size:17px}.pill-open{color:#14643e}.pill-closed{color:#9b2017}.pagination{display:flex;justify-content:center;align-items:center;gap:10px;margin-top:16px}.footer{text-align:center;color:var(--muted);font-size:12px;padding:18px 0 30px}a{color:var(--primary2);font-weight:800}
+@media(max-width:760px){.home-grid{grid-template-columns:1fr}.row,.stats{grid-template-columns:1fr}.card{padding:18px}.item-head{flex-direction:column}}
+</style>
+</head>
+<body>
+<header class="top wrap"><h1 class="brand">أكاديمية سطور الهدى ترحب بكم</h1><p class="sub">تنظيم اختبارات وتصحيح تلاوة القرآن الكريم</p></header>
+<main class="wrap">
+<section id="home" class="card">
+  <div class="home-grid">
+    <button class="choice" onclick="show('student')">الطالبة</button>
+    <button class="choice" onclick="show('teacher')">المعلمة</button>
+    <button class="choice" onclick="show('admin')">الإدارة</button>
+  </div>
+</section>
+
+<section id="student" class="card hidden">
+<button class="btn secondary back" onclick="show('home')">← الرئيسية</button>
+<h2 class="section-title">اختبار الطالبة</h2>
+<div id="studentMsg"></div>
+<div class="field"><label for="studentName">برجاء إدخال الاسم الثنائي هنا</label><input id="studentName" class="input" placeholder="اكتبي اسمك هنا" autocomplete="name"></div>
+<div class="field"><label for="studentTrack">اختاري المسار</label><select id="studentTrack" class="select"></select></div>
+<div class="actions"><button class="btn" id="recordBtn" onclick="toggleRecording()">🎙️ بدء التسجيل</button><button class="btn secondary" onclick="checkResult()">معرفة النتيجة</button></div>
+<div id="recordInfo" class="hint"></div>
+<div id="resultBox"></div>
+</section>
+
+<section id="teacher" class="card hidden">
+<button class="btn secondary back" onclick="show('home')">← الرئيسية</button>
+<h2 class="section-title">دخول المعلمة</h2>
+<div id="teacherMsg"></div>
+<div id="teacherLogin"><div class="field"><label>كلمة المرور</label><input id="teacherPassword" class="input" type="password"></div><button class="btn" onclick="teacherLogin()">دخول</button></div>
+<div id="teacherPanel" class="hidden">
+<div class="stats"><div class="stat"><strong id="pendingCount">0</strong>معلقة في الصفحة</div><div class="stat"><strong id="pageNo">1</strong>صفحة</div></div>
+<div class="row"><div class="field"><label>المسار</label><select id="teacherTrack" class="select" onchange="loadQueue(1)"><option value="">كل المسارات</option></select></div><div class="field"><label>عدد التسجيلات في الصفحة</label><select id="pageSize" class="select" onchange="loadQueue(1)"><option>10</option><option selected>20</option><option>30</option></select></div></div>
+<div id="queue" class="list"></div><div class="pagination"><button class="btn secondary" onclick="loadQueue(queuePage-1)" id="prevBtn">السابق</button><span id="pageLabel"></span><button class="btn secondary" onclick="loadQueue(queuePage+1)" id="nextBtn">التالي</button></div>
+</div></section>
+
+<section id="admin" class="card hidden">
+<button class="btn secondary back" onclick="show('home')">← الرئيسية</button>
+<h2 class="section-title">لوحة الإدارة</h2>
+<div id="adminMsg"></div>
+<div id="adminLogin"><div class="field"><label>كلمة مرور الإدارة</label><input id="adminPassword" class="input" type="password"></div><button class="btn" onclick="adminLogin()">دخول</button></div>
+<div id="adminPanel" class="hidden">
+<div class="stats"><div class="stat"><strong id="totalReg">0</strong>إجمالي التسجيلات</div><div class="stat"><strong id="totalPending">0</strong>معلقة</div><div class="stat"><strong id="totalAccepted">0</strong>مقبولة</div><div class="stat"><strong id="totalRejected">0</strong>مرفوضة</div></div>
+<h3>إدارة المسارات</h3><div id="tracksAdmin" class="list"></div>
+<h3 style="margin-top:28px">إضافة مسار</h3><div class="row"><div class="field"><label>اسم المسار</label><input id="newTrackName" class="input"></div><div class="field"><label>رابط مجموعة رفيقات</label><input id="newTrackLink" class="input" type="url"></div></div><button class="btn" onclick="createTrack()">إضافة المسار</button>
+<h3 style="margin-top:28px">تغيير كلمات المرور</h3><div class="row"><div class="field"><label>كلمة مرور المعلمات الجديدة</label><input id="newTeacherPassword" class="input" type="password"></div><div class="field"><label>كلمة مرور الإدارة الجديدة</label><input id="newAdminPassword" class="input" type="password"></div></div><button class="btn" onclick="changePasswords()">حفظ كلمات المرور</button>
+</div></section>
+</main>
+<footer class="footer">أكاديمية سطور الهدى</footer>
+
+<script>
+const API='https://hhbseytjfkzonaptnldl.supabase.co/functions/v1/sotour-api';
+const API_KEY='sb_publishable_-7mggHZgrDs332m_LXXNeg_cLyw8g51';
+let mediaRecorder=null, chunks=[], recordTimer=null, seconds=0, queuePage=1, teacherPass='', adminPass='', currentTracks=[];
+const MAX_SECONDS=300, MAX_BYTES=10*1024*1024;
+const $=id=>document.getElementById(id);
+function show(id){['home','student','teacher','admin'].forEach(x=>$(x).classList.toggle('hidden',x!==id)); if(id==='student') loadTracks(); if(id==='teacher'){}}
+function msg(id,text,type='info'){ $(id).innerHTML=text?'<div class="msg '+type+'">'+escapeHtml(text)+'</div>':'' }
+function escapeHtml(s){return String(s??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]))}
+async function api(action,body,form=false){
+ const opts={method:'POST',headers:{apikey:API_KEY}};
+ if(form) opts.body=body; else {opts.headers['Content-Type']='application/json';opts.body=JSON.stringify(body||{});}
+ const r=await fetch(API+'?action='+encodeURIComponent(action),opts);
+ const data=await r.json().catch(()=>({error:'استجابة غير صالحة'}));
+ if(!r.ok) throw new Error(data.error||'حدث خطأ في الاتصال');
+ return data;
+}
+async function loadTracks(){
+ try{const d=await api('tracks',{});currentTracks=d.tracks||[];$('studentTrack').innerHTML='<option value="">اختاري المسار</option>'+currentTracks.map(t=>'<option value="'+t.id+'">'+escapeHtml(t.name)+'</option>').join('');}
+ catch(e){msg('studentMsg',e.message,'err')}
+}
+function nameValue(){return $('studentName').value.trim().replace(/\s+/g,' ')}
+async function toggleRecording(){
+ if(mediaRecorder&&mediaRecorder.state==='recording'){mediaRecorder.stop();return}
+ if(!nameValue()) return msg('studentMsg','برجاء إدخال الاسم أولًا.','err');
+ if(!$('studentTrack').value) return msg('studentMsg','برجاء اختيار المسار.','err');
+ try{
+  const stream=await navigator.mediaDevices.getUserMedia({audio:true});
+  chunks=[];seconds=0;
+  mediaRecorder=new MediaRecorder(stream,{mimeType:MediaRecorder.isTypeSupported('audio/webm;codecs=opus')?'audio/webm;codecs=opus':'audio/webm'});
+  mediaRecorder.ondataavailable=e=>{if(e.data.size)chunks.push(e.data)};
+  mediaRecorder.onstart=()=>{ $('recordBtn').textContent='⏹️ إيقاف التسجيل';recordTimer=setInterval(()=>{seconds++;$('recordInfo').textContent='مدة التسجيل: '+Math.floor(seconds/60)+':'+String(seconds%60).padStart(2,'0');if(seconds>=MAX_SECONDS) mediaRecorder.stop()},1000)};
+  mediaRecorder.onstop=async()=>{clearInterval(recordTimer);stream.getTracks().forEach(t=>t.stop());$('recordBtn').disabled=true;$('recordInfo').textContent='جاري رفع التسجيل...';const blob=new Blob(chunks,{type:'audio/webm'});if(blob.size>MAX_BYTES){msg('studentMsg','حجم التسجيل أكبر من الحد المسموح.','err');$('recordBtn').disabled=false;return}try{const f=new FormData();f.append('name',nameValue());f.append('trackId',$('studentTrack').value);f.append('audio',blob,'recitation.webm');await api('submit',f,true);msg('studentMsg','تم إرسال التسجيل للمعلمة بنجاح.','ok');$('recordInfo').textContent='يمكنك الرجوع لمعرفة النتيجة لاحقًا.'}catch(e){msg('studentMsg',e.message,'err');$('recordInfo').textContent=''}finally{$('recordBtn').disabled=false;mediaRecorder=null}};
+  mediaRecorder.start();
+ }catch(e){msg('studentMsg','لم نتمكن من الوصول إلى الميكروفون. اسمحي للموقع باستخدام الميكروفون ثم حاولي مرة أخرى.','err')}
+}
+async function checkResult(){
+ const name=nameValue();if(!name)return msg('studentMsg','برجاء إدخال الاسم.','err');
+ try{const d=await api('result',{name});if(!d.found){$('resultBox').innerHTML='<div class="msg info">لا توجد نتيجة مسجلة بهذا الاسم حتى الآن.</div>';return}
+ let h='<div class="card" style="box-shadow:none;margin:14px 0"><b>الاسم:</b> '+escapeHtml(d.studentName)+'<br><b>المسار:</b> '+escapeHtml(d.trackName)+'<br><br>';
+ if(d.status==='pending')h+='<div class="msg info">التسجيل قيد التقييم من المعلمة.</div>';
+ if(d.status==='accepted')h+='<div class="msg ok">مبارك، تم قبول التلاوة 🌷</div>'+(d.whatsappLink?'<a href="'+escapeHtml(d.whatsappLink)+'" target="_blank" rel="noopener">الانضمام إلى مجموعة رفيقات المسار</a>':'<div class="hint">سيتم إضافة رابط مجموعة رفيقات من الإدارة.</div>');
+ if(d.status==='rejected')h+='<div class="msg err">'+escapeHtml(d.rejectionMessage||'نأسف، لم يتم قبول التسجيل.')+'</div>';
+ if(d.status==='retry')h+='<div class="msg info">يرجى إعادة التسجيل من نفس المسار.</div>';
+ h+='</div>'; $('resultBox').innerHTML=h;
+ }catch(e){msg('studentMsg',e.message,'err')}
+}
+async function teacherLogin(){
+ const p=$('teacherPassword').value;if(!p)return msg('teacherMsg','اكتبي كلمة المرور.','err');
+ try{await api('teacher-queue',{password:p,page:1,pageSize:20});teacherPass=p;$('teacherLogin').classList.add('hidden');$('teacherPanel').classList.remove('hidden');await loadTeacherTracks();loadQueue(1);msg('teacherMsg','','info')}catch(e){msg('teacherMsg',e.message,'err')}
+}
+async function loadTeacherTracks(){try{const d=await api('all-tracks',{password:teacherPass});$('teacherTrack').innerHTML='<option value="">كل المسارات</option>'+(d.tracks||[]).map(t=>'<option value="'+t.id+'">'+escapeHtml(t.name)+'</option>').join('')}catch(e){}}
+async function loadQueue(page){
+ if(!teacherPass||page<1)return;queuePage=page;
+ try{const d=await api('teacher-queue',{password:teacherPass,page,pageSize:Number($('pageSize').value),trackId:$('teacherTrack').value});const items=d.items||[];$('queue').innerHTML=items.length?items.map(renderQueue).join(''):'<div class="msg info">لا توجد تسجيلات معلقة.</div>';$('pendingCount').textContent=d.total||0;$('pageNo').textContent=page;$('pageLabel').textContent='صفحة '+page;$('prevBtn').disabled=page<=1;$('nextBtn').disabled=!d.hasMore}catch(e){msg('teacherMsg',e.message,'err')}
+}
+function renderQueue(x){return '<div class="item"><div class="item-head"><div><b>'+escapeHtml(x.studentName)+'</b><div class="hint">'+escapeHtml(x.trackName)+' · '+new Date(x.createdAt).toLocaleString('ar-EG')+'</div></div><span class="badge">معلقة</span></div><audio class="audio" controls preload="none" src="'+escapeHtml(x.audioUrl)+'"></audio><div class="actions"><button class="btn" onclick="evaluateItem(\''+x.submissionId+'\',\'accepted\')">مقبولة</button><button class="btn danger" onclick="evaluateItem(\''+x.submissionId+'\',\'rejected\')">مرفوضة</button><button class="btn secondary" onclick="evaluateItem(\''+x.submissionId+'\',\'retry\')">إعادة</button></div></div>'}
+async function evaluateItem(id,status){if(!confirm(status==='accepted'?'تأكيد قبول التسجيل؟':status==='rejected'?'تأكيد رفض التسجيل؟':'تأكيد طلب إعادة التسجيل؟'))return;try{await api('evaluate',{password:teacherPass,submissionId:id,status});await loadQueue(queuePage)}catch(e){msg('teacherMsg',e.message,'err')}}
+async function adminLogin(){
+ const p=$('adminPassword').value;if(!p)return msg('adminMsg','اكتبي كلمة المرور.','err');
+ try{await api('admin-data',{password:p});adminPass=p;$('adminLogin').classList.add('hidden');$('adminPanel').classList.remove('hidden');await loadAdmin();msg('adminMsg','','info')}catch(e){msg('adminMsg',e.message,'err')}
+}
+async function loadAdmin(){try{const d=await api('admin-data',{password:adminPass});renderAdmin(d.tracks||[])}catch(e){msg('adminMsg',e.message,'err')}}
+function renderAdmin(tracks){let a=0,r=0,p=0,total=0;tracks.forEach(t=>{const s=t.stats||{};a+=s.accepted||0;r+=s.rejected||0;p+=s.pending||0;total+=Object.values(s).reduce((x,y)=>x+(Number(y)||0),0)});$('totalReg').textContent=total;$('totalAccepted').textContent=a;$('totalRejected').textContent=r;$('totalPending').textContent=p;$('tracksAdmin').innerHTML=tracks.map(t=>'<div class="track-card"><div class="name">'+escapeHtml(t.name)+'</div><div class="hint '+(t.is_open?'pill-open':'pill-closed')+'">'+(t.is_open?'التسجيل مفتوح':'التسجيل مغلق')+'</div><div class="row"><div class="field"><label>اسم المسار</label><input id="n-'+t.id+'" class="input" value="'+escapeHtml(t.name)+'"></div><div class="field"><label>رابط رفيقات</label><input id="w-'+t.id+'" class="input" type="url" value="'+escapeHtml(t.whatsapp_link||'')+'"></div></div><div class="actions"><button class="btn" onclick="saveTrack(\''+t.id+'\','+(!t.is_open)+')">'+(t.is_open?'إغلاق التسجيل':'فتح التسجيل')+'</button><button class="btn secondary" onclick="saveTrack(\''+t.id+'\',null)">حفظ التعديلات</button></div></div>').join('')}
+async function saveTrack(id,toggle){try{const current=await api('admin-data',{password:adminPass});const t=(current.tracks||[]).find(x=>x.id===id);await api('admin-track',{password:adminPass,op:'update',id,name:$('n-'+id).value.trim(),whatsappLink:$('w-'+id).value.trim(),isOpen:toggle===null?t.is_open:toggle});await loadAdmin();msg('adminMsg','تم حفظ المسار.','ok')}catch(e){msg('adminMsg',e.message,'err')}}
+async function createTrack(){const name=$('newTrackName').value.trim();if(!name)return msg('adminMsg','اكتبي اسم المسار.','err');try{await api('admin-track',{password:adminPass,op:'create',name,whatsappLink:$('newTrackLink').value.trim()});$('newTrackName').value='';$('newTrackLink').value='';await loadAdmin();msg('adminMsg','تمت إضافة المسار.','ok')}catch(e){msg('adminMsg',e.message,'err')}}
+async function changePasswords(){const tp=$('newTeacherPassword').value,ap=$('newAdminPassword').value;if(!tp&&!ap)return msg('adminMsg','اكتبي كلمة مرور واحدة على الأقل لتغييرها.','err');try{await api('change-passwords',{password:adminPass,teacherPassword:tp,adminPassword:ap});$('newTeacherPassword').value='';$('newAdminPassword').value='';msg('adminMsg','تم تغيير كلمات المرور بنجاح.','ok')}catch(e){msg('adminMsg',e.message,'err')}}
+show('home');
+</script>
+</body>
+</html>
