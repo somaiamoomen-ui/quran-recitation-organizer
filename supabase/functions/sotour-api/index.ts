@@ -107,6 +107,17 @@ Deno.serve(async(req)=>{
    if(op==="update"){const r=await db.from("tracks").update({name:String(body.name||"").trim(),whatsapp_link:String(body.whatsappLink||"").trim(),is_open:!!body.isOpen,updated_at:new Date().toISOString()}).eq("id",body.id).select().single();if(r.error)throw r.error;return json({track:r.data})}
    return json({error:"عملية غير معروفة."},400)
   }
+  if(action==="reset-results"){
+   const body=await req.json();if(!(await requireRole(body,"admin")))return json({error:"كلمة مرور الإدارة غير صحيحة."},401);
+   const {data:subs,error:se}=await db.from("submissions").select("storage_path");
+   if(se)throw se;
+   const paths=(subs||[]).map((x:any)=>x.storage_path).filter(Boolean);
+   if(paths.length){const removed=await db.storage.from(BUCKET).remove(paths);if(removed.error)return json({error:"تعذر حذف بعض ملفات التسجيلات، لذلك لم يتم حذف النتائج."},503);}
+   const ev=await db.from("evaluations").delete().not("id","is",null);if(ev.error)throw ev.error;
+   const subDel=await db.from("submissions").delete().not("id","is",null);if(subDel.error)throw subDel.error;
+   const regDel=await db.from("registrations").delete().not("id","is",null);if(regDel.error)throw regDel.error;
+   return json({ok:true,message:"تم مسح جميع النتائج والتسجيلات السابقة."});
+  }
   if(action==="change-passwords"){const body=await req.json();if(!(await requireRole(body,"admin")))return json({error:"كلمة مرور الإدارة غير صحيحة."},401);const update:any={updated_at:new Date().toISOString()};if(body.teacherPassword)update.teacher_password_hash=await sha256(String(body.teacherPassword));if(body.adminPassword)update.admin_password_hash=await sha256(String(body.adminPassword));const r=await db.from("app_settings").update(update).eq("id",1);if(r.error)throw r.error;return json({ok:true})}
   return json({error:"طلب غير معروف."},404);
  }catch(e){console.error(e);return json({error:e?.message||"حدث خطأ غير متوقع."},500)}
