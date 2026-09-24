@@ -31,10 +31,10 @@ function validName(name:string){return normalizeName(name).length>0}
 async function getOpenTracks(){const {data,error}=await db.from("tracks").select("id,name,whatsapp_link,is_open,sort_order").eq("is_open",true).order("sort_order");if(error)throw error;return data||[]}
 async function getResult(name:string){
  const normalized=normalizeName(name).toLocaleLowerCase("ar-EG");
- const {data,error}=await db.from("registrations").select("id,student_name,latest_status,updated_at,tracks(name,whatsapp_link)").eq("student_name_normalized",normalized).order("updated_at",{ascending:false}).limit(1);
+ const {data,error}=await db.from("registrations").select("id,student_name,latest_status,updated_at,companion_group_link_used_at,tracks(name,whatsapp_link)").eq("student_name_normalized",normalized).order("updated_at",{ascending:false}).limit(1);
  if(error)throw error; const row=data?.[0]; if(!row)return {found:false};
  const track:any=Array.isArray(row.tracks)?row.tracks[0]:row.tracks;
- return {found:true,studentName:row.student_name,trackName:track?.name||"",status:row.latest_status,whatsappLink:row.latest_status==="accepted"?(track?.whatsapp_link||""):"",rejectionMessage:row.latest_status==="rejected"?REJECTION_MESSAGE:""};
+ return {found:true,studentName:row.student_name,trackName:track?.name||"",status:row.latest_status,whatsappLink:row.latest_status==="accepted"?(track?.whatsapp_link||""):"",companionGroupLinkUsed:!!row.companion_group_link_used_at,rejectionMessage:row.latest_status==="rejected"?REJECTION_MESSAGE:""};
 }
 Deno.serve(async(req)=>{
  if(req.method==="OPTIONS")return new Response("ok",{headers:corsHeaders});
@@ -43,6 +43,13 @@ Deno.serve(async(req)=>{
   if(action==="tracks")return json({tracks:await getOpenTracks()});
   if(action==="all-tracks"){const body=await req.json();if(!(await requireRole(body,"teacher")))return json({error:"كلمة مرور المعلمة غير صحيحة."},401);const {data,error}=await db.from("tracks").select("id,name").order("sort_order");if(error)throw error;return json({tracks:data||[]})}
   if(action==="result"){const body=await req.json();const name=normalizeName(String(body.name||""));if(!validName(name))return json({error:"برجاء إدخال الاسم."},400);return json(await getResult(name))}
+  if(action==="use-companion-group-link"){
+   const body=await req.json(),name=normalizeName(String(body.name||""));if(!validName(name))return json({error:"برجاء إدخال الاسم."},400);
+   const normalized=name.toLocaleLowerCase("ar-EG");
+   const {data:row,error}=await db.from("registrations").select("id,latest_status,companion_group_link_used_at,tracks(whatsapp_link)").eq("student_name_normalized",normalized).order("updated_at",{ascending:false}).limit(1).maybeSingle();if(error)throw error;
+   if(!row||row.latest_status!=="accepted")return json({error:"هذا الرابط متاح للطالبات المقبولات فقط."},403);const track:any=Array.isArray(row.tracks)?row.tracks[0]:row.tracks;const link=track?.whatsapp_link||"";if(!link)return json({error:"لم يتم إضافة رابط جروب الرفيقات لهذا المسار بعد."},404);if(row.companion_group_link_used_at)return json({error:"تم استخدام رابط جروب الرفيقات من قبل، ولا يمكن استخدامه مرة أخرى من الموقع."},409);
+   const now=new Date().toISOString();const updated=await db.from("registrations").update({companion_group_link_used_at:now}).eq("id",row.id).is("companion_group_link_used_at",null).eq("latest_status","accepted").select("id").maybeSingle();if(updated.error)throw updated.error;if(!updated.data)return json({error:"تم استخدام رابط جروب الرفيقات من قبل، ولا يمكن استخدامه مرة أخرى من الموقع."},409);return json({ok:true,whatsappLink:link});
+  }
   if(action==="submit"){
    const form=await req.formData(),name=normalizeName(String(form.get("name")||"")),trackId=String(form.get("trackId")||""),audio=form.get("audio");
    if(!validName(name)||!trackId||!(audio instanceof File))return json({error:"بيانات التسجيل غير مكتملة."},400);
