@@ -46,7 +46,6 @@ button,input,select{font:inherit}button{cursor:pointer}.wrap{width:min(1100px,ca
 <div id="teacherMsg"></div>
 <div id="teacherLogin"><div class="field"><label>كلمة المرور</label><input id="teacherPassword" class="input" type="text" autocomplete="off" spellcheck="false"></div><button class="btn" onclick="teacherLogin()">دخول</button></div>
 <div id="teacherPanel" class="hidden">
-<div class="stats"><div class="stat"><strong id="pendingCount">0</strong>إجمالي التسجيلات المعلقة</div><div class="stat"><strong id="totalPages">1</strong>عدد الصفحات</div><div class="stat"><label for="pageSize" style="display:block;font-weight:800;margin-bottom:7px">التسجيلات في الصفحة</label><select id="pageSize" class="select" onchange="loadQueue(1)" style="padding:9px 10px"><option>10</option><option selected>20</option><option>30</option></select></div></div>
 <div class="field"><label>المسار</label><select id="teacherTrack" class="select" onchange="loadQueue(1)"><option value="">كل المسارات</option></select></div>
 <div id="queue" class="list"></div><div class="pagination"><button class="btn secondary" onclick="loadQueue(queuePage-1)" id="prevBtn">السابق</button><span id="pageLabel"></span><button class="btn secondary" onclick="loadQueue(queuePage+1)" id="nextBtn">التالي</button></div>
 </div></section>
