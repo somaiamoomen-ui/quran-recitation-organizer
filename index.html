@@ -210,8 +210,7 @@ async function teacherLogin(){
  try{await api('teacher-queue',{password:p,page:1,pageSize:20});teacherPass=p;$('teacherLogin').classList.add('hidden');$('teacherPanel').classList.remove('hidden');await loadTeacherTracks();loadQueue(1);msg('teacherMsg','','info')}catch(e){msg('teacherMsg',e.message,'err')}
 }
 async function loadTeacherTracks(){try{const d=await api('all-tracks',{password:teacherPass});$('teacherTrack').innerHTML='<option value="">كل المسارات</option>'+(d.tracks||[]).map(t=>'<option value="'+t.id+'">'+escapeHtml(t.name)+'</option>').join('')}catch(e){}}
-async async function refreshTeacherQueue(){try{await loadQueue(queuePage);msg("teacherMsg","تم تحديث التسجيلات بنجاح 🔄","ok");}catch(e){msg("teacherMsg",e.message,"err")}}
-function loadQueue(page){
+async function loadQueue(page){
  if(!teacherPass||page<1)return;queuePage=page;
  try{const d=await api('teacher-queue',{password:teacherPass,page,pageSize:20,trackId:$('teacherTrack').value});const items=d.items||[];$('queue').innerHTML=items.length?items.map(renderQueue).join(''):'<div class="msg info">لا توجد تسجيلات معلقة.</div>';$('pendingCount').textContent=d.total||0;$('totalPages').textContent=Math.max(1,Math.ceil((Number(d.total)||0)/Number($('pageSize').value||20)));$('pageNo').textContent=page;$('pageLabel').textContent='صفحة '+page;$('prevBtn').disabled=page<=1;$('nextBtn').disabled=!d.hasMore}catch(e){msg('teacherMsg',e.message,'err')}
 }
