@@ -117,6 +117,14 @@ Deno.serve(async(req)=>{
    return json({ok:true,status});
   }
   if(action==="history"){const body=await req.json();if(!(await requireRole(body,"teacher")))return json({error:"كلمة مرور المعلمة غير صحيحة."},401);const {data,error}=await db.from("evaluations").select("id,status,evaluated_at,registrations(student_name,tracks(name))").order("evaluated_at",{ascending:false}).limit(200);if(error)throw error;return json({items:data||[]})}
+  if(action==="admin-audit"){
+   const body=await req.json();if(!(await requireRole(body,"admin")))return json({error:"كلمة مرور الإدارة غير صحيحة."},401);
+   const {data,error}=await db.from("admin_audit_logs").select("id,action,track_id,details,created_at").order("created_at",{ascending:false}).limit(100);if(error)throw error;
+   const trackIds=[...new Set((data||[]).map((x:any)=>x.track_id).filter(Boolean))];
+   let tracksById:Record<string,string>={};
+   if(trackIds.length){const {data:ts,error:te}=await db.from("tracks").select("id,name").in("id",trackIds);if(te)throw te;for(const t of ts||[])tracksById[t.id]=t.name;}
+   return json({items:(data||[]).map((x:any)=>({...x,track_name:x.track_id?tracksById[x.track_id]||"":""}))});
+  }
   if(action==="admin-data"){
    const body=await req.json();if(!(await requireRole(body,"admin")))return json({error:"كلمة مرور الإدارة غير صحيحة."},401);
    const {data:tracks,error}=await db.from("tracks").select("*").order("sort_order");if(error)throw error;
