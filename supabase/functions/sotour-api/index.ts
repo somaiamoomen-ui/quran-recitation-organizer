@@ -123,10 +123,11 @@ Deno.serve(async(req)=>{
    const {data:pairs,error:pe}=await db.from("companion_pairs").select("id,riwaya,student1_registration_id,student2_registration_id");if(pe)throw pe;
    const stats:Record<string,any>={};for(const t of tracks||[])stats[t.id]={accepted:0,rejected:0,pending:0,retry:0};
    for(const r of regs||[])if(stats[r.track_id])stats[r.track_id][r.latest_status]=(stats[r.track_id][r.latest_status]||0)+1;
-   const acceptedStudents=(regs||[]).filter((r:any)=>r.latest_status==="accepted").map((r:any)=>({id:r.id,studentName:r.student_name,trackId:r.track_id}));
+   const students=(regs||[]).map((r:any)=>({id:r.id,studentName:r.student_name,trackId:r.track_id,status:r.latest_status}));
+   const acceptedStudents=students.filter((r:any)=>r.status==="accepted");
    const byId:Record<string,any>={};for(const r of regs||[])byId[r.id]=r;
    const companionPairs=(pairs||[]).map((p:any)=>({id:p.id,riwaya:p.riwaya,student1RegistrationId:p.student1_registration_id,student2RegistrationId:p.student2_registration_id,student1Name:byId[p.student1_registration_id]?.student_name||"",student2Name:byId[p.student2_registration_id]?.student_name||"",trackId:byId[p.student1_registration_id]?.track_id||""})).filter((p:any)=>p.trackId);
-   return json({tracks:(tracks||[]).map(t=>({...t,stats:stats[t.id]})),rejectionMessage:REJECTION_MESSAGE,acceptedStudents,companionPairs});
+   return json({tracks:(tracks||[]).map(t=>({...t,stats:stats[t.id]})),rejectionMessage:REJECTION_MESSAGE,students,acceptedStudents,companionPairs});
   }
   if(action==="edit-companion-list"){
    const body=await req.json();if(!(await requireRole(body,"admin")))return json({error:"كلمة مرور الإدارة غير صحيحة."},401);
