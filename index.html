@@ -47,6 +47,7 @@ button,input,select{font:inherit}button{cursor:pointer}.wrap{width:min(1100px,ca
 <div id="teacherLogin"><div class="field"><label>كلمة المرور</label><input id="teacherPassword" class="input" type="text" autocomplete="off" spellcheck="false"></div><button class="btn" onclick="teacherLogin()">دخول</button></div>
 <div id="teacherPanel" class="hidden">
 <div class="stats"><div class="stat"><strong id="pendingCount">0</strong>تسجيلات معلقة</div></div>
+<div style="display:flex;justify-content:flex-end;margin:8px 0"><button class="btn secondary" type="button" onclick="refreshTeacherQueue()" style="padding:7px 11px;font-size:13px">🔄 تحديث</button></div>
 <div class="field"><label>المسار</label><select id="teacherTrack" class="select" onchange="loadQueue(1)"><option value="">كل المسارات</option></select></div>
 <div id="queue" class="list"></div><div class="pagination"><button class="btn secondary" onclick="loadQueue(queuePage-1)" id="prevBtn">السابق</button><span id="pageLabel"></span><button class="btn secondary" onclick="loadQueue(queuePage+1)" id="nextBtn">التالي</button></div>
 </div></section>
@@ -209,7 +210,8 @@ async function teacherLogin(){
  try{await api('teacher-queue',{password:p,page:1,pageSize:20});teacherPass=p;$('teacherLogin').classList.add('hidden');$('teacherPanel').classList.remove('hidden');await loadTeacherTracks();loadQueue(1);msg('teacherMsg','','info')}catch(e){msg('teacherMsg',e.message,'err')}
 }
 async function loadTeacherTracks(){try{const d=await api('all-tracks',{password:teacherPass});$('teacherTrack').innerHTML='<option value="">كل المسارات</option>'+(d.tracks||[]).map(t=>'<option value="'+t.id+'">'+escapeHtml(t.name)+'</option>').join('')}catch(e){}}
-async function loadQueue(page){
+async async function refreshTeacherQueue(){try{await loadQueue(queuePage);msg("teacherMsg","تم تحديث التسجيلات بنجاح 🔄","ok");}catch(e){msg("teacherMsg",e.message,"err")}}
+function loadQueue(page){
  if(!teacherPass||page<1)return;queuePage=page;
  try{const d=await api('teacher-queue',{password:teacherPass,page,pageSize:20,trackId:$('teacherTrack').value});const items=d.items||[];$('queue').innerHTML=items.length?items.map(renderQueue).join(''):'<div class="msg info">لا توجد تسجيلات معلقة.</div>';$('pendingCount').textContent=d.total||0;$('totalPages').textContent=Math.max(1,Math.ceil((Number(d.total)||0)/Number($('pageSize').value||20)));$('pageNo').textContent=page;$('pageLabel').textContent='صفحة '+page;$('prevBtn').disabled=page<=1;$('nextBtn').disabled=!d.hasMore}catch(e){msg('teacherMsg',e.message,'err')}
 }
