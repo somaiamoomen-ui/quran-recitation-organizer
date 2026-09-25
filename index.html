@@ -259,7 +259,7 @@ function renderCompanionEditor(){
   h+='<div class="field"><label>الطالبة الثانية</label><select id="ce2-'+i+'" class="select">'+e.students.map(s=>'<option value="'+escapeHtml(s.id)+'" '+(s.id===r.student2Id?'selected':'')+'>'+escapeHtml(s.studentName)+'</option>').join('')+'</select></div></div>';
   h+='<div class="field"><label>الرواية</label><select id="cer-'+i+'" class="select"><option value="حفص" '+(r.riwaya==='حفص'?'selected':'')+'>حفص</option><option value="قالون" '+(r.riwaya==='قالون'?'selected':'')+'>قالون</option></select></div></div>';
  });
- h+='<div class="actions"><button class="btn secondary" type="button" onclick="addCompanionRow()" '+(!e.students.length?'disabled':'')+'>➕ إضافة رفيعة</button><button class="btn" type="button" onclick="saveCompanionEdits()">💾 حفظ التعديلات</button><button class="btn gray" type="button" onclick="showTrackList(\''+e.trackId+'\')">إلغاء</button></div>';
+ h+='<div class="actions"><button class="btn secondary" type="button" onclick="addCompanionRow()" '+(!e.students.length?'disabled':'')+'>➕ إضافة رفيقة</button><button class="btn" type="button" onclick="saveCompanionEdits()">💾 حفظ التعديلات</button><button class="btn gray" type="button" onclick="showTrackList(\''+e.trackId+'\')">إلغاء</button></div>';
  $('trackDetail').className='admin-view';$('trackDetail').innerHTML=h;
 }
 function addCompanionRow(){
