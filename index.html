@@ -210,7 +210,7 @@ async function checkResult(){
  h+='</div>'; $('resultBox').innerHTML=h;
  }catch(e){msg('studentMsg',e.message,'err')}
 }
-async async function teacherLogin(){
+async function teacherLogin(){
  const p=$('teacherPassword').value;if(!p)return msg('teacherMsg','اكتبي كلمة المرور.','err');
  try{await api('teacher-options',{password:p});teacherPass=p;$('teacherLogin').classList.add('hidden');$('teacherSelector').classList.remove('hidden');await loadTeacherOptions();msg('teacherMsg','','info')}catch(e){msg('teacherMsg',e.message,'err')}
 }
