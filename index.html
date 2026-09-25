@@ -269,7 +269,15 @@ function nextTeacherItem(index){const items=document.querySelectorAll('.teacher-
 async function evaluateItem(id,status){const question=status==='accepted'?'هل أنتِ متأكدة من قبول هذا التسجيل؟':status==='rejected'?'هل أنتِ متأكدة من رفض هذا التسجيل؟':'هل أنتِ متأكدة من طلب إعادة تسجيل هذه الطالبة؟';if(!window.confirm(question))return;try{await api('evaluate',{password:teacherPass,submissionId:id,status});await loadQueue(queuePage)}catch(e){msg('teacherMsg',e.message,'err')}}
 async function adminLogin(){
  const p=$('adminPassword').value;if(!p)return msg('adminMsg','اكتبي كلمة المرور.','err');
- try{await api('admin-data',{password:p});adminPass=p;$('adminLogin').classList.add('hidden');$('adminPanel').classList.remove('hidden');await loadAdmin();msg('adminMsg','','info')}catch(e){msg('adminMsg',e.message,'err')}
+ try{
+  const d=await api('admin-data',{password:p});
+  adminPass=p;
+  $('adminLogin').classList.add('hidden');
+  $('adminPanel').classList.remove('hidden');
+  window._adminData=d;
+  renderAdmin(d.tracks||[]);
+  msg('adminMsg','','info');
+ }catch(e){msg('adminMsg',e.message,'err')}
 }
 async function loadAdmin(){try{const d=await api('admin-data',{password:adminPass});window._adminData=d;renderAdmin(d.tracks||[])}catch(e){msg('adminMsg',e.message,'err')}}
 async function refreshAdminData(){
