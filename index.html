@@ -399,7 +399,8 @@ async function saveTrack(id,toggle){try{const current=await api('admin-data',{pa
 async function createTrack(){const name=$('newTrackName').value.trim();if(!name)return msg('adminMsg','اكتبي اسم المسار.','err');try{await api('admin-track',{password:adminPass,op:'create',name,whatsappLink:$('newTrackLink').value.trim(),primaryGroupLink:$('newPrimaryLink').value.trim()});$('newTrackName').value='';$('newTrackLink').value='';$('newPrimaryLink').value='';await loadAdmin();msg('adminMsg','تمت إضافة المسار.','ok')}catch(e){msg('adminMsg',e.message,'err')}}
 async function resetAllResults(){if(!adminPass)return;const ok=window.confirm('هل أنتِ متأكدة من مسح جميع النتائج السابقة لكل المسارات؟ سيتم حذف المقبولات والمرفوضات والمعلقات والتسجيلات الصوتية، ولا يمكن التراجع عن ذلك.');if(!ok)return;const ok2=window.confirm('تأكيد أخير: هل تريدين مسح كل النتائج والتسجيلات السابقة الآن؟');if(!ok2)return;try{await api('reset-results',{password:adminPass});await loadAdmin();msg('adminMsg','تم مسح جميع النتائج والتسجيلات السابقة بنجاح.','ok')}catch(e){msg('adminMsg',e.message,'err')}}
 async function changePasswords(){const tp=$('newTeacherPassword').value,ap=$('newAdminPassword').value;if(!tp&&!ap)return msg('adminMsg','اكتبي كلمة مرور واحدة على الأقل لتغييرها.','err');try{await api('change-passwords',{password:adminPass,teacherPassword:tp,adminPassword:ap});$('newTeacherPassword').value='';$('newAdminPassword').value='';msg('adminMsg','تم تغيير كلمات المرور بنجاح.','ok')}catch(e){msg('adminMsg',e.message,'err')}}
-if('serviceWorker' in navigator){navigator.serviceWorker.register('./sw.js').catch(()=>{});}\nshow('home');
+if('serviceWorker' in navigator){navigator.serviceWorker.register('./sw.js').catch(()=>{});}
+show('home');
 </script>
 </body>
 </html>
