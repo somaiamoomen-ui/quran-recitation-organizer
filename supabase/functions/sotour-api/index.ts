@@ -26,6 +26,7 @@ async function checkPassword(role:"teacher"|"admin",password:string){
  return (await sha256(password))===(role==="teacher"?data.teacher_password_hash:data.admin_password_hash);
 }
 async function requireRole(body:any,role:"teacher"|"admin"){return !!body?.password&&await checkPassword(role,String(body.password))}
+async function audit(action:string,trackId:string|null,details:any){try{await db.from("admin_audit_logs").insert({action,track_id:trackId,details,created_at:new Date().toISOString()})}catch(e){console.error("audit log failed",e)}}
 function normalizeName(name:string){return name.trim().replace(/\s+/g," ").replace(/ة$/u,"ه")}
 function validName(name:string){return normalizeName(name).length>0}
 async function getOpenTracks(){const {data,error}=await db.from("tracks").select("id,name,whatsapp_link,is_open,sort_order").eq("is_open",true).order("sort_order");if(error)throw error;return data||[]}
@@ -146,13 +147,14 @@ Deno.serve(async(req)=>{
    const oldIds=(allPairs||[]).filter((p:any)=>allowed.has(p.student1_registration_id)||allowed.has(p.student2_registration_id)).map((p:any)=>p.id);
    if(oldIds.length){const del=await db.from("companion_pairs").delete().in("id",oldIds);if(del.error)throw del.error;}
    if(pairs.length){const ins=await db.from("companion_pairs").insert(pairs.map((p:any)=>({student1_registration_id:String(p.student1Id),student2_registration_id:String(p.student2Id),riwaya:String(p.riwaya)})));if(ins.error)throw ins.error;}
+   await audit("edit-companion-list",trackId,{pairCount:pairs.length});
    return json({ok:true,count:pairs.length});
   }
   if(action==="admin-track"){
    const body=await req.json();if(!(await requireRole(body,"admin")))return json({error:"كلمة مرور الإدارة غير صحيحة."},401);
    const op=String(body.op||"");
-   if(op==="create"){const name=String(body.name||"").trim();if(!name)return json({error:"اسم المسار مطلوب."},400);const {data:maxRow}=await db.from("tracks").select("sort_order").order("sort_order",{ascending:false}).limit(1).maybeSingle();const r=await db.from("tracks").insert({name,whatsapp_link:String(body.whatsappLink||"").trim(),primary_group_link:String(body.primaryGroupLink||"").trim(),is_open:true,sort_order:(maxRow?.sort_order||0)+1}).select().single();if(r.error)throw r.error;return json({track:r.data})}
-   if(op==="update"){const r=await db.from("tracks").update({name:String(body.name||"").trim(),whatsapp_link:String(body.whatsappLink||"").trim(),primary_group_link:String(body.primaryGroupLink||"").trim(),is_open:!!body.isOpen,updated_at:new Date().toISOString()}).eq("id",body.id).select().single();if(r.error)throw r.error;return json({track:r.data})}
+   if(op==="create"){const name=String(body.name||"").trim();if(!name)return json({error:"اسم المسار مطلوب."},400);const {data:maxRow}=await db.from("tracks").select("sort_order").order("sort_order",{ascending:false}).limit(1).maybeSingle();const r=await db.from("tracks").insert({name,whatsapp_link:String(body.whatsappLink||"").trim(),primary_group_link:String(body.primaryGroupLink||"").trim(),is_open:true,sort_order:(maxRow?.sort_order||0)+1}).select().single();if(r.error)throw r.error;await audit("create-track",r.data.id,{name:r.data.name});return json({track:r.data})}
+   if(op==="update"){const r=await db.from("tracks").update({name:String(body.name||"").trim(),whatsapp_link:String(body.whatsappLink||"").trim(),primary_group_link:String(body.primaryGroupLink||"").trim(),is_open:!!body.isOpen,updated_at:new Date().toISOString()}).eq("id",body.id).select().single();if(r.error)throw r.error;await audit("update-track",String(body.id),{name:r.data.name,isOpen:r.data.is_open});return json({track:r.data})}
    return json({error:"عملية غير معروفة."},400)
   }
   if(action==="reset-results"){
@@ -164,9 +166,10 @@ Deno.serve(async(req)=>{
    const ev=await db.from("evaluations").delete().not("id","is",null);if(ev.error)throw ev.error;
    const subDel=await db.from("submissions").delete().not("id","is",null);if(subDel.error)throw subDel.error;
    const regDel=await db.from("registrations").delete().not("id","is",null);if(regDel.error)throw regDel.error;
+   await audit("reset-results",null,{});
    return json({ok:true,message:"تم مسح جميع النتائج والتسجيلات السابقة."});
   }
-  if(action==="change-passwords"){const body=await req.json();if(!(await requireRole(body,"admin")))return json({error:"كلمة مرور الإدارة غير صحيحة."},401);const update:any={updated_at:new Date().toISOString()};if(body.teacherPassword)update.teacher_password_hash=await sha256(String(body.teacherPassword));if(body.adminPassword)update.admin_password_hash=await sha256(String(body.adminPassword));const r=await db.from("app_settings").update(update).eq("id",1);if(r.error)throw r.error;return json({ok:true})}
+  if(action==="change-passwords"){const body=await req.json();if(!(await requireRole(body,"admin")))return json({error:"كلمة مرور الإدارة غير صحيحة."},401);const update:any={updated_at:new Date().toISOString()};if(body.teacherPassword)update.teacher_password_hash=await sha256(String(body.teacherPassword));if(body.adminPassword)update.admin_password_hash=await sha256(String(body.adminPassword));const r=await db.from("app_settings").update(update).eq("id",1);if(r.error)throw r.error;await audit("change-passwords",null,{teacherPasswordChanged:!!body.teacherPassword,adminPasswordChanged:!!body.adminPassword});return json({ok:true})}
   return json({error:"طلب غير معروف."},404);
  }catch(e){console.error(e);return json({error:e?.message||"حدث خطأ غير متوقع."},500)}
 });
