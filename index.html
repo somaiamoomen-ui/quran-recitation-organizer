@@ -63,7 +63,6 @@ button,input,select{font:inherit}button{cursor:pointer}.wrap{width:min(1100px,ca
 <div id="adminMsg"></div>
 <div id="adminLogin"><div class="field"><label>كلمة مرور الإدارة</label><input id="adminPassword" class="input" type="text" autocomplete="off" spellcheck="false"></div><button class="btn" onclick="adminLogin()">دخول</button></div>
 <div id="adminPanel" class="hidden">
-<div class="student-evaluation-setting"><button type="button" onclick="openStudentEvaluationSetting()">تحديد آيات التقييم</button></div>
 <div id="adminIcons" class="admin-icons"></div>
 <div id="trackChooser" class="admin-view hidden"></div>
 <div id="searchStudentView" class="admin-view hidden"><div class="admin-view-title">🔍 البحث عن طالبة</div><button class="btn gray admin-close" onclick="closeAdminViews()">إغلاق</button><div class="field"><label>اسم الطالبة</label><input id="adminStudentSearch" class="input" type="text" placeholder="اكتبي اسم الطالبة هنا" oninput="searchAdminStudent()"></div><div id="adminStudentSearchResults" class="list" style="margin-top:12px"></div></div>
