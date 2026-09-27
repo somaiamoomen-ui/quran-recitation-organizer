@@ -75,9 +75,6 @@ Deno.serve(async(req)=>{
    if(audio.size>10*1024*1024)return json({error:"التسجيل أكبر من الحد المسموح (10 ميجابايت)."},400);
    const {data:track,error:trackError}=await db.from("tracks").select("id,name,is_open").eq("id",trackId).single();
    if(trackError||!track||!track.is_open)return json({error:"هذا المسار مغلق حاليًا."},400);
-   const {count:pendingCount,error:pendingError}=await db.from("registrations").select("id",{count:"exact",head:true}).eq("track_id",trackId).eq("latest_status","pending");
-   if(pendingError)throw pendingError;
-   if((pendingCount||0)>=50)return json({error:"عدد التسجيلات قيد التقييم في هذا المسار كبير حاليًا (50 تسجيلًا). برجاء المحاولة بعد قليل إن شاء الله، وسيُفتح التسجيل تلقائيًا عندما يقل عدد التسجيلات المعلقة."},429);
    const normalized=name.toLocaleLowerCase("ar-EG");
    let {data:registration,error:regError}=await db.from("registrations").select("*").eq("track_id",trackId).eq("student_name_normalized",normalized).maybeSingle();
    if(regError)throw regError;
