@@ -1,4 +1,5 @@
 import { createClient } from "npm:@supabase/supabase-js@2";
+import webpush from "npm:web-push@3.6.7";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -27,23 +28,69 @@ async function checkPassword(role:"teacher"|"admin",password:string){
 }
 async function requireRole(body:any,role:"teacher"|"admin"){return !!body?.password&&await checkPassword(role,String(body.password))}
 async function audit(action:string,trackId:string|null,details:any){try{await db.from("admin_audit_logs").insert({action,track_id:trackId,details,created_at:new Date().toISOString()})}catch(e){console.error("audit log failed",e)}}
-function normalizeName(name:string){return name.trim().replace(/\s+/g," ").replace(/ة$/u,"ه")}
+async function checkPendingAlert(trackId:string){
+ const {data:track,error:te}=await db.from("tracks").select("id,name,pending_alert_active").eq("id",trackId).single();
+ if(te||!track)return;
+ const {count,error:ce}=await db.from("registrations").select("id",{count:"exact",head:true}).eq("track_id",trackId).eq("latest_status","pending");
+ if(ce)return;
+ const pending=count||0;
+ if(pending<50){if(track.pending_alert_active)await db.from("tracks").update({pending_alert_active:false,updated_at:new Date().toISOString()}).eq("id",trackId);return;}
+ if(track.pending_alert_active)return;
+ const {data:subs,error:se}=await db.from("teacher_push_subscriptions").select("id,endpoint,p256dh,auth,enabled").eq("track_id",trackId).eq("enabled",true);if(se)throw se;
+ const {data:settings,error:ae}=await db.from("app_settings").select("vapid_public_key,vapid_private_key,vapid_subject").eq("id",1).single();if(ae||!settings?.vapid_public_key||!settings?.vapid_private_key||!settings?.vapid_subject)return;
+ webpush.setVapidDetails(settings.vapid_subject,settings.vapid_public_key,settings.vapid_private_key);let sent=0;
+ for(const s of subs||[]){try{await webpush.sendNotification({endpoint:s.endpoint,keys:{p256dh:s.p256dh,auth:s.auth}},JSON.stringify({title:"أكاديمية سطور الهدى",body:"يوجد "+pending+" تسجيلًا معلقًا في مسار "+track.name+".",tag:"pending-"+trackId,url:"./"}));sent++;}catch(e:any){const code=Number(e?.statusCode||0);if(code===404||code===410)await db.from("teacher_push_subscriptions").update({enabled:false,updated_at:new Date().toISOString()}).eq("id",s.id);else console.error("push send failed",e);}}
+ if(sent>0)await db.from("tracks").update({pending_alert_active:true,updated_at:new Date().toISOString()}).eq("id",trackId).eq("pending_alert_active",false);
+}
+function normalizeName(name:string){return name.trim().replace(/\s+/g," ").split(" ").map((part:string)=>part.replace(/^أ/u,"ا").replace(/ة$/u,"ه")).join(" ")}
 function validName(name:string){return normalizeName(name).length>0}
 async function getOpenTracks(){const {data,error}=await db.from("tracks").select("id,name,whatsapp_link,is_open,sort_order").eq("is_open",true).order("sort_order");if(error)throw error;return data||[]}
-async function getResult(name:string){
+async function getResult(name:string,trackId:string){
  const normalized=normalizeName(name).toLocaleLowerCase("ar-EG");
- const {data,error}=await db.from("registrations").select("id,student_name,latest_status,updated_at,companion_group_link_used_at,tracks(name,whatsapp_link)").eq("student_name_normalized",normalized).order("updated_at",{ascending:false}).limit(1);
+ const {data,error}=await db.from("registrations").select("id,student_name,latest_status,updated_at,companion_group_link_used_at,track_id,tracks(name,whatsapp_link)").eq("student_name_normalized",normalized).eq("track_id",trackId).order("updated_at",{ascending:false}).limit(1);
  if(error)throw error; const row=data?.[0]; if(!row)return {found:false};
  const track:any=Array.isArray(row.tracks)?row.tracks[0]:row.tracks;
- return {found:true,studentName:row.student_name,trackName:track?.name||"",status:row.latest_status,whatsappLink:row.latest_status==="accepted"?(track?.whatsapp_link||""):"",companionGroupLinkUsed:!!row.companion_group_link_used_at,rejectionMessage:row.latest_status==="rejected"?REJECTION_MESSAGE:""};
+ let retryNote="";
+ if(row.latest_status==="retry"){
+  const {data:ev,error:ee}=await db.from("evaluations").select("note,evaluated_at").eq("registration_id",row.id).eq("status","retry").order("evaluated_at",{ascending:false}).limit(1).maybeSingle();
+  if(ee)throw ee;
+  retryNote=String(ev?.note||"");
+ }
+ return {found:true,studentName:row.student_name,trackId:row.track_id,trackName:track?.name||"",status:row.latest_status,whatsappLink:row.latest_status==="accepted"?(track?.whatsapp_link||""):"",companionGroupLinkUsed:!!row.companion_group_link_used_at,rejectionMessage:row.latest_status==="rejected"?REJECTION_MESSAGE:"",retryNote};
 }
 Deno.serve(async(req)=>{
  if(req.method==="OPTIONS")return new Response("ok",{headers:corsHeaders});
  try{
   const url=new URL(req.url),action=url.searchParams.get("action")||"";
-  if(action==="tracks")return json({tracks:await getOpenTracks()});
+  if(action==="tracks"){const tracks=await getOpenTracks();const {data:settings,error}=await db.from("app_settings").select("student_evaluation_text").eq("id",1).single();if(error)throw error;return json({tracks,evaluationText:String(settings?.student_evaluation_text||"")});}
+  if(action==="teacher-options"){
+   const body=await req.json();
+   if(!(await requireRole(body,"teacher")))return json({error:"كلمة مرور المعلمة غير صحيحة."},401);
+   const {data,error}=await db.from("tracks").select("id,name,teacher1_name,teacher2_name,teacher3_name,teacher4_name").order("sort_order");
+   if(error)throw error;
+   return json({tracks:(data||[]).map((t:any)=>({...t,teachers:[t.teacher1_name,t.teacher2_name,t.teacher3_name,t.teacher4_name].filter((x:string)=>String(x||"").trim())}))});
+  }
+  if(action==="push-config"){
+   const {data,error}=await db.from("app_settings").select("vapid_public_key").eq("id",1).single();
+   if(error||!data?.vapid_public_key)return json({error:"إعداد الإشعارات غير مكتمل حاليًا."},503);
+   return json({publicKey:data.vapid_public_key});
+  }
+  if(action==="subscribe-teacher-push"){
+   const body=await req.json();
+   if(!(await requireRole(body,"teacher")))return json({error:"كلمة مرور المعلمة غير صحيحة."},401);
+   const trackId=String(body.trackId||""),teacherName=normalizeName(String(body.teacherName||""));
+   const sub=body.subscription||{};
+   if(!trackId||!validName(teacherName)||!sub.endpoint||!sub.keys?.p256dh||!sub.keys?.auth)return json({error:"بيانات الإشعارات غير مكتملة."},400);
+   const {data:track,error:te}=await db.from("tracks").select("id,teacher1_name,teacher2_name,teacher3_name,teacher4_name").eq("id",trackId).single();
+   if(te||!track)return json({error:"المسار غير موجود."},404);
+   const allowed=[track.teacher1_name,track.teacher2_name,track.teacher3_name,track.teacher4_name].filter(Boolean).map((x:string)=>normalizeName(x).toLocaleLowerCase("ar-EG"));
+   if(!allowed.includes(teacherName.toLocaleLowerCase("ar-EG")))return json({error:"هذه المعلمة ليست مسؤولة عن هذا المسار."},403);
+   const {error}=await db.from("teacher_push_subscriptions").upsert({track_id:trackId,teacher_name:teacherName,endpoint:String(sub.endpoint),p256dh:String(sub.keys.p256dh),auth:String(sub.keys.auth),enabled:true,updated_at:new Date().toISOString()},{onConflict:"endpoint"});
+   if(error)throw error;
+   return json({ok:true});
+  }
   if(action==="all-tracks"){const body=await req.json();if(!(await requireRole(body,"teacher")))return json({error:"كلمة مرور المعلمة غير صحيحة."},401);const {data,error}=await db.from("tracks").select("id,name").order("sort_order");if(error)throw error;return json({tracks:data||[]})}
-  if(action==="result"){const body=await req.json();const name=normalizeName(String(body.name||""));if(!validName(name))return json({error:"برجاء إدخال الاسم."},400);return json(await getResult(name))}
+  if(action==="result"){const body=await req.json();const name=normalizeName(String(body.name||"")),trackId=String(body.trackId||"");if(!validName(name))return json({error:"برجاء إدخال الاسم."},400);if(!trackId)return json({error:"برجاء اختيار المسار."},400);return json(await getResult(name,trackId))}
   if(action==="register-companion"){
    const body=await req.json(),name=normalizeName(String(body.name||"")),name2=normalizeName(String(body.name2||"")),riwaya=String(body.riwaya||"");
    if(!validName(name)||!validName(name2)||!["حفص","قالون"].includes(riwaya))return json({error:"بيانات الرفقة غير مكتملة."},400);
@@ -75,6 +122,9 @@ Deno.serve(async(req)=>{
    if(audio.size>10*1024*1024)return json({error:"التسجيل أكبر من الحد المسموح (10 ميجابايت)."},400);
    const {data:track,error:trackError}=await db.from("tracks").select("id,name,is_open").eq("id",trackId).single();
    if(trackError||!track||!track.is_open)return json({error:"هذا المسار مغلق حاليًا."},400);
+   const {count:pendingCount,error:pendingError}=await db.from("registrations").select("id",{count:"exact",head:true}).eq("track_id",trackId).eq("latest_status","pending");
+   if(pendingError)throw pendingError;
+   if((pendingCount||0)>=50)return json({error:"يوجد عدد كبير من التسجيلات قيد التقييم حاليًا. برجاء المحاولة بعد قليل إن شاء الله."},429);
    const normalized=name.toLocaleLowerCase("ar-EG");
    let {data:registration,error:regError}=await db.from("registrations").select("*").eq("track_id",trackId).eq("student_name_normalized",normalized).maybeSingle();
    if(regError)throw regError;
@@ -90,6 +140,7 @@ Deno.serve(async(req)=>{
    if(upload.error){await db.from("registrations").update({latest_status:"retry",updated_at:new Date().toISOString()}).eq("id",registration.id);return json({error:"تعذر حفظ التسجيل حاليًا. مساحة التخزين أو الاتصال قد يكونان تحت ضغط، يرجى المحاولة لاحقًا."},503)}
    const inserted=await db.from("submissions").upsert({registration_id:registration.id,storage_path:path,mime_type:audio.type||"audio/webm"},{onConflict:"registration_id"});
    if(inserted.error){await db.storage.from(BUCKET).remove([path]);await db.from("registrations").update({latest_status:"retry",updated_at:new Date().toISOString()}).eq("id",registration.id);throw inserted.error}
+   try{await checkPendingAlert(trackId)}catch(e){console.error("pending alert check failed",e)}
    return json({ok:true,message:"تم إرسال التسجيل للمعلمة بنجاح."});
   }
   if(action==="teacher-queue"){
@@ -103,17 +154,18 @@ Deno.serve(async(req)=>{
   }
   if(action==="evaluate"){
    const body=await req.json();if(!(await requireRole(body,"teacher")))return json({error:"كلمة مرور المعلمة غير صحيحة."},401);
-   const status=String(body.status||"");if(!["accepted","rejected","retry"].includes(status))return json({error:"نتيجة غير صحيحة."},400);
+   const status=String(body.status||"");const note=String(body.note||"").trim().slice(0,1000);if(!["accepted","rejected","retry"].includes(status))return json({error:"نتيجة غير صحيحة."},400);
    const {data:submission,error:se}=await db.from("submissions").select("id,registration_id,storage_path").eq("id",body.submissionId).single();if(se||!submission)return json({error:"التسجيل لم يعد موجودًا."},404);
    const {data:reg}=await db.from("registrations").select("id,latest_status").eq("id",submission.registration_id).single();if(!reg||reg.latest_status!=="pending")return json({error:"تم تقييم هذا التسجيل بالفعل."},409);
    const removed=await db.storage.from(BUCKET).remove([submission.storage_path]);
    if(removed.error)return json({error:"تعذر حذف ملف التسجيل من التخزين. لم يتم تثبيت نتيجة التقييم، يرجى المحاولة مرة أخرى."},503);
    const now=new Date().toISOString();
-   const ev=await db.from("evaluations").insert({registration_id:submission.registration_id,status,evaluated_at:now}).select("id").single();
+   const ev=await db.from("evaluations").insert({registration_id:submission.registration_id,status,note:status==="retry"?note:null,evaluated_at:now}).select("id").single();
    if(ev.error){await db.from("submissions").delete().eq("id",submission.id);await db.from("registrations").update({latest_status:"retry",updated_at:now}).eq("id",submission.registration_id);throw ev.error}
    const up=await db.from("registrations").update({latest_status:status,updated_at:now}).eq("id",submission.registration_id).eq("latest_status","pending");
    if(up.error){await db.from("evaluations").delete().eq("id",ev.data.id);await db.from("submissions").delete().eq("id",submission.id);await db.from("registrations").update({latest_status:"retry",updated_at:now}).eq("id",submission.registration_id);throw up.error}
    await db.from("submissions").delete().eq("id",submission.id);
+   try{const {data:regAfter}=await db.from("registrations").select("track_id").eq("id",submission.registration_id).single();if(regAfter?.track_id)await checkPendingAlert(regAfter.track_id)}catch(e){console.error("pending alert reset check failed",e)}
    return json({ok:true,status});
   }
   if(action==="history"){const body=await req.json();if(!(await requireRole(body,"teacher")))return json({error:"كلمة مرور المعلمة غير صحيحة."},401);const {data,error}=await db.from("evaluations").select("id,status,evaluated_at,registrations(student_name,tracks(name))").order("evaluated_at",{ascending:false}).limit(200);if(error)throw error;return json({items:data||[]})}
@@ -125,6 +177,7 @@ Deno.serve(async(req)=>{
    if(trackIds.length){const {data:ts,error:te}=await db.from("tracks").select("id,name").in("id",trackIds);if(te)throw te;for(const t of ts||[])tracksById[t.id]=t.name;}
    return json({items:(data||[]).map((x:any)=>({...x,track_name:x.track_id?tracksById[x.track_id]||"":""}))});
   }
+  if(action==="admin-student-evaluation"){const body=await req.json();if(!(await requireRole(body,"admin")))return json({error:"كلمة مرور الإدارة غير صحيحة."},401);const text=String(body.text||"").trim();const {error}=await db.from("app_settings").update({student_evaluation_text:text,updated_at:new Date().toISOString()}).eq("id",1);if(error)throw error;return json({ok:true,text});}
   if(action==="admin-data"){
    const body=await req.json();if(!(await requireRole(body,"admin")))return json({error:"كلمة مرور الإدارة غير صحيحة."},401);
    const {data:tracks,error}=await db.from("tracks").select("*").order("sort_order");if(error)throw error;
@@ -162,7 +215,7 @@ Deno.serve(async(req)=>{
    const body=await req.json();if(!(await requireRole(body,"admin")))return json({error:"كلمة مرور الإدارة غير صحيحة."},401);
    const op=String(body.op||"");
    if(op==="create"){const name=String(body.name||"").trim();if(!name)return json({error:"اسم المسار مطلوب."},400);const {data:maxRow}=await db.from("tracks").select("sort_order").order("sort_order",{ascending:false}).limit(1).maybeSingle();const r=await db.from("tracks").insert({name,whatsapp_link:String(body.whatsappLink||"").trim(),primary_group_link:String(body.primaryGroupLink||"").trim(),is_open:true,sort_order:(maxRow?.sort_order||0)+1}).select().single();if(r.error)throw r.error;await audit("create-track",r.data.id,{name:r.data.name});return json({track:r.data})}
-   if(op==="update"){const r=await db.from("tracks").update({name:String(body.name||"").trim(),whatsapp_link:String(body.whatsappLink||"").trim(),primary_group_link:String(body.primaryGroupLink||"").trim(),is_open:!!body.isOpen,updated_at:new Date().toISOString()}).eq("id",body.id).select().single();if(r.error)throw r.error;await audit("update-track",String(body.id),{name:r.data.name,isOpen:r.data.is_open});return json({track:r.data})}
+   if(op==="update"){const r=await db.from("tracks").update({name:String(body.name||"").trim(),whatsapp_link:String(body.whatsappLink||"").trim(),primary_group_link:String(body.primaryGroupLink||"").trim(),is_open:!!body.isOpen,teacher1_name:String(body.teacher1Name||"").trim(),teacher2_name:String(body.teacher2Name||"").trim(),teacher3_name:String(body.teacher3Name||"").trim(),teacher4_name:String(body.teacher4Name||"").trim(),updated_at:new Date().toISOString()}).eq("id",body.id).select().single();if(r.error)throw r.error;await audit("update-track",String(body.id),{name:r.data.name,isOpen:r.data.is_open,teachers:[r.data.teacher1_name,r.data.teacher2_name,r.data.teacher3_name,r.data.teacher4_name].filter(Boolean)});return json({track:r.data})}
    return json({error:"عملية غير معروفة."},400)
   }
   if(action==="reset-results"){
