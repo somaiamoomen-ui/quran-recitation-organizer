@@ -38,7 +38,7 @@ button,input,select{font:inherit}button{cursor:pointer}.wrap{width:min(1100px,ca
     <button class="btn danger" id="deleteRecordingBtn" onclick="deleteRecording()">حذف التسجيل وتسجيل واحد آخر</button>
   </div>
 </div>
-</div><div id="resultMode" class="hidden"><button class="btn secondary back" onclick="openStudentMode('menu')">← اختيارات الطالبة</button><h3 class="section-title">النتيجة</h3><div class="field"><label for="resultStudentName">برجاء إدخال الاسم</label><input id="resultStudentName" class="input" placeholder="اكتبي اسمك كما تم تسجيله" autocomplete="name"></div><div class="actions"><button class="btn" onclick="checkResult($('resultStudentName').value)">معرفة النتيجة</button></div><div id="resultBox"></div></div><div id="companionMode" class="hidden"><button class="btn secondary back" onclick="openStudentMode('menu')">← اختيارات الطالبة</button><h3 class="section-title">تسجيل الرفيقة</h3><div id="companionMsg"></div><div class="field"><label>اسمك الثنائي</label><input id="companionName" class="input" placeholder="اكتبي اسمك كما تم تسجيله"></div><div class="field"><label>اسم رفيقتك الثنائي</label><input id="companionName2" class="input" placeholder="اكتبي اسم رفيقتك كما تم تسجيله"></div><div class="field"><label>الرواية</label><select id="companionRiwaya" class="select"><option value="">اختاري الرواية</option><option value="حفص">حفص</option><option value="قالون">قالون</option></select></div><div class="hint">يشترط أن تكوني أنتِ ورفيقتك من الطالبات المقبولات بالفعل في نفس المسار.</div><div class="actions"><button class="btn" onclick="registerCompanion()">تأكيد الرفقة</button></div><div id="companionResult"></div></div></section>
+</div><div id="resultMode" class="hidden"><button class="btn secondary back" onclick="openStudentMode('menu')">← اختيارات الطالبة</button><h3 class="section-title">النتيجة</h3><div class="field"><label for="resultStudentName">برجاء إدخال الاسم</label><input id="resultStudentName" class="input" placeholder="اكتبي اسمك كما تم تسجيله" autocomplete="name"></div><div class="field"><label for="resultTrack">اختاري المسار</label><select id="resultTrack" class="select"></select></div><div class="actions"><button class="btn" onclick="checkResult($('resultStudentName').value,$('resultTrack').value)">معرفة النتيجة</button></div><div id="resultBox"></div></div><div id="companionMode" class="hidden"><button class="btn secondary back" onclick="openStudentMode('menu')">← اختيارات الطالبة</button><h3 class="section-title">تسجيل الرفيقة</h3><div id="companionMsg"></div><div class="field"><label>اسمك الثنائي</label><input id="companionName" class="input" placeholder="اكتبي اسمك كما تم تسجيله"></div><div class="field"><label>اسم رفيقتك الثنائي</label><input id="companionName2" class="input" placeholder="اكتبي اسم رفيقتك كما تم تسجيله"></div><div class="field"><label>الرواية</label><select id="companionRiwaya" class="select"><option value="">اختاري الرواية</option><option value="حفص">حفص</option><option value="قالون">قالون</option></select></div><div class="hint">يشترط أن تكوني أنتِ ورفيقتك من الطالبات المقبولات بالفعل في نفس المسار.</div><div class="actions"><button class="btn" onclick="registerCompanion()">تأكيد الرفقة</button></div><div id="companionResult"></div></div></section>
 
 <section id="teacher" class="card hidden">
 <button class="btn secondary back" onclick="show('home')">← الرئيسية</button>
@@ -93,7 +93,7 @@ async function api(action,body,form=false){
  return data;
 }
 async function loadTracks(){
- try{const d=await api('tracks',{});currentTracks=d.tracks||[];$('studentTrack').innerHTML='<option value="">اختاري المسار</option>'+currentTracks.map(t=>'<option value="'+t.id+'">'+escapeHtml(t.name)+'</option>').join('');$('studentEvaluationText').textContent=d.evaluationText||'';}
+ try{const d=await api('tracks',{});currentTracks=d.tracks||[];const options='<option value="">اختاري المسار</option>'+currentTracks.map(t=>'<option value="'+t.id+'">'+escapeHtml(t.name)+'</option>').join('');$('studentTrack').innerHTML=options;$('resultTrack').innerHTML=options;$('studentEvaluationText').textContent=d.evaluationText||'';}
  catch(e){msg('studentMsg',e.message,'err')}
 }
 function nameValue(){return $('studentName').value.trim().replace(/\s+/g,' ')}
@@ -170,7 +170,7 @@ async function sendRecording(){
   f.append('audio',pendingBlob,'recitation.webm');
   await api('submit',f,true);
   msg('studentMsg','تم إرسال التسجيل للمعلمة بنجاح.','ok');
-  $('recordInfo').textContent='تم إرسال التسجيل. يمكنك الرجوع لمعرفة النتيجة لاحقًا.';
+  $('recordInfo').textContent='تظهر النتيجة خلال ساعات من إرسال الريكورد';
   $('recordPreview').classList.add('hidden');
   if(pendingObjectUrl)URL.revokeObjectURL(pendingObjectUrl);
   pendingObjectUrl='';pendingBlob=null;
@@ -200,9 +200,9 @@ async function useCompanionGroupLink(){
   window.location.href=d.whatsappLink;
  }catch(e){msg('studentMsg',e.message,'err'); if(e.message.includes('استخدام رابط جروب الرفيقات')) checkResult();}
 }
-async function checkResult(nameOverride=''){
- const name=(nameOverride||nameValue()).trim().replace(/\s+/g,' ');if(!name)return msg('studentMsg','برجاء إدخال الاسم.','err');
- try{const d=await api('result',{name});if(!d.found){$('resultBox').innerHTML='<div class="msg info">لا توجد نتيجة مسجلة بهذا الاسم حتى الآن.</div>';return}
+async function checkResult(nameOverride='',trackIdOverride=''){
+ const name=(nameOverride||nameValue()).trim().replace(/\s+/g,' '),trackId=trackIdOverride||$('resultTrack')?.value||'';if(!name)return msg('studentMsg','برجاء إدخال الاسم.','err');if(!trackId)return msg('studentMsg','برجاء اختيار المسار.','err');
+ try{const d=await api('result',{name,trackId});if(!d.found){$('resultBox').innerHTML='<div class="msg info">لا توجد نتيجة مسجلة بهذا الاسم حتى الآن.</div>';return}
  let h='<div class="card" style="box-shadow:none;margin:14px 0"><b>الاسم:</b> '+escapeHtml(d.studentName)+'<br><b>المسار:</b> '+escapeHtml(d.trackName)+'<br><br>';
  if(d.status==='pending')h+='<div class="msg info">التسجيل قيد التقييم من المعلمة.</div>';
  if(d.status==='accepted')h+='<div class="msg ok">مبارك، تم قبول التلاوة 🌷</div>'+(d.whatsappLink?(d.companionGroupLinkUsed?'<div class="msg info">تم استخدام رابط جروب الرفيقات من قبل، لذلك لم يعد الرابط ظاهرًا هنا.</div>':'<button class="btn" onclick="useCompanionGroupLink()">🔗 الدخول إلى جروب الرفيقات</button><div class="hint" style="margin-top:10px">⚠️ تنبيه: رابط جروب الرفيقات متاح للاستخدام مرة واحدة فقط، وممنوع مشاركته مع أي شخص آخر.</div>'):'<div class="hint">سيتم إضافة رابط مجموعة رفيقات من الإدارة.</div>');
