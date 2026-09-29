@@ -249,7 +249,8 @@ async function enableTeacherNotifications(trackId,name){
 }
 function skipTeacherNotifications(){const box=$('teacherPushPrompt');box.className='msg info';box.textContent='يمكنكِ الدخول للتسجيلات بدون تفعيل الإشعارات.'}
 async function subscribeTeacherPush(trackId,name,publicKey){
- const reg=await navigator.serviceWorker.register('./sw.js');
+ await navigator.serviceWorker.register('./sw.js');
+ const reg=await navigator.serviceWorker.ready;
  const sub=await reg.pushManager.subscribe({userVisibleOnly:true,applicationServerKey:urlBase64ToUint8Array(publicKey)});
  const jsonSub=sub.toJSON();
  await api('subscribe-teacher-push',{password:teacherPass,trackId,teacherName:name,subscription:{endpoint:jsonSub.endpoint,keys:jsonSub.keys}});
