@@ -109,9 +109,10 @@ Deno.serve(async(req)=>{
    return json({ok:true,pairNumber:pairNumber,student1Name:a.student_name,student2Name:b.student_name,riwaya,primaryGroupLink:(Array.isArray(a.tracks)?a.tracks[0]:a.tracks)?.primary_group_link||""});
   }
   if(action==="use-companion-group-link"){
-   const body=await req.json(),name=normalizeName(String(body.name||""));if(!validName(name))return json({error:"برجاء إدخال الاسم."},400);
+   const body=await req.json(),name=normalizeName(String(body.name||"")),trackId=String(body.trackId||"");if(!validName(name))return json({error:"برجاء إدخال الاسم."},400);
+   if(!trackId)return json({error:"برجاء اختيار المسار."},400);
    const normalized=name.toLocaleLowerCase("ar-EG");
-   const {data:row,error}=await db.from("registrations").select("id,latest_status,companion_group_link_used_at,tracks(whatsapp_link)").eq("student_name_normalized",normalized).order("updated_at",{ascending:false}).limit(1).maybeSingle();if(error)throw error;
+   const {data:row,error}=await db.from("registrations").select("id,track_id,latest_status,companion_group_link_used_at,tracks(whatsapp_link)").eq("student_name_normalized",normalized).eq("track_id",trackId).order("updated_at",{ascending:false}).limit(1).maybeSingle();if(error)throw error;
    if(!row||row.latest_status!=="accepted")return json({error:"هذا الرابط متاح للطالبات المقبولات فقط."},403);const track:any=Array.isArray(row.tracks)?row.tracks[0]:row.tracks;const link=track?.whatsapp_link||"";if(!link)return json({error:"لم يتم إضافة رابط جروب الرفيقات لهذا المسار بعد."},404);if(row.companion_group_link_used_at)return json({error:"تم استخدام رابط جروب الرفيقات من قبل، ولا يمكن استخدامه مرة أخرى من الموقع."},409);
    const now=new Date().toISOString();const updated=await db.from("registrations").update({companion_group_link_used_at:now}).eq("id",row.id).is("companion_group_link_used_at",null).eq("latest_status","accepted").select("id").maybeSingle();if(updated.error)throw updated.error;if(!updated.data)return json({error:"تم استخدام رابط جروب الرفيقات من قبل، ولا يمكن استخدامه مرة أخرى من الموقع."},409);return json({ok:true,whatsappLink:link});
   }
