@@ -195,10 +195,12 @@ function deleteRecording(){
 }
 async function useCompanionGroupLink(trackIdOverride=''){
  const name=($('resultStudentName')?.value||nameValue()).trim().replace(/\s+/g,' '),trackId=trackIdOverride||$('resultTrack')?.value||''; if(!name)return msg('studentMsg','برجاء إدخال الاسم.','err');if(!trackId)return msg('studentMsg','برجاء اختيار المسار.','err');
+ const win=window.open('about:blank','_blank');
  try{
   const d=await api('use-companion-group-link',{name,trackId});
-  window.location.href=d.whatsappLink;
- }catch(e){msg('studentMsg',e.message,'err'); if(e.message.includes('استخدام رابط جروب الرفيقات')) checkResult();}
+  if(!win||win.closed){window.location.href=d.whatsappLink;return}
+  win.location.href=d.whatsappLink;
+ }catch(e){if(win&&!win.closed)win.close();msg('studentMsg',e.message,'err'); if(e.message.includes('استخدام رابط جروب الرفيقات')) checkResult();}
 }
 async function checkResult(nameOverride='',trackIdOverride=''){
  const name=(nameOverride||nameValue()).trim().replace(/\s+/g,' '),trackId=trackIdOverride||$('resultTrack')?.value||'';if(!name)return msg('studentMsg','برجاء إدخال الاسم.','err');if(!trackId)return msg('studentMsg','برجاء اختيار المسار.','err');
