@@ -398,7 +398,7 @@ async function saveCompanionEdits(){
  for(let i=0;i<e.rows.length;i++){
   const s1=$('ce1-'+i)?.value||'',s2=$('ce2-'+i)?.value||'',riwaya=$('cer-'+i)?.value||'',pairNumber=normalizeCompanionNumber($('cen-'+i)?.value||e.rows[i].pairNumber||'');
   if(!s1||!s2)return msg('adminMsg','برجاء اختيار الطالبتين في كل رفيقة.','err');
-  if(!/^\\d+$/.test(pairNumber)||Number(pairNumber)<1)return msg('adminMsg','برجاء إدخال رقم صحيح لكل رفيقة.','err');
+  if(!/^\d+$/.test(pairNumber)||Number(pairNumber)<1)return msg('adminMsg','برجاء إدخال رقم صحيح لكل رفيقة.','err');
   if(s1===s2)return msg('adminMsg','لا يمكن أن تكون الطالبة رفيقة لنفسها.','err');
   if(!['حفص','قالون'].includes(riwaya))return msg('adminMsg','برجاء اختيار رواية صحيحة لكل رفيقة.','err');
   payload.push({student1Id:s1,student2Id:s2,riwaya,pairNumber});
