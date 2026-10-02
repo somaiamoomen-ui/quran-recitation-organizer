@@ -204,7 +204,7 @@ async function checkResult(nameOverride='',trackIdOverride=''){
  let h='<div class="card" style="box-shadow:none;margin:14px 0"><b>الاسم:</b> '+escapeHtml(d.studentName)+'<br><b>المسار:</b> '+escapeHtml(d.trackName)+'<br><br>';
  if(d.status==='pending')h+='<div class="msg info">التسجيل قيد التقييم من المعلمة.</div>';
  if(d.status==='accepted')h+='<div class="msg ok">مبارك، تم قبول التلاوة 🌷</div>'+(d.whatsappLink?(d.companionGroupLinkUsed?'<div class="msg info">تم استخدام رابط جروب الرفيقات من قبل، لذلك لم يعد الرابط ظاهرًا هنا.</div>':'<a class="btn" href="'+API+'?action=companion-redirect&registrationId='+encodeURIComponent(d.registrationId)+'&trackId='+encodeURIComponent(d.trackId)+'">🔗 الدخول إلى جروب الرفيقات</a><div class="hint" style="margin-top:10px">⚠️ تنبيه: رابط جروب الرفيقات متاح للاستخدام 3 مرات فقط، وممنوع مشاركته مع أي شخص آخر.</div>'):'<div class="hint">سيتم إضافة رابط مجموعة رفيقات من الإدارة.</div>');
- if(d.status==='rejected')h+='<div class="msg err">'+escapeHtml(d.rejectionMessage||'نأسف، لم يتم قبول التسجيل.')+'</div>';
+ if(d.status==='rejected'){const rejectionText=escapeHtml(d.rejectionMessage||'نأسف، لم يتم قبول التسجيل.').replace(/(https?:\/\/[^\s<]+)/g,'<a href="$1" target="_blank" rel="noopener noreferrer" style="color:inherit;text-decoration:underline">$1</a>');h+='<div class="msg err">'+rejectionText.replace(/\n/g,'<br>')+'</div>';}
  if(d.status==='retry'){h+='<div class="msg info">يرجى إعادة التسجيل من نفس المسار.</div>';if(d.retryNote)h+='<div class="retry-note"><b>ملاحظة المعلمة:</b><br>'+escapeHtml(d.retryNote)+'</div>';}
  h+='</div>'; $('resultBox').innerHTML=h;
  }catch(e){msg('studentMsg',e.message,'err')}
