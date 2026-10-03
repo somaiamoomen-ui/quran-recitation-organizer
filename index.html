@@ -193,29 +193,29 @@ function deleteRecording(){
  $('recordBtn').textContent='🎙️ بدء التسجيل';
  msg('studentMsg','','info');
 }
-async function openCompanionGroupLink(registrationId,trackId){
- if(!registrationId||!trackId)return;
+function openCompanionGroupLink(registrationId,trackId,event,linkEl){
+ if(event)event.preventDefault();
+ if(!registrationId||!trackId)return false;
  const w=window.open('about:blank','_blank');
  if(!w){
-  msg('studentMsg','لم يتمكن المتصفح من فتح نافذة واتساب. لم يُعتبر الرابط مستخدمًا، ويمكنك المحاولة مرة أخرى.','err');
-  return;
+  msg('studentMsg','لم يتمكن المتصفح من فتح واتساب. لم تُحسب المحاولة، ويمكنك الضغط مرة أخرى.','err');
+  return false;
  }
- try{
-  const start=await api('companion-start',{registrationId,trackId});
-  sessionStorage.setItem('companionAttempt',JSON.stringify({registrationId,trackId,token:start.token||'',whatsappLink:start.whatsappLink||'',createdAt:Date.now()}));
-  w.location.href=start.whatsappLink;
-  const box=$('resultBox');
-  const old=box.querySelector('.companion-confirm-wrap');
-  if(old)old.remove();
-  const wrap=document.createElement('div');
-  wrap.className='companion-confirm-wrap';
-  wrap.style.marginTop='12px';
-  wrap.innerHTML='<div class="hint">لو لم يفتح واتساب تلقائيًا، اضغطي «فتح واتساب مرة أخرى». ولو دخلتِ الجروب بالفعل، اضغطي «تم الدخول إلى الجروب».</div><button type="button" class="btn" style="margin-top:8px" onclick="retryCompanionWhatsApp()">🔄 فتح واتساب مرة أخرى</button><button type="button" class="btn" style="margin-top:8px" onclick="confirmCompanionGroupLink()">✅ تم الدخول إلى الجروب</button>';
-  box.appendChild(wrap);
- }catch(e){
-  try{w.close()}catch(_){}
-  msg('studentMsg',e.message,'err');
- }
+ (async()=>{
+  try{
+   const start=await api('companion-start',{registrationId,trackId});
+   if(!start?.whatsappLink)throw new Error('تعذر فتح رابط جروب الرفيقات.');
+   w.location.href=start.whatsappLink;
+   if(Number(start.remainingUses)<=0){
+    const box=linkEl?.closest('.companion-link');
+    if(box)box.innerHTML='🔗 رابط جروب الرفيقات:<br><div class="msg info" style="margin-top:8px">تم استخدام الرابط مرتين، لذلك لم يعد الرابط ظاهرًا هنا.</div>';
+   }
+  }catch(e){
+   try{w.close()}catch(_){}
+   msg('studentMsg',e.message||'تعذر فتح رابط جروب الرفيقات.','err');
+  }
+ })();
+ return false;
 }
 function retryCompanionWhatsApp(){
  try{
@@ -251,7 +251,7 @@ async function confirmCompanionGroupLink(){
  try{const d=await api('result',{name,trackId});if(!d.found){$('resultBox').innerHTML='<div class="msg info">لا توجد نتيجة مسجلة بهذا الاسم حتى الآن.</div>';return}
  let h='<div class="card" style="box-shadow:none;margin:14px 0"><b>الاسم:</b> '+escapeHtml(d.studentName)+'<br><b>المسار:</b> '+escapeHtml(d.trackName)+'<br><br>';
  if(d.status==='pending')h+='<div class="msg info">التسجيل قيد التقييم من المعلمة.</div>';
- if(d.status==='accepted')h+='<div class="msg ok">مبارك، تم قبول التلاوة 🌷</div>'+(d.whatsappLink?(d.companionGroupLinkUsed?'<div class="msg info">تم استخدام رابط جروب الرفيقات من قبل، لذلك لم يعد الرابط ظاهرًا هنا.</div>':'<div class="companion-link" style="padding:14px;text-align:center">🔗 رابط جروب الرفيقات:<br><a href="'+escapeHtml(d.whatsappLink)+'" target="_blank" rel="noopener noreferrer" oncontextmenu="return false" oncopy="return false" oncut="return false" ondragstart="return false" style="display:inline-block;margin-top:8px;word-break:break-all;user-select:none;-webkit-user-select:none;-webkit-touch-callout:none">'+escapeHtml(d.whatsappLink)+'</a></div>'):'<div class="hint">سيتم إضافة رابط مجموعة رفيقات من الإدارة.</div>');
+ if(d.status==='accepted')h+='<div class="msg ok">مبارك، تم قبول التلاوة 🌷</div>'+(d.whatsappLink?(d.companionGroupLinkUsed?'<div class="msg info">تم استخدام رابط جروب الرفيقات من قبل، لذلك لم يعد الرابط ظاهرًا هنا.</div>':'<div class="companion-link" style="padding:14px;text-align:center">🔗 رابط جروب الرفيقات:<br><a href="'+escapeHtml(d.whatsappLink)+' onclick="return openCompanionGroupLink(''+escapeHtml(d.registrationId)+'',''+escapeHtml(d.trackId)+'',event,this)"" target="_blank" rel="noopener noreferrer" oncontextmenu="return false" oncopy="return false" oncut="return false" ondragstart="return false" style="display:inline-block;margin-top:8px;word-break:break-all;user-select:none;-webkit-user-select:none;-webkit-touch-callout:none">'+escapeHtml(d.whatsappLink)+'</a></div>'):'<div class="hint">سيتم إضافة رابط مجموعة رفيقات من الإدارة.</div>');
  if(d.status==='rejected'){const rejectionText=escapeHtml(d.rejectionMessage||'نأسف، لم يتم قبول التسجيل.').replace(/(https?:\/\/[^\s<]+)/g,'<a href="$1" target="_blank" rel="noopener noreferrer" style="color:inherit;text-decoration:underline">$1</a>');h+='<div class="msg err">'+rejectionText.replace(/\n/g,'<br>')+'</div>';}
  if(d.status==='retry'){h+='<div class="msg info">يرجى إعادة التسجيل من نفس المسار.</div>';if(d.retryNote)h+='<div class="retry-note"><b>ملاحظة المعلمة:</b><br>'+escapeHtml(d.retryNote)+'</div>';}
  h+='</div>'; $('resultBox').innerHTML=h;
