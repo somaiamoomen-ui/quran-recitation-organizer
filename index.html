@@ -195,45 +195,48 @@ function deleteRecording(){
 }
 async function openCompanionGroupLink(registrationId,trackId){
  if(!registrationId||!trackId)return;
- let confirmed=false,hiddenHandler,pageHideHandler,timer;
- const cleanup=()=>{document.removeEventListener('visibilitychange',hiddenHandler);window.removeEventListener('pagehide',pageHideHandler);if(timer)clearTimeout(timer);};
- const confirmOpen=()=>{
-  if(confirmed)return;
-  confirmed=true;
-  const body=JSON.stringify({registrationId,trackId,token:window._companionAttemptToken||''});
-  try{
-   if(navigator.sendBeacon){
-    navigator.sendBeacon(API+'?action=companion-confirm',new Blob([body],{type:'application/json'}));
-   }else{
-    fetch(API+'?action=companion-confirm',{method:'POST',headers:{apikey:API_KEY,'Content-Type':'application/json'},body,keepalive:true}).catch(()=>{});
-   }
-  }catch(e){console.error(e)}
- };
  try{
   const start=await api('companion-start',{registrationId,trackId});
-  window._companionAttemptToken=start.token||'';
-  hiddenHandler=()=>{if(document.visibilityState==='hidden')confirmOpen()};
-  pageHideHandler=()=>confirmOpen();
-  document.addEventListener('visibilitychange',hiddenHandler);
-  window.addEventListener('pagehide',pageHideHandler,{once:true});
-  window.location.href=start.whatsappLink;
-  timer=setTimeout(()=>{
-   if(!confirmed){
-    cleanup();
-    msg('studentMsg','لم يتم فتح واتساب. لم يُعتبر الرابط مستخدمًا، ويمكنك المحاولة مرة أخرى.','err');
-   }
-  },7000);
+  sessionStorage.setItem('companionAttempt',JSON.stringify({registrationId,trackId,token:start.token||'',createdAt:Date.now()}));
+  const w=window.open(start.whatsappLink,'_blank','noopener,noreferrer');
+  if(!w){
+   msg('studentMsg','لم يتمكن المتصفح من فتح واتساب في نافذة جديدة. لم يُعتبر الرابط مستخدمًا، ويمكنك المحاولة مرة أخرى.','err');
+   return;
+  }
+  const box=$('resultBox');
+  const old=box.querySelector('.companion-confirm-wrap');
+  if(old)old.remove();
+  const wrap=document.createElement('div');
+  wrap.className='companion-confirm-wrap';
+  wrap.style.marginTop='12px';
+  wrap.innerHTML='<div class="hint">لو دخلتِ جروب الرفيقات بالفعل، ارجعي هنا واضغطي «تم الدخول إلى الجروب».</div><button type="button" class="btn" style="margin-top:8px" onclick="confirmCompanionGroupLink()">✅ تم الدخول إلى الجروب</button>';
+  box.appendChild(wrap);
  }catch(e){
-  cleanup();
   msg('studentMsg',e.message,'err');
  }
 }
-async function checkResult(nameOverride='',trackIdOverride=''){
+async function confirmCompanionGroupLink(){
+ try{
+  const raw=sessionStorage.getItem('companionAttempt');
+  if(!raw)return msg('studentMsg','لم توجد محاولة فتح محفوظة. اضغطي على رابط جروب الرفيقات أولًا.','err');
+  const attempt=JSON.parse(raw);
+  if(!attempt?.registrationId||!attempt?.trackId||!attempt?.token)return msg('studentMsg','تعذر تأكيد الدخول. اضغطي على رابط جروب الرفيقات وحاولي مرة أخرى.','err');
+  if(Date.now()-Number(attempt.createdAt||0)>30*60*1000){
+   sessionStorage.removeItem('companionAttempt');
+   return msg('studentMsg','انتهت مدة تأكيد هذه المحاولة. اضغطي على رابط جروب الرفيقات لبدء محاولة جديدة.','err');
+  }
+  await api('companion-confirm',{registrationId:attempt.registrationId,trackId:attempt.trackId,token:attempt.token});
+  sessionStorage.removeItem('companionAttempt');
+  $('resultBox').innerHTML='<div class="msg ok">تم تأكيد استخدام رابط جروب الرفيقات بنجاح 🌷</div><div class="hint" style="margin-top:10px">إذا لم تدخلي الجروب فعلًا، لا تضغطي زر التأكيد ويمكنك إعادة محاولة فتح الرابط.</div>';
+ }catch(e){
+  msg('studentMsg',e.message,'err');
+ }
+}async function checkResult(nameOverride='',trackIdOverride=''){
  const name=(nameOverride||nameValue()).trim().replace(/\s+/g,' '),trackId=trackIdOverride||$('resultTrack')?.value||'';if(!name)return msg('studentMsg','برجاء إدخال الاسم.','err');if(!trackId)return msg('studentMsg','برجاء اختيار المسار.','err');
  try{const d=await api('result',{name,trackId});if(!d.found){$('resultBox').innerHTML='<div class="msg info">لا توجد نتيجة مسجلة بهذا الاسم حتى الآن.</div>';return}
  let h='<div class="card" style="box-shadow:none;margin:14px 0"><b>الاسم:</b> '+escapeHtml(d.studentName)+'<br><b>المسار:</b> '+escapeHtml(d.trackName)+'<br><br>';
  if(d.status==='pending')h+='<div class="msg info">التسجيل قيد التقييم من المعلمة.</div>';
- if(d.status==='accepted')h+='<div class="msg ok">مبارك، تم قبول التلاوة 🌷</div>'+(d.whatsappLink?(d.companionGroupLinkUsed?'<div class="msg info">تم استخدام رابط جروب الرفيقات من قبل، لذلك لم يعد الرابط ظاهرًا هنا.</div>':'<a class="companion-link" href="#" onclick="openCompanionGroupLink(\''+escapeHtml(d.registrationId)+'\',\''+escapeHtml(d.trackId)+'\');return false;">🔗 رابط جروب الرفيقات</a><div class="hint" style="margin-top:10px">⚠️ إذا لم يفتح واتساب، لن يُعتبر الرابط مستخدمًا ويمكنك المحاولة مرة أخرى.</div>'):'<div class="hint">سيتم إضافة رابط مجموعة رفيقات من الإدارة.</div>');
+ if(d.status==='accepted')h+='<div class="msg ok">مبارك، تم قبول التلاوة 🌷</div>'+(d.whatsappLink?(d.companionGroupLinkUsed?'<div class="msg info">تم استخدام رابط جروب الرفيقات من قبل، لذلك لم يعد الرابط ظاهرًا هنا.</div>':'<a class="companion-link" href="#" onclick="openCompanionGroupLink(\''+escapeHtml(d.registrationId)+'\',\''+escapeHtml(d.trackId)+'\');return false;">🔗 رابط جروب الرفيقات</a><div class="hint" style="margin-top:10px">⚠️ الضغط على الرابط لا يستهلكه. لا يتم تسجيل الاستخدام إلا بعد تأكيد دخولك إلى الجروب.</div>'):'<div class="hint">سيتم إضافة رابط مجموعة رفيقات من الإدارة.</div>');
  if(d.status==='rejected'){const rejectionText=escapeHtml(d.rejectionMessage||'نأسف، لم يتم قبول التسجيل.').replace(/(https?:\/\/[^\s<]+)/g,'<a href="$1" target="_blank" rel="noopener noreferrer" style="color:inherit;text-decoration:underline">$1</a>');h+='<div class="msg err">'+rejectionText.replace(/\n/g,'<br>')+'</div>';}
  if(d.status==='retry'){h+='<div class="msg info">يرجى إعادة التسجيل من نفس المسار.</div>';if(d.retryNote)h+='<div class="retry-note"><b>ملاحظة المعلمة:</b><br>'+escapeHtml(d.retryNote)+'</div>';}
  h+='</div>'; $('resultBox').innerHTML=h;
