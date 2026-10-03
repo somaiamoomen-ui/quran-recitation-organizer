@@ -327,7 +327,7 @@ async function adminLogin(){
   msg('adminMsg','','info');
  }catch(e){msg('adminMsg',e.message,'err')}
 }
-async function loadAdmin(){try{const d=await api('admin-data',{password:adminPass});window._adminData=d;renderAdmin(d.tracks||[])}catch(e){msg('adminMsg',e.message,'err')}}
+async function loadAdmin(){try{const d=await api('admin-data',{password:adminPass});window._adminData=(d.students||d.tracks)?{...d,students:(d.students||[]).map(s=>({...s,companionGroupLinkUseCount:Number(s.companionGroupLinkUseCount)||0}))}:d;renderAdmin(d.tracks||[])}catch(e){msg('adminMsg',e.message,'err')}}
 async function refreshAdminData(){
  try{
   await loadAdmin();
@@ -369,7 +369,29 @@ async function openAuditLog(){
  }catch(e){box.innerHTML='<div class="admin-view-title">📝 آخر 100 تغيير</div><div class="msg err">'+escapeHtml(e.message)+'</div>';}
 }
 function openAdminSearch(){closeAdminViews();$('searchStudentView').classList.remove('hidden');$('adminStudentSearch').focus();$('adminStudentSearchResults').innerHTML='<div class="msg info">اكتبي اسم الطالبة للبحث.</div>';}
-function searchAdminStudent(){const q=$('adminStudentSearch').value.trim(),box=$('adminStudentSearchResults');if(!q)return box.innerHTML='<div class="msg info">اكتبي اسم الطالبة للبحث.</div>';const d=window._adminData||{},students=d.students||[],pairs=d.companionPairs||[],tracks=d.tracks||[],normalize=n=>String(n||'').trim().replace(/\s+/g,' ').replace(/ة$/u,'ه').toLocaleLowerCase('ar-EG'),nq=normalize(q),matches=students.filter(s=>normalize(s.studentName).includes(nq));if(!matches.length)return box.innerHTML='<div class="msg info">لا توجد طالبة بهذا الاسم.</div>';box.innerHTML=matches.map(s=>{const t=tracks.find(x=>x.id===s.trackId),pair=pairs.find(p=>p.student1RegistrationId===s.id||p.student2RegistrationId===s.id),companion=pair?(pair.student1RegistrationId===s.id?pair.student2Name:pair.student1Name):'لا توجد رفيقة',status=s.status==='accepted'?'مقبولة':s.status==='rejected'?'مرفوضة':s.status==='pending'?'معلقة':s.status==='retry'?'إعادة تسجيل':s.status||'غير معروف';return '<div class="item"><b>'+escapeHtml(s.studentName)+'</b><div class="hint">المسار: '+escapeHtml(t?.name||'غير محدد')+' · الحالة: '+status+'</div><div class="hint">الرفيقة: '+escapeHtml(companion)+(pair?' · الرواية: '+escapeHtml(pair.riwaya):'')+'</div></div>'}).join('');}
+async function adminResetCompanionLink(registrationId,studentName){
+ if(!registrationId)return;
+ if(!window.confirm('هل تريدين إعادة فتح رابط جروب الرفيقات للطالبة «'+studentName+'»؟ ستصبح لها محاولتان جديدتان.'))return;
+ try{
+  await api('admin-reset-companion-link',{password:adminPass,registrationId});
+  await loadAdmin();
+  searchAdminStudent();
+  msg('adminMsg','تم إعادة فتح رابط جروب الرفيقات للطالبة بنجاح، وأصبح لها محاولتان جديدتان.','ok');
+ }catch(e){msg('adminMsg',e.message,'err')}
+}
+function searchAdminStudent(){
+ const q=$('adminStudentSearch').value.trim(),box=$('adminStudentSearchResults');
+ if(!q)return box.innerHTML='<div class="msg info">اكتبي اسم الطالبة للبحث.</div>';
+ const d=window._adminData||{},students=d.students||[],pairs=d.companionPairs||[],tracks=d.tracks||[],normalize=n=>String(n||'').trim().replace(/\s+/g,' ').replace(/ة$/u,'ه').toLocaleLowerCase('ar-EG'),nq=normalize(q),matches=students.filter(s=>normalize(s.studentName).includes(nq));
+ if(!matches.length)return box.innerHTML='<div class="msg info">لا توجد طالبة بهذا الاسم.</div>';
+ box.innerHTML=matches.map(s=>{
+  const t=tracks.find(x=>x.id===s.trackId),pair=pairs.find(p=>p.student1RegistrationId===s.id||p.student2RegistrationId===s.id),companion=pair?(pair.student1RegistrationId===s.id?pair.student2Name:pair.student1Name):'لا توجد رفيقة',status=s.status==='accepted'?'مقبولة':s.status==='rejected'?'مرفوضة':s.status==='pending'?'معلقة':s.status==='retry'?'إعادة تسجيل':s.status||'غير معروف',uses=Number(s.companionGroupLinkUseCount)||0;
+  let h='<div class="item"><b>'+escapeHtml(s.studentName)+'</b><div class="hint">المسار: '+escapeHtml(t?.name||'غير محدد')+' · الحالة: '+status+'</div><div class="hint">الرفيقة: '+escapeHtml(companion)+(pair?' · الرواية: '+escapeHtml(pair.riwaya):'')+'</div>';
+  if(s.status==='accepted')h+='<div class="hint">استخدام رابط الرفيقات: '+uses+' من 2</div><div class="actions"><button class="btn secondary" type="button" onclick="adminResetCompanionLink(\''+escapeHtml(s.id)+'\',\''+escapeHtml(s.studentName).replace(/'/g,"&#39;")+'\')">🔗 إعادة فتح رابط الرفيقات</button></div>';
+  return h+'</div>';
+ }).join('');
+}
+
 function openTrackChooser(){closeAdminViews();$('trackChooser').classList.remove('hidden');$('trackChooser').innerHTML='<div class="admin-view-title">🗂️ اختاري المسار</div><button class="btn gray admin-close" onclick="closeAdminViews()">إغلاق</button><div id="trackIcons" class="track-icons"></div>';const d=window._adminData||{};$('trackIcons').innerHTML=(d.tracks||[]).map(t=>'<button class="admin-icon track-icon" onclick="openTrackOptions(\''+t.id+'\')"><span class="ico">📁</span>'+escapeHtml(t.name)+'<small>'+(t.is_open?'التسجيل مفتوح':'التسجيل مغلق')+'</small></button>').join('')||'<div class="msg info">لا توجد مسارات.</div>';}
 function openTrackOptions(id){const d=window._adminData||{},t=(d.tracks||[]).find(x=>x.id===id);if(!t)return;closeAdminViews();$('trackChooser').classList.remove('hidden');$('trackChooser').innerHTML='<div class="admin-view-title">📁 '+escapeHtml(t.name)+'</div><button class="btn gray admin-close" onclick="openTrackChooser()">← المسارات</button><div class="track-option-grid"><button class="admin-icon track-option" onclick="openTrackEdit(\''+t.id+'\')"><span class="ico">🔗</span>روابط الجروبات<small>تعديل رابط الرفيقات والحفظ الأساسي</small></button><button class="admin-icon track-option" onclick="showTrackStats(\''+t.id+'\')"><span class="ico">📊</span>إحصائيات المسار</button><button class="admin-icon track-option" onclick="showTrackList(\''+t.id+'\')"><span class="ico">👭</span>قائمة الرفيقات</button><button class="admin-icon track-option" onclick="openTeacherAssignments(\''+t.id+'\')"><span class="ico">👩‍🏫</span>المعلمات المسؤولات<small>تحديد أو تعديل المعلمات</small></button><button class="admin-icon track-option" onclick="toggleTrackFromChooser(\''+t.id+'\')"><span class="ico">'+(t.is_open?'🔒':'🔓')+'</span>'+(t.is_open?'إغلاق التسجيل':'فتح التسجيل')+'</button></div><div id="trackDetail"></div>';}
 async function openTeacherAssignments(id){
