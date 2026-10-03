@@ -195,24 +195,39 @@ function deleteRecording(){
 }
 async function openCompanionGroupLink(registrationId,trackId){
  if(!registrationId||!trackId)return;
+ const w=window.open('about:blank','_blank');
+ if(!w){
+  msg('studentMsg','لم يتمكن المتصفح من فتح نافذة واتساب. لم يُعتبر الرابط مستخدمًا، ويمكنك المحاولة مرة أخرى.','err');
+  return;
+ }
  try{
   const start=await api('companion-start',{registrationId,trackId});
-  sessionStorage.setItem('companionAttempt',JSON.stringify({registrationId,trackId,token:start.token||'',createdAt:Date.now()}));
-  const w=window.open(start.whatsappLink,'_blank','noopener,noreferrer');
-  if(!w){
-   msg('studentMsg','لم يتمكن المتصفح من فتح واتساب في نافذة جديدة. لم يُعتبر الرابط مستخدمًا، ويمكنك المحاولة مرة أخرى.','err');
-   return;
-  }
+  sessionStorage.setItem('companionAttempt',JSON.stringify({registrationId,trackId,token:start.token||'',whatsappLink:start.whatsappLink||'',createdAt:Date.now()}));
+  w.location.href=start.whatsappLink;
   const box=$('resultBox');
   const old=box.querySelector('.companion-confirm-wrap');
   if(old)old.remove();
   const wrap=document.createElement('div');
   wrap.className='companion-confirm-wrap';
   wrap.style.marginTop='12px';
-  wrap.innerHTML='<div class="hint">لو دخلتِ جروب الرفيقات بالفعل، ارجعي هنا واضغطي «تم الدخول إلى الجروب».</div><button type="button" class="btn" style="margin-top:8px" onclick="confirmCompanionGroupLink()">✅ تم الدخول إلى الجروب</button>';
+  wrap.innerHTML='<div class="hint">لو لم يفتح واتساب تلقائيًا، اضغطي «فتح واتساب مرة أخرى». ولو دخلتِ الجروب بالفعل، اضغطي «تم الدخول إلى الجروب».</div><button type="button" class="btn" style="margin-top:8px" onclick="retryCompanionWhatsApp()">🔄 فتح واتساب مرة أخرى</button><button type="button" class="btn" style="margin-top:8px" onclick="confirmCompanionGroupLink()">✅ تم الدخول إلى الجروب</button>';
   box.appendChild(wrap);
  }catch(e){
+  try{w.close()}catch(_){}
   msg('studentMsg',e.message,'err');
+ }
+}
+function retryCompanionWhatsApp(){
+ try{
+  const raw=sessionStorage.getItem('companionAttempt');
+  if(!raw)return msg('studentMsg','لم توجد محاولة فتح محفوظة. اضغطي على رابط جروب الرفيقات أولًا.','err');
+  const attempt=JSON.parse(raw);
+  if(!attempt?.whatsappLink)return msg('studentMsg','تعذر إعادة فتح الرابط. اضغطي على رابط جروب الرفيقات وابدئي محاولة جديدة.','err');
+  const w=window.open('about:blank','_blank');
+  if(!w)return msg('studentMsg','لم يتمكن المتصفح من فتح نافذة واتساب. لم يُعتبر الرابط مستخدمًا، ويمكنك السماح بالنوافذ المنبثقة ثم المحاولة مرة أخرى.','err');
+  w.location.href=attempt.whatsappLink;
+ }catch(e){
+  msg('studentMsg','تعذر فتح واتساب. يمكنك الضغط على رابط جروب الرفيقات والمحاولة مرة أخرى.','err');
  }
 }
 async function confirmCompanionGroupLink(){
