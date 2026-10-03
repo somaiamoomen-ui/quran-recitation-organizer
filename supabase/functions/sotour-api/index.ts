@@ -55,7 +55,7 @@ async function checkPendingAlert(trackId:string){
  for(const s of subs||[]){try{await webpush.sendNotification({endpoint:s.endpoint,keys:{p256dh:s.p256dh,auth:s.auth}},JSON.stringify({title:"أكاديمية سطور الهدى",body:"يوجد "+pending+" تسجيلًا معلقًا في مسار "+track.name+".",tag:"pending-"+trackId,url:"./"}));sent++;}catch(e:any){const code=Number(e?.statusCode||0);if(code===404||code===410)await db.from("teacher_push_subscriptions").update({enabled:false,updated_at:new Date().toISOString()}).eq("id",s.id);else console.error("push send failed",e);}}
  if(sent>0)await db.from("tracks").update({pending_alert_active:true,updated_at:new Date().toISOString()}).eq("id",trackId).eq("pending_alert_active",false);
 }
-function normalizeName(name:string){return name.trim().replace(/\s+/g," ").split(" ").map((part:string)=>part.replace(/^أ/u,"ا").replace(/ة$/u,"ه")).join(" ")}
+function normalizeName(name:string){return name.trim().replace(/\s+/g," ").split(" ").map((part:string)=>part.replace(/^[اأإآ]/u,"ا").replace(/ى$/u,"ي").replace(/ة$/u,"ه")).join(" ")}
 function validName(name:string){return normalizeName(name).length>0}
 async function getOpenTracks(){const {data,error}=await db.from("tracks").select("id,name,whatsapp_link,is_open,sort_order").eq("is_open",true).order("sort_order");if(error)throw error;return data||[]}
 async function getResult(name:string,trackId:string){
