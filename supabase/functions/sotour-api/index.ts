@@ -181,7 +181,7 @@ Deno.serve(async(req)=>{
   if(action==="admin-data"){
    const body=await req.json();if(!(await requireRole(body,"admin")))return json({error:"كلمة مرور الإدارة غير صحيحة."},401);
    const {data:tracks,error}=await db.from("tracks").select("*").order("sort_order");if(error)throw error;
-   const {data:regs,error:re}=await db.from("registrations").select("id,student_name,track_id,latest_status");if(re)throw re;
+   const {data:regs,error:re}=await db.from("registrations").select("id,student_name,track_id,latest_status,companion_group_link_use_count");if(re)throw re;
    const {data:pairs,error:pe}=await db.from("companion_pairs").select("id,riwaya,student1_registration_id,student2_registration_id");if(pe)throw pe;
    const stats:Record<string,any>={};for(const t of tracks||[])stats[t.id]={accepted:0,rejected:0,pending:0,retry:0};
    for(const r of regs||[])if(stats[r.track_id])stats[r.track_id][r.latest_status]=(stats[r.track_id][r.latest_status]||0)+1;
@@ -210,6 +210,16 @@ Deno.serve(async(req)=>{
    if(pairs.length){const ins=await db.from("companion_pairs").insert(pairs.map((p:any)=>({student1_registration_id:String(p.student1Id),student2_registration_id:String(p.student2Id),riwaya:String(p.riwaya)})));if(ins.error)throw ins.error;}
    await audit("edit-companion-list",trackId,{pairCount:pairs.length});
    return json({ok:true,count:pairs.length});
+  }
+  if(action==="admin-reset-companion-link"){
+   const body=await req.json();if(!(await requireRole(body,"admin")))return json({error:"كلمة مرور الإدارة غير صحيحة."},401);
+   const registrationId=String(body.registrationId||"");
+   if(!registrationId)return json({error:"الطالبة غير محددة."},400);
+   const {data:r,error}=await db.from("registrations").update({companion_group_link_use_count:0,companion_group_link_used_at:null}).eq("id",registrationId).eq("latest_status","accepted").select("id,student_name,companion_group_link_use_count").maybeSingle();
+   if(error)throw error;
+   if(!r)return json({error:"لا يمكن إعادة فتح الرابط إلا للطالبة المقبولة."},400);
+   await audit("admin-reset-companion-link",registrationId,{});
+   return json({ok:true,studentName:r.student_name,useCount:0});
   }
   if(action==="admin-track"){
    const body=await req.json();if(!(await requireRole(body,"admin")))return json({error:"كلمة مرور الإدارة غير صحيحة."},401);
