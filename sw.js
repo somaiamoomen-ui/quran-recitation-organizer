@@ -1,2 +1,10 @@
+const APP_VERSION='20261004-02';
+self.addEventListener('install',event=>{self.skipWaiting()});
+self.addEventListener('activate',event=>{event.waitUntil(clients.claim())});
+self.addEventListener('fetch',event=>{
+  if(event.request.mode==='navigate'){
+    event.respondWith(fetch(new Request(event.request,{cache:'no-store'})).catch(()=>fetch(event.request)));
+  }
+});
 self.addEventListener('push',event=>{let data={title:'أكاديمية سطور الهدى',body:'يوجد تنبيه جديد.'};try{if(event.data)data=event.data.json()}catch(e){}event.waitUntil(self.registration.showNotification(data.title||'أكاديمية سطور الهدى',{body:data.body||'',icon:'./icon-192.png',badge:'./icon-192.png',dir:'rtl',lang:'ar',data:{url:data.url||'./'}}))});
 self.addEventListener('notificationclick',event=>{event.notification.close();const url=event.notification?.data?.url||'./';event.waitUntil(clients.matchAll({type:'window',includeUncontrolled:true}).then(list=>{for(const c of list){if('focus' in c){c.navigate(url);return c.focus()}}return clients.openWindow(url)}))});
