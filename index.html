@@ -295,7 +295,7 @@ async function enterTeacherQueue(){
  $('teacherSelector').classList.add('hidden');$('teacherPanel').classList.remove('hidden');queuePage=1;await loadQueue(1);
 }
 async function loadQueue(page){
- if(!teacherPass||page<1)return;queuePage=page;
+ if(!teacherPass||page<1)return;queuePage=page;$('queue').innerHTML='<div class="msg info">⏳ جاري تحميل التسجيلات المعلقة... برجاء الانتظار قليلًا.</div>';
  try{const d=await api('teacher-queue',{password:teacherPass,page,pageSize:20,trackId:$('teacherTrackChoice').value});const items=d.items||[];$('queue').innerHTML=items.length?items.map(renderQueue).join(''):'<div class="msg info">لا توجد تسجيلات معلقة.</div>';$('pendingCount').textContent=d.total||0;$('pageLabel').textContent='صفحة '+page;$('prevBtn').disabled=page<=1;$('nextBtn').disabled=!d.hasMore}catch(e){msg('teacherMsg',e.message,'err')}
 }
 async function refreshTeacherQueue(){try{await loadQueue(queuePage);msg("teacherMsg","تم تحديث التسجيلات بنجاح 🔄","ok")}catch(e){msg("teacherMsg",e.message,"err")}
