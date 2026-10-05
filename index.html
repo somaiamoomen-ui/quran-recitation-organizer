@@ -17,9 +17,9 @@ button,input,select{font:inherit}button{cursor:pointer}.wrap{width:min(1100px,ca
 <main class="wrap">
 <section id="home" class="card">
   <div class="home-grid">
-    <button type="button" class="choice" id="homeStudentChoice">الطالبة</button>
-    <button type="button" class="choice" id="homeTeacherChoice">المعلمة</button>
-    <button type="button" class="choice" id="homeAdminChoice">الإدارة</button>
+    <button type="button" class="choice" id="homeStudentChoice" onclick="document.getElementById('home').classList.add('hidden');document.getElementById('student').classList.remove('hidden');openStudentMode('menu');loadTracks();">الطالبة</button>
+    <button type="button" class="choice" id="homeTeacherChoice" onclick="document.getElementById('home').classList.add('hidden');document.getElementById('teacher').classList.remove('hidden');">المعلمة</button>
+    <button type="button" class="choice" id="homeAdminChoice" onclick="document.getElementById('home').classList.add('hidden');document.getElementById('admin').classList.remove('hidden');">الإدارة</button>
   </div>
 </section>
 
