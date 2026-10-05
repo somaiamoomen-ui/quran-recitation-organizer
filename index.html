@@ -17,9 +17,9 @@ button,input,select{font:inherit}button{cursor:pointer}.wrap{width:min(1100px,ca
 <main class="wrap">
 <section id="home" class="card">
   <div class="home-grid">
-    <button type="button" class="choice" id="homeStudentChoice" onclick="document.getElementById('home').classList.add('hidden');document.getElementById('student').classList.remove('hidden');openStudentMode('menu');loadTracks();">الطالبة</button>
-    <button type="button" class="choice" id="homeTeacherChoice" onclick="document.getElementById('home').classList.add('hidden');document.getElementById('teacher').classList.remove('hidden');">المعلمة</button>
-    <button type="button" class="choice" id="homeAdminChoice" onclick="document.getElementById('home').classList.add('hidden');document.getElementById('admin').classList.remove('hidden');">الإدارة</button>
+    <button class="choice" onclick="show('student')">الطالبة</button>
+    <button class="choice" onclick="show('teacher')">المعلمة</button>
+    <button class="choice" onclick="show('admin')">الإدارة</button>
   </div>
 </section>
 
@@ -535,5 +535,5 @@ if('serviceWorker' in navigator){navigator.serviceWorker.register('./sw.js').cat
 show('home');
 </script>
 </body>
-<!-- site-repair-redeploy-2026-10-05 -->
+<!-- companion-list-pages-refresh-2026-10-04 -->
 </html>
