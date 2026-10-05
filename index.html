@@ -17,9 +17,9 @@ button,input,select{font:inherit}button{cursor:pointer}.wrap{width:min(1100px,ca
 <main class="wrap">
 <section id="home" class="card">
   <div class="home-grid">
-    <button type="button" class="choice" id="homeStudentChoice" onclick="document.getElementById('home').classList.add('hidden');document.getElementById('student').classList.remove('hidden');openStudentMode('menu');loadTracks();">الطالبة</button>
-    <button type="button" class="choice" id="homeTeacherChoice" onclick="document.getElementById('home').classList.add('hidden');document.getElementById('teacher').classList.remove('hidden');">المعلمة</button>
-    <button type="button" class="choice" id="homeAdminChoice" onclick="document.getElementById('home').classList.add('hidden');document.getElementById('admin').classList.remove('hidden');">الإدارة</button>
+    <button class="choice" onclick="show('student')">الطالبة</button>
+    <button class="choice" onclick="show('teacher')">المعلمة</button>
+    <button class="choice" onclick="show('admin')">الإدارة</button>
   </div>
 </section>
 
@@ -81,13 +81,6 @@ const API_KEY='sb_publishable_-7mggHZgrDs332m_LXXNeg_cLyw8g51';
 let mediaRecorder=null, chunks=[], recordTimer=null, seconds=0, pendingBlob=null, pendingObjectUrl='', queuePage=1, teacherPass='', adminPass='', currentTracks=[];
 const MAX_SECONDS=300, MAX_BYTES=10*1024*1024;
 const $=id=>document.getElementById(id);
-function bindHomeNavigation(){
- const links={homeStudentChoice:'student',homeTeacherChoice:'teacher',homeAdminChoice:'admin'};
- Object.entries(links).forEach(([buttonId,viewId])=>{
-  const button=$(buttonId);
-  if(button)button.addEventListener('click',()=>show(viewId));
- });
-}
 function show(id){['home','student','teacher','admin'].forEach(x=>$(x).classList.toggle('hidden',x!==id));if(id==='student'){loadTracks();openStudentMode('menu')}} function openStudentMode(mode){$('studentMenu').classList.toggle('hidden',mode!=='menu');$('recordMode').classList.toggle('hidden',mode!=='record');$('resultMode').classList.toggle('hidden',mode!=='result');$('companionMode').classList.toggle('hidden',mode!=='companion')} function normalizeCompanionNumber(value){return String(value||'').trim().replace(/[٠-٩]/g,d=>'٠١٢٣٤٥٦٧٨٩'.indexOf(d)).replace(/[۰-۹]/g,d=>'۰۱۲۳۴۵۶۷۸۹'.indexOf(d))} function cleanStudentName(value){return String(value||'').replace(/[\u200B-\u200D\uFEFF]/g,'').trim().replace(/\s+/g,' ')} function renderCompanionTrackChoices(){const box=$('companionTrackChoices');if(!box)return;box.innerHTML=currentTracks.length?currentTracks.map(t=>'<button type="button" class="admin-icon track-option" data-track-id="'+escapeHtml(t.id)+'" onclick="selectCompanionTrack(\''+escapeHtml(t.id)+'\')"><span class="ico">📖</span>'+escapeHtml(t.name)+'</button>').join(''):'<div class="hint">لا توجد مسارات متاحة حاليًا.</div>';} function selectCompanionTrack(id){const t=currentTracks.find(x=>x.id===id);if(!t)return;$('companionTrack').value=t.id;$('companionTrackSelected').textContent='المسار المختار: '+t.name;document.querySelectorAll('#companionTrackChoices [data-track-id]').forEach(b=>b.style.outline=b.dataset.trackId===t.id?'3px solid #0f766e':'none');} window._companionSelections={student1RegistrationId:'',student2RegistrationId:''};
 function showCompanionCandidates(role,candidates){
  const title=role==='student1'?'اسمك':'اسم رفيقتك';
@@ -539,7 +532,6 @@ async function createTrack(){const name=$('newTrackName').value.trim();if(!name)
 async function resetAllResults(){if(!adminPass)return;const ok=window.confirm('هل أنتِ متأكدة من مسح جميع النتائج السابقة لكل المسارات؟ سيتم حذف المقبولات والمرفوضات والمعلقات والتسجيلات الصوتية، ولا يمكن التراجع عن ذلك.');if(!ok)return;const ok2=window.confirm('تأكيد أخير: هل تريدين مسح كل النتائج والتسجيلات السابقة الآن؟');if(!ok2)return;try{await api('reset-results',{password:adminPass});await loadAdmin();msg('adminMsg','تم مسح جميع النتائج والتسجيلات السابقة بنجاح.','ok')}catch(e){msg('adminMsg',e.message,'err')}}
 async function changePasswords(){const tp=$('newTeacherPassword').value,ap=$('newAdminPassword').value;if(!tp&&!ap)return msg('adminMsg','اكتبي كلمة مرور واحدة على الأقل لتغييرها.','err');try{await api('change-passwords',{password:adminPass,teacherPassword:tp,adminPassword:ap});$('newTeacherPassword').value='';$('newAdminPassword').value='';msg('adminMsg','تم تغيير كلمات المرور بنجاح.','ok')}catch(e){msg('adminMsg',e.message,'err')}}
 if('serviceWorker' in navigator){navigator.serviceWorker.register('./sw.js').catch(()=>{});}
-bindHomeNavigation();
 show('home');
 </script>
 </body>
