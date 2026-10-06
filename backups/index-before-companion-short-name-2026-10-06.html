@@ -1,0 +1,553 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#0f766e">
+<title>أكاديمية سطور الهدى</title>
+<style>
+:root{--primary:#0f766e;--primary2:#115e59;--bg:#f4f8f7;--card:#fff;--text:#16302c;--muted:#647875;--danger:#b42318;--ok:#16794c;--line:#dce8e5;--shadow:0 12px 35px #123b3514}
+*{box-sizing:border-box}body{margin:0;background:linear-gradient(160deg,#edf8f5,#f9fbfa);font-family:"Segoe UI",Tahoma,Arial,sans-serif;color:var(--text);min-height:100vh}
+button,input,select{font:inherit}button{cursor:pointer}.wrap{width:min(1100px,calc(100% - 28px));margin:auto}.top{padding:34px 0 18px;text-align:center}.brand{font-size:clamp(26px,5vw,42px);font-weight:800;color:var(--primary2);margin:0}.sub{color:var(--muted);margin:10px 0 0}.card{background:var(--card);border:1px solid var(--line);border-radius:22px;box-shadow:var(--shadow);padding:24px;margin:18px 0}.home-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin:28px 0}.student-actions{display:grid;grid-template-columns:1fr;gap:14px;margin:18px 0}.student-evaluation-setting{display:flex;justify-content:center;align-items:center;margin-top:12px}.student-evaluation-setting button{border:0;border-radius:12px;background:var(--primary);color:#fff;padding:12px 18px;font-size:14px;font-weight:800;box-shadow:var(--shadow)}.student-choice{min-height:105px;border:1px solid var(--line);border-radius:18px;background:#fff;padding:18px;font-weight:800;font-size:19px;color:var(--primary2);box-shadow:var(--shadow)}.student-choice small{display:block;color:var(--muted);font-size:13px;font-weight:600;line-height:1.6;margin-top:8px}.choice{min-height:150px;border:1px solid var(--line);border-radius:20px;background:#fff;padding:25px;font-weight:800;font-size:21px;color:var(--primary2);box-shadow:var(--shadow);transition:.18s}.choice:hover{transform:translateY(-3px);border-color:#8fcfc4}.section-title{margin:0 0 18px;font-size:24px}.row{display:grid;grid-template-columns:1fr 1fr;gap:14px}.field{margin:12px 0}.field label{display:block;font-weight:700;margin-bottom:7px}.hint{font-size:13px;color:var(--muted);margin-top:6px}.input,.select{width:100%;padding:13px 14px;border:1px solid #cddbd8;border-radius:12px;outline:none;background:#fff}.input:focus,.select:focus{border-color:var(--primary);box-shadow:0 0 0 3px #0f766e16}.result-notice{color:var(--danger);font-weight:800;font-size:15px}.name-warning{color:var(--danger);font-weight:700;font-size:13px;line-height:1.6;margin-top:6px}.btn{border:0;border-radius:12px;padding:12px 17px;background:var(--primary);color:#fff;font-weight:800}.btn:hover{background:var(--primary2)}.btn.secondary{background:#e8f3f1;color:var(--primary2)}.btn.danger{background:#b42318}.btn.gray{background:#eef2f1;color:#314844}.btn:disabled{opacity:.55;cursor:not-allowed}.actions{display:flex;gap:9px;flex-wrap:wrap;margin-top:15px}.msg{padding:12px 14px;border-radius:12px;margin:12px 0;white-space:pre-line}.msg.ok{background:#eaf7ef;color:#14643e}.msg.err{background:#fff0ee;color:#9b2017}.msg.info{background:#edf6ff;color:#14527a}.retry-note{background:#fff7e6;border:1px solid #f0c36d;color:#7a4b00;padding:12px 14px;border-radius:12px;margin-top:12px;white-space:pre-line}.hidden{display:none!important}.back{margin-bottom:10px}.badge{display:inline-flex;align-items:center;padding:5px 9px;border-radius:999px;background:#eef5f3;color:var(--primary2);font-size:12px;font-weight:800}.list{display:grid;gap:12px}.item{border:1px solid var(--line);border-radius:16px;padding:15px;background:#fbfdfc}.item-head{display:flex;justify-content:space-between;gap:10px;align-items:flex-start}.audio{width:100%;margin:14px 0;padding:8px;border:1px solid var(--line);border-radius:14px;background:#f4f8f7;min-height:54px}.audio-speed{display:flex;align-items:center;gap:8px;margin:-4px 0 12px}.audio-speed label{font-weight:700;font-size:13px}.audio-speed select{padding:8px 10px;border:1px solid #cddbd8;border-radius:10px;background:#fff;color:var(--text)}.record-preview{margin-top:16px;padding:16px;border:1px solid var(--line);border-radius:16px;background:#fbfdfc}.record-preview-title{font-weight:800;margin-bottom:10px}.record-preview-actions{display:flex;gap:9px;flex-wrap:wrap;margin-top:10px}.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin:15px 0}.stat{background:#f4f8f7;border:1px solid var(--line);border-radius:15px;padding:13px;text-align:center}.stat strong{display:block;font-size:24px}.track-card{border:1px solid var(--line);padding:15px;border-radius:15px;background:#fff}.track-card .name{font-weight:800;font-size:17px}.pill-open{color:#14643e}.pill-closed{color:#9b2017}.pagination{display:flex;justify-content:center;align-items:center;gap:10px;margin-top:16px}.footer{text-align:center;color:var(--muted);font-size:12px;padding:18px 0 30px}a{color:var(--primary2);font-weight:800}.companion-link{display:inline-block;color:var(--primary2);font-weight:800;text-decoration:underline;user-select:none;-webkit-user-select:none;-webkit-touch-callout:none}
+@media(max-width:760px){.home-grid{grid-template-columns:1fr}.row,.stats{grid-template-columns:1fr}.card{padding:18px}.item-head{flex-direction:column}}
+.admin-icons{display:grid;grid-template-columns:repeat(auto-fit,minmax(125px,1fr));gap:12px;margin:18px 0}.admin-icon{border:1px solid var(--line);border-radius:18px;background:#fff;padding:18px 10px;text-align:center;font-weight:800;color:var(--primary2);box-shadow:var(--shadow);min-height:105px}.admin-icon .ico{display:block;font-size:32px;margin-bottom:8px}.admin-icon small{display:block;color:var(--muted);font-size:12px;margin-top:4px}.admin-view{margin-top:16px;border:1px solid var(--line);border-radius:18px;padding:16px;background:#fbfdfc}.admin-view-title{font-weight:800;font-size:19px;margin-bottom:12px}.track-icons{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px}.track-icon{min-height:105px}.track-icon .ico{font-size:30px}.admin-close{float:left}.track-option-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}.track-option{min-height:85px}@media(max-width:600px){.track-option-grid{grid-template-columns:1fr}}</style>
+</head>
+<body>
+<header class="top wrap"><h1 class="brand">أكاديمية سطور الهدى ترحب بكم</h1><p class="sub">تنظيم اختبارات وتصحيح تلاوة القرآن الكريم</p></header>
+<main class="wrap">
+<section id="home" class="card">
+  <div class="home-grid">
+    <button class="choice" onclick="show('student')">الطالبة</button>
+    <button class="choice" onclick="show('teacher')">المعلمة</button>
+    <button class="choice" onclick="show('admin')">الإدارة</button>
+  </div>
+</section>
+
+<section id="student" class="card hidden">
+<button class="btn secondary back" onclick="show('home')">← الرئيسية</button>
+<h2 class="section-title">الطالبة</h2><div id="studentMsg"></div><div id="studentMenu"><div class="student-actions"><button class="student-choice" onclick="openStudentMode('record')">🎙️ تقييم التلاوة<small>✓ابدأي هنا أولا✓<br>سجلي « <span id="studentEvaluationText"></span> » حتى تقيم المعلمة تلاوتك</small></button><button class="student-choice" onclick="openStudentMode('result')">📋 النتيجة<small>تظهر النتيجة خلال ساعات من إرسال الريكورد</small></button><button class="student-choice" onclick="openStudentMode('companion')">👭 تسجيل الرفيقة<small>بعد الاتفاق مع رفيقتك وتحديدها، اضغطي هنا لتسجيل بيانات الرفيقة</small></button></div></div><div id="recordMode" class="hidden">
+<div class="field"><label for="studentName">برجاء إدخال الاسم الثلاثي هنا</label><input id="studentName" class="input" placeholder="اكتبي اسمك الثلاثي هنا" autocomplete="name"></div>
+<div class="field"><label for="studentTrack">اختاري المسار</label><select id="studentTrack" class="select"></select></div>
+<div class="actions"><button class="btn" id="recordBtn" onclick="toggleRecording()">🎙️ بدء التسجيل</button></div>
+<div id="recordInfo" class="hint"></div>
+<div id="recordPreview" class="record-preview hidden">
+  <div class="record-preview-title">راجعي التسجيل قبل إرساله</div>
+  <audio id="previewAudio" class="audio" controls></audio>
+  <div class="record-preview-actions">
+    <button class="btn" id="sendRecordingBtn" onclick="sendRecording()">إرسال التسجيل</button>
+    <button class="btn danger" id="deleteRecordingBtn" onclick="deleteRecording()">حذف التسجيل وتسجيل واحد آخر</button>
+  </div>
+</div>
+</div><div id="resultMode" class="hidden"><button class="btn secondary back" onclick="openStudentMode('menu')">← اختيارات الطالبة</button><h3 class="section-title">النتيجة</h3><div class="field"><label for="resultStudentName">برجاء إدخال الاسم</label><input id="resultStudentName" class="input" placeholder="اكتبي اسمك كما تم تسجيله" autocomplete="name"><div class="name-warning">⚠️ اكتبي اسمكِ بالضبط كما كتبتيه أثناء تقييم التلاوة، بنفس عدد الأسماء (ثلاثي أو ثنائي) ونفس الحروف، مع الانتباه للهمزات(ا/أ/إ/آ)، (ة/ه)، (ى/ي).<br>مثال أسماء ≠ اسماء، علي≠على، ساره≠سارة، شيماء محمد أحمد≠شيماء محمد</div></div><div class="field"><label for="resultTrack">اختاري المسار</label><select id="resultTrack" class="select"></select></div><div class="actions"><button class="btn" onclick="checkResult($('resultStudentName').value,$('resultTrack').value)">معرفة النتيجة</button></div><div id="resultBox"></div></div><div id="companionMode" class="hidden"><button class="btn secondary back" onclick="openStudentMode('menu')">← اختيارات الطالبة</button><h3 class="section-title">تسجيل الرفيقة</h3><div id="companionMsg"></div><div class="field"><label>اسمك الثنائي</label><input id="companionName" class="input" placeholder="اكتبي اسمك كما تم تسجيله"><div class="name-warning">⚠️ اكتبي اسمكِ بالضبط كما كتبتيه أثناء تقييم التلاوة، بنفس عدد الأسماء (ثلاثي أو ثنائي) ونفس الحروف، مع الانتباه للهمزات(ا/أ/إ/آ)، (ة/ه)، (ى/ي).<br>مثال أسماء ≠ اسماء، علي≠على، ساره≠سارة، شيماء محمد أحمد≠شيماء محمد</div></div><div class="field"><label>اسم رفيقتك الثنائي</label><input id="companionName2" class="input" placeholder="اكتبي اسم رفيقتك كما تم تسجيله"></div><div class="field"><label for="companionNumber">رقمك في القائمة</label><input id="companionNumber" class="input" type="text" inputmode="numeric" pattern="[0-9٠-٩۰-۹]*" autocomplete="off" placeholder="اكتبي رقم الرفيقة كما حدده المشرف" oninput="this.value=normalizeCompanionNumber(this.value).replace(/\\D/g,'')"><div class="hint companion-number-warning" style="color:var(--danger);font-weight:700">اكتبي الرقم الذي ستعطيه لكِ المشرفة في جروب الرفيقات. إذا كانت المشرفة لم تعطكِ رقمًا بعد، فانتظري واسأليها عن رقمك، ثم سجّلي الرفقة بعد الحصول على الرقم.</div></div><div class="field"><label>الرواية</label><select id="companionRiwaya" class="select"><option value="">اختاري الرواية</option><option value="حفص">حفص</option><option value="قالون">قالون</option></select></div><div class="field"><label for="companionTrack">المسار</label><select id="companionTrack" class="select"><option value="">اختاري المسار</option></select></div><div class="hint">يشترط أن تكوني أنتِ ورفيقتك من الطالبات المقبولات بالفعل في نفس المسار.</div><div class="actions"><button class="btn" onclick="registerCompanion()">تأكيد الرفقة</button></div><div id="companionResult"></div></div></section>
+
+<section id="teacher" class="card hidden">
+<button class="btn secondary back" onclick="show('home')">← الرئيسية</button>
+<h2 class="section-title">دخول المعلمة</h2>
+<div id="teacherMsg"></div>
+<div id="teacherLogin"><div class="field"><label>كلمة المرور</label><input id="teacherPassword" class="input" type="text" autocomplete="off" spellcheck="false"></div><button class="btn" onclick="teacherLogin()">دخول</button></div>
+<div id="teacherSelector" class="hidden">
+  <div class="field"><label>اختيار المسار</label><select id="teacherTrackChoice" class="select" onchange="updateTeacherNames()"><option value="">اختاري المسار</option></select></div>
+  <div class="field"><label>اختيار الاسم</label><select id="teacherNameChoice" class="select" onchange="teacherNameSelected()"><option value="">اختاري الاسم</option></select></div>
+  <div id="teacherPushPrompt" class="msg info hidden"></div>
+  <div class="actions"><button class="btn" id="enterTeacherQueueBtn" type="button" onclick="enterTeacherQueue()" disabled>دخول إلى التسجيلات</button></div>
+</div>
+<div id="teacherPanel" class="hidden">
+<div class="stats"><div class="stat"><strong id="pendingCount">0</strong>تسجيلات معلقة</div></div>
+<div style="display:flex;justify-content:flex-end;margin:8px 0"><button class="btn secondary" type="button" onclick="refreshTeacherQueue()" style="padding:7px 11px;font-size:13px">🔄 تحديث</button></div>
+<div id="queue"></div><div class="pagination"><button class="btn secondary" onclick="loadQueue(queuePage-1)" id="prevBtn">السابق</button><span id="pageLabel"></span><button class="btn secondary" onclick="loadQueue(queuePage+1)" id="nextBtn">التالي</button></div>
+</div></section>
+
+<section id="admin" class="card hidden">
+<button class="btn secondary back" onclick="show('home')">← الرئيسية</button>
+<div style="display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap"><h2 class="section-title" style="margin:0">لوحة الإدارة</h2><button class="btn secondary" type="button" onclick="refreshAdminData()" style="padding:7px 11px;font-size:13px">🔄 تحديث</button></div>
+<div id="adminMsg"></div>
+<div id="adminLogin"><div class="field"><label>كلمة مرور الإدارة</label><input id="adminPassword" class="input" type="text" autocomplete="off" spellcheck="false"></div><button class="btn" onclick="adminLogin()">دخول</button></div>
+<div id="adminPanel" class="hidden">
+<div id="adminIcons" class="admin-icons"></div>
+<div id="trackChooser" class="admin-view hidden"></div>
+<div id="searchStudentView" class="admin-view hidden"><div class="admin-view-title">🔍 البحث عن طالبة</div><button class="btn gray admin-close" onclick="closeAdminViews()">إغلاق</button><div class="field"><label>اسم الطالبة</label><input id="adminStudentSearch" class="input" type="text" placeholder="اكتبي اسم الطالبة هنا" oninput="searchAdminStudent()"></div><div id="adminStudentSearchResults" class="list" style="margin-top:12px"></div></div>
+<div id="addTrackView" class="admin-view hidden"><div class="admin-view-title">➕ إضافة مسار</div><button class="btn gray admin-close" onclick="closeAdminViews()">إغلاق</button><div class="row"><div class="field"><label>اسم المسار</label><input id="newTrackName" class="input"></div><div class="field"><label>رابط جروب الرفيقات</label><input id="newTrackLink" class="input" type="url"></div></div><div class="field"><label>رابط جروب الحفظ الأساسي</label><input id="newPrimaryLink" class="input" type="url" placeholder="أضيفيه لاحقًا قبل الاستخدام"></div><button class="btn" onclick="createTrack()">إضافة المسار</button></div>
+<div id="statsView" class="admin-view hidden"><div class="admin-view-title">📊 الإحصائيات العامة</div><button class="btn gray admin-close" onclick="closeAdminViews()">إغلاق</button><div class="stats"><div class="stat"><strong id="totalReg">0</strong>إجمالي التسجيلات</div><div class="stat"><strong id="totalPending">0</strong>معلقة</div><div class="stat"><strong id="totalAccepted">0</strong>مقبولة</div><div class="stat"><strong id="totalRejected">0</strong>مرفوضة</div><div class="stat"><strong id="totalPairs">0</strong>إجمالي الرفيقات</div><div class="stat"><strong id="totalUnpaired">0</strong>مقبولات بلا رفيقة</div></div><div class="hint">ملخص سريع لكل المسارات. أسماء الطالبات بلا رفيقة لا تظهر هنا تلقائيًا؛ يمكن عرضها من إحصائيات المسار.</div><div id="trackStatsAdmin" class="list" style="margin-top:12px"></div><div class="admin-icons" style="margin-top:12px"><button class="admin-icon" onclick="openAuditLog()"><span class="ico">📝</span>سجل التغييرات<small>آخر 100 تغيير</small></button></div><div id="auditView" class="admin-view hidden" style="margin-top:10px"></div></div>
+<div id="resetView" class="admin-view hidden"><div class="admin-view-title">🗑️ مسح النتائج السابقة</div><button class="btn gray admin-close" onclick="closeAdminViews()">إغلاق</button><div class="msg err">سيتم حذف نتائج المقبولات والمرفوضات والمعلقات والتسجيلات الصوتية السابقة كلها، ولا يمكن التراجع عن هذه العملية.</div><button class="btn danger" onclick="resetAllResults()">مسح جميع النتائج السابقة</button></div>
+<div id="studentEvaluationView" class="admin-view hidden"><div class="admin-view-title">📝 تحديد آيات التقييم</div><button class="btn gray admin-close" onclick="closeAdminViews()">إغلاق</button><div class="field"><label>الجملة التي ستظهر بين القوسين « »</label><input id="studentEvaluationInput" class="input" type="text" placeholder="مثال: سورة البقرة من آية ... إلى آية ..."></div><div class="actions"><button class="btn" type="button" onclick="saveStudentEvaluationText()">حفظ</button></div></div>
+<div id="passwordView" class="admin-view hidden"><div class="admin-view-title">🔑 تغيير كلمات المرور</div><button class="btn gray admin-close" onclick="closeAdminViews()">إغلاق</button><div class="row"><div class="field"><label>كلمة مرور المعلمات الجديدة</label><input id="newTeacherPassword" class="input" type="text" autocomplete="off" spellcheck="false"></div><div class="field"><label>كلمة مرور الإدارة الجديدة</label><input id="newAdminPassword" class="input" type="text" autocomplete="off" spellcheck="false"></div></div><button class="btn" onclick="changePasswords()">حفظ كلمات المرور</button></div>
+</div></section>
+</main>
+<footer class="footer">أكاديمية سطور الهدى</footer>
+
+<script>
+const API='https://hhbseytjfkzonaptnldl.supabase.co/functions/v1/sotour-api';
+const API_KEY='sb_publishable_-7mggHZgrDs332m_LXXNeg_cLyw8g51';
+let mediaRecorder=null, chunks=[], recordTimer=null, seconds=0, pendingBlob=null, pendingObjectUrl='', queuePage=1, teacherPass='', adminPass='', currentTracks=[];
+const MAX_SECONDS=300, MAX_BYTES=10*1024*1024;
+const $=id=>document.getElementById(id);
+function show(id){['home','student','teacher','admin'].forEach(x=>$(x).classList.toggle('hidden',x!==id));if(id==='student'){loadTracks();openStudentMode('menu')}} function openStudentMode(mode){$('studentMenu').classList.toggle('hidden',mode!=='menu');$('recordMode').classList.toggle('hidden',mode!=='record');$('resultMode').classList.toggle('hidden',mode!=='result');$('companionMode').classList.toggle('hidden',mode!=='companion')} function normalizeCompanionNumber(value){return String(value||'').trim().replace(/[٠-٩]/g,d=>'٠١٢٣٤٥٦٧٨٩'.indexOf(d)).replace(/[۰-۹]/g,d=>'۰۱۲۳۴۵۶۷۸۹'.indexOf(d))} function cleanStudentName(value){return String(value||'').replace(/[\u200B-\u200D\uFEFF]/g,'').trim().replace(/\s+/g,' ')} function renderCompanionTrackChoices(){const box=$('companionTrackChoices');if(!box)return;box.innerHTML=currentTracks.length?currentTracks.map(t=>'<button type="button" class="admin-icon track-option" data-track-id="'+escapeHtml(t.id)+'" onclick="selectCompanionTrack(\''+escapeHtml(t.id)+'\')"><span class="ico">📖</span>'+escapeHtml(t.name)+'</button>').join(''):'<div class="hint">لا توجد مسارات متاحة حاليًا.</div>';} function selectCompanionTrack(id){const t=currentTracks.find(x=>x.id===id);if(!t)return;$('companionTrack').value=t.id;$('companionTrackSelected').textContent='المسار المختار: '+t.name;document.querySelectorAll('#companionTrackChoices [data-track-id]').forEach(b=>b.style.outline=b.dataset.trackId===t.id?'3px solid #0f766e':'none');} window._companionSelections={student1RegistrationId:'',student2RegistrationId:''};
+function showCompanionCandidates(role,candidates){
+ const title=role==='student1'?'اسمك':'اسم رفيقتك';
+ const inputId=role==='student1'?'companionStudent1Choice':'companionStudent2Choice';
+ $('companionResult').innerHTML='<div class="msg info"><b>وجدنا أكثر من اسم مقبول مشابه.</b><br>من فضلك اختاري '+title+' من الأسماء التالية:</div><div class="item"><div class="field"><label for="'+inputId+'">اختاري الاسم الصحيح</label><select id="'+inputId+'" class="select"><option value="">اختاري الاسم</option>'+candidates.map(c=>'<option value="'+escapeHtml(c.id)+'">'+escapeHtml(c.name)+'</option>').join('')+'</select></div><button class="btn" type="button" onclick="continueCompanionAfterChoice(\''+role+'\')">متابعة</button></div>';
+}
+function continueCompanionAfterChoice(role){
+ const inputId=role==='student1'?'companionStudent1Choice':'companionStudent2Choice';
+ const id=$(inputId)?.value||'';
+ if(!id)return msg('companionMsg','برجاء اختيار الاسم الصحيح أولًا.','err');
+ window._companionSelections[role==='student1'?'student1RegistrationId':'student2RegistrationId']=id;
+ registerCompanion(window._companionSelections.student1RegistrationId,window._companionSelections.student2RegistrationId);
+}
+async function registerCompanion(student1RegistrationId='',student2RegistrationId=''){
+ const name=cleanStudentName($('companionName').value),name2=cleanStudentName($('companionName2').value),trackId=$('companionTrack').value,pairNumber=normalizeCompanionNumber($('companionNumber').value),riwaya=$('companionRiwaya').value;
+ if(!student1RegistrationId&&!student2RegistrationId)window._companionSelections={student1RegistrationId:'',student2RegistrationId:''};
+ if(!trackId||!name||!name2||!pairNumber||!riwaya)return msg('companionMsg','برجاء اختيار المسار وإدخال الاسمين ورقم الرفيقة واختيار الرواية.','err');
+ if(!/^\d+$/.test(pairNumber)||Number(pairNumber)<1)return msg('companionMsg','برجاء إدخال رقم رفيقة صحيح يبدأ من 1.','err');
+ try{
+  const d=await api('register-companion',{name,name2,trackId,pairNumber,riwaya,student1RegistrationId:student1RegistrationId||window._companionSelections.student1RegistrationId||'',student2RegistrationId:student2RegistrationId||window._companionSelections.student2RegistrationId||''});
+  msg('companionMsg','تم تسجيل الرفقة بنجاح ✅','ok');
+  $('companionResult').innerHTML='<div class="msg ok"><b>الرفقة رقم '+Number(d.pairNumber)+'</b><br>'+escapeHtml(d.student1Name)+' — '+escapeHtml(d.student2Name)+' ('+escapeHtml(d.riwaya)+')<br><br><b>رابط جروب الحفظ الأساسي:</b><br><a href="'+escapeHtml(d.primaryGroupLink)+'" target="_blank" rel="noopener">الدخول إلى جروب الحفظ الأساسي</a><br><br>📌 برجاء إرسال رابط الجروب إلى رفيقتك حتى تتمكن من طلب الانضمام.<br><span class="hint">⚠️ تنبيه: ممنوع مشاركة رابط جروب الحفظ الأساسي مع أي شخص آخر، ويُسمح بمشاركته مع رفيقتك فقط.<br>لإرسال الرابط: اضغطي ضغطة مطولة على الرابط، ثم اختاري «مشاركة الرابط» وأرسليه لرفيقتك.</span></div>';
+ }catch(e){
+  if(e&&e.code==='ambiguous_student1'){showCompanionCandidates('student1',e.candidates||[]);return;}
+  if(e&&e.code==='ambiguous_student2'){showCompanionCandidates('student2',e.candidates||[]);return;}
+  if(e&&e.code==='same_pair_already_registered'){
+   msg('companionMsg',e.message,'ok');
+   $('companionResult').innerHTML='<div class="msg ok"><b>'+escapeHtml(e.message)+'</b><br><br><b>رابط جروب الحفظ الأساسي:</b><br><a href="'+escapeHtml(e.primaryGroupLink||'')+'" target="_blank" rel="noopener">الدخول إلى جروب الحفظ الأساسي</a></div>';
+   return;
+  }
+  msg('companionMsg',e.message,'err')
+ }}
+function msg(id,text,type='info'){ $(id).innerHTML=text?'<div class="msg '+type+'">'+escapeHtml(text)+'</div>':'' }
+function escapeHtml(s){return String(s??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]))}
+async function api(action,body,form=false){
+ const opts={method:'POST',headers:{apikey:API_KEY}};
+ if(form) opts.body=body; else {opts.headers['Content-Type']='application/json';opts.body=JSON.stringify(body||{});}
+ const r=await fetch(API+'?action='+encodeURIComponent(action),opts);
+ const data=await r.json().catch(()=>({error:'استجابة غير صالحة'}));
+ if(!r.ok){const err=new Error(data.error||'حدث خطأ في الاتصال');err.code=data.code||'';err.primaryGroupLink=data.primaryGroupLink||'';throw err;}
+ return data;
+}
+async function loadTracks(){
+ try{const d=await api('tracks',{});currentTracks=d.tracks||[];const options='<option value="">اختاري المسار</option>'+currentTracks.map(t=>'<option value="'+t.id+'">'+escapeHtml(t.name)+'</option>').join('');$('studentTrack').innerHTML=options;$('resultTrack').innerHTML=options;$('companionTrack').innerHTML=options;$('studentEvaluationText').textContent=d.evaluationText||'';}
+ catch(e){msg('studentMsg',e.message,'err')}
+}
+function nameValue(){return cleanStudentName($('studentName').value)}
+async function toggleRecording(){
+ if(mediaRecorder&&mediaRecorder.state==='recording'){mediaRecorder.stop();return}
+ if(pendingBlob)return;
+ if(!nameValue()) return msg('studentMsg','برجاء إدخال الاسم أولًا.','err');
+ if(!$('studentTrack').value) return msg('studentMsg','برجاء اختيار المسار.','err');
+ try{
+  const stream=await navigator.mediaDevices.getUserMedia({audio:true});
+  chunks=[];seconds=0;
+  const recordingTypes=['audio/webm;codecs=opus','audio/webm','audio/ogg;codecs=opus','audio/ogg','audio/mp4;codecs=mp4a.40.2','audio/mp4'];
+  const mimeType=recordingTypes.find(type=>MediaRecorder.isTypeSupported(type))||'';
+  const options={audioBitsPerSecond:128000};
+  if(mimeType)options.mimeType=mimeType;
+  mediaRecorder=new MediaRecorder(stream,options);
+  let recordingInterrupted=false;
+  stream.getTracks().forEach(track=>{
+   track.addEventListener('ended',()=>{
+    if(mediaRecorder&&mediaRecorder.state==='recording'){
+     recordingInterrupted=true;
+     try{mediaRecorder.stop()}catch(_){}
+    }
+   });
+  });
+  mediaRecorder.ondataavailable=e=>{if(e.data&&e.data.size)chunks.push(e.data)};
+  mediaRecorder.onerror=()=>{
+   recordingInterrupted=true;
+  };
+  mediaRecorder.onstart=()=>{
+   $('recordBtn').textContent='⏹️ إيقاف التسجيل';
+   $('recordInfo').textContent='جاري التسجيل…';
+   $('recordPreview').classList.add('hidden');
+   recordTimer=setInterval(()=>{
+    seconds++;
+    $('recordInfo').textContent='مدة التسجيل: '+Math.floor(seconds/60)+':'+String(seconds%60).padStart(2,'0');
+    if(seconds>=MAX_SECONDS)mediaRecorder.stop();
+   },1000);
+  };
+  mediaRecorder.onstop=()=>{
+   clearInterval(recordTimer);
+   const recordedMimeType=mediaRecorder?.mimeType||mimeType||chunks[0]?.type||'audio/webm';
+   stream.getTracks().forEach(t=>t.stop());
+   mediaRecorder=null;
+   if(recordingInterrupted){
+    chunks=[];
+    $('recordInfo').textContent='';
+    $('recordBtn').textContent='🎙️ بدء التسجيل';
+    msg('studentMsg','توقف الميكروفون أو حدث خطأ أثناء التسجيل، لذلك لم يتم حفظ تسجيل غير مكتمل. حاولي التسجيل مرة أخرى.','err');
+    return;
+   }
+   const blob=new Blob(chunks,{type:recordedMimeType});
+   if(blob.size>MAX_BYTES){
+    msg('studentMsg','حجم التسجيل أكبر من الحد المسموح. حاولي تسجيله مرة أخرى.','err');
+    chunks=[];$('recordInfo').textContent='';
+    $('recordBtn').textContent='🎙️ بدء التسجيل';
+    return;
+   }
+   pendingBlob=blob;
+   if(pendingObjectUrl)URL.revokeObjectURL(pendingObjectUrl);
+   pendingObjectUrl=URL.createObjectURL(blob);
+   $('previewAudio').src=pendingObjectUrl;
+   $('recordPreview').classList.remove('hidden');
+   $('recordBtn').textContent='🎙️ تسجيل جديد';
+   $('recordInfo').textContent='اسمعي التسجيل أولًا، ثم اختاري إرساله أو حذفه وتسجيل واحد آخر.';
+   msg('studentMsg','','info');
+  };
+  mediaRecorder.start(250);
+ }catch(e){
+  try{stream?.getTracks?.().forEach(t=>t.stop())}catch(_){}
+  let message='لم نتمكن من الوصول إلى الميكروفون. عند ظهور رسالة السماح من الموبايل اختاري «السماح»، ثم حاولي مرة أخرى.';
+  if(e&&e.name==='NotAllowedError') message='⚠️ تم رفض إذن الميكروفون. هل أنتِ متأكدة من رفضه؟ بدون السماح بالميكروفون لن تتمكني من تسجيل اختبارك في الأكاديمية. إذا كان الرفض بالخطأ، فعّلي الميكروفون للموقع من إعدادات المتصفح ثم حاولي التسجيل مرة أخرى.';
+  else if(e&&e.name==='NotFoundError') message='لم يتم العثور على ميكروفون في الجهاز. تأكدي من وجود الميكروفون ثم حاولي مرة أخرى.';
+  msg('studentMsg',message,'err');
+ }
+}
+async function sendRecording(){
+ if(!pendingBlob)return;
+ const btn=$('sendRecordingBtn');
+ btn.disabled=true;$('deleteRecordingBtn').disabled=true;$('recordBtn').disabled=true;
+ $('recordInfo').textContent='جاري إرسال التسجيل…';
+ try{
+  const f=new FormData();
+  f.append('name',nameValue());
+  f.append('trackId',$('studentTrack').value);
+  const audioType=String(pendingBlob.type||'').toLowerCase();
+ const audioExtension=audioType.includes('mp4')?'mp4':audioType.includes('ogg')?'ogg':audioType.includes('mpeg')||audioType.includes('mp3')?'mp3':audioType.includes('wav')?'wav':'webm';
+ f.append('audio',pendingBlob,'recitation.'+audioExtension);
+  await api('submit',f,true);
+  msg('studentMsg','تم إرسال التسجيل للمعلمة بنجاح.','ok');
+  $('recordInfo').textContent='تظهر النتيجة خلال ساعات من إرسال الريكورد';$('recordInfo').classList.add('result-notice');
+  $('recordPreview').classList.add('hidden');
+  if(pendingObjectUrl)URL.revokeObjectURL(pendingObjectUrl);
+  pendingObjectUrl='';pendingBlob=null;
+  $('previewAudio').removeAttribute('src');$('previewAudio').load();
+  $('recordBtn').textContent='🎙️ بدء التسجيل';
+ }catch(e){
+  msg('studentMsg',e.message,'err');
+  $('recordInfo').textContent='لم يتم الإرسال. يمكنك إعادة المحاولة من نفس التسجيل.';
+ }finally{
+  btn.disabled=false;$('deleteRecordingBtn').disabled=false;$('recordBtn').disabled=false;
+ }
+}
+function deleteRecording(){
+ if(mediaRecorder&&mediaRecorder.state==='recording')return;
+ if(pendingObjectUrl)URL.revokeObjectURL(pendingObjectUrl);
+ pendingObjectUrl='';pendingBlob=null;chunks=[];
+ $('previewAudio').removeAttribute('src');$('previewAudio').load();
+ $('recordPreview').classList.add('hidden');
+ $('recordInfo').textContent='تم حذف التسجيل. يمكنك تسجيل تسجيل جديد.';
+ $('recordBtn').textContent='🎙️ بدء التسجيل';
+ msg('studentMsg','','info');
+}
+async function startCompanionWhatsApp(event,registrationId,trackId,link){
+ if(event)event.preventDefault();
+ if(!registrationId||!trackId||!link)return;
+ let w=null;
+ try{
+  w=window.open('about:blank','_blank');
+  if(!w)return msg('studentMsg','لم يتمكن المتصفح من فتح واتساب. اسمحي بالنوافذ المنبثقة ثم حاولي مرة أخرى.','err');
+  const d=await api('companion-start',{registrationId,trackId});
+  sessionStorage.setItem('companionAttempt',JSON.stringify({registrationId,trackId,token:d.token,whatsappLink:d.whatsappLink,createdAt:Date.now()}));
+  w.location.href=d.whatsappLink;
+ }catch(e){
+  try{if(w)w.close()}catch{}
+  msg('studentMsg',e.message||'تعذر فتح رابط جروب الرفيقات. لم يتم تسجيل استخدام الرابط، ويمكنك المحاولة مرة أخرى.','err');
+ }
+}
+function retryCompanionWhatsApp(){
+ try{
+  const raw=sessionStorage.getItem('companionAttempt');
+  if(!raw)return msg('studentMsg','لم توجد محاولة فتح محفوظة. اضغطي على رابط جروب الرفيقات أولًا.','err');
+  const attempt=JSON.parse(raw);
+  if(!attempt?.whatsappLink)return msg('studentMsg','تعذر إعادة فتح الرابط. اضغطي على رابط جروب الرفيقات وابدئي محاولة جديدة.','err');
+  const w=window.open('about:blank','_blank');
+  if(!w)return msg('studentMsg','لم يتمكن المتصفح من فتح نافذة واتساب. لم يُعتبر الرابط مستخدمًا، ويمكنك السماح بالنوافذ المنبثقة ثم المحاولة مرة أخرى.','err');
+  w.location.href=attempt.whatsappLink;
+ }catch(e){
+  msg('studentMsg','تعذر فتح واتساب. يمكنك الضغط على رابط جروب الرفيقات والمحاولة مرة أخرى.','err');
+ }
+}
+function confirmCompanionGroupLink(){
+ try{
+  const key='companionConfirmed:'+nameValue().trim()+':'+($('resultTrack')?.value||'');
+  sessionStorage.setItem(key,'1');
+  $('resultBox').innerHTML='<div class="msg ok">تم تأكيد الدخول لجروب الرفيقات بنجاح 🌷</div>';
+ }catch(e){
+  msg('studentMsg','تعذر تأكيد الدخول.','err');
+ }
+}
+async function checkResult(nameOverride='',trackIdOverride=''){
+ const name=cleanStudentName(nameOverride||nameValue()),trackId=trackIdOverride||$('resultTrack')?.value||'';if(!name)return msg('studentMsg','برجاء إدخال الاسم.','err');if(!trackId)return msg('studentMsg','برجاء اختيار المسار.','err');
+ try{const d=await api('result',{name,trackId});if(!d.found){if(d.wrongTrack){$('resultBox').innerHTML='<div class="msg err">المسار المختار غير صحيح، برجاء اختيار المسار الصحيح.'+(d.correctTrackName?'<br><br>المسار الصحيح: <b>'+escapeHtml(d.correctTrackName)+'</b>':'')+'</div>';return}if(d.ambiguous&&d.message){$('resultBox').innerHTML='<div class="msg info">'+escapeHtml(d.message)+'</div>';return}$('resultBox').innerHTML='<div class="msg info">لا توجد نتيجة مسجلة بهذا الاسم حتى الآن.</div>';return}
+ let h='<div class="card" style="box-shadow:none;margin:14px 0"><b>الاسم:</b> '+escapeHtml(d.studentName)+'<br><b>المسار:</b> '+escapeHtml(d.trackName)+'<br><br>';
+ if(d.status==='pending')h+='<div class="msg info">التسجيل قيد التقييم من المعلمة.</div>';
+ if(d.status==='accepted')h+='<div class="msg ok">مبارك، تم قبول التلاوة 🌷</div>'+(d.whatsappLink?(sessionStorage.getItem('companionConfirmed:'+name.trim()+':'+trackId)?'<div class="msg info">تم تأكيد الدخول لجروب الرفيقات من قبل.</div>':'<div class="companion-link" style="padding:14px;text-align:center">🔗 رابط جروب الرفيقات:<br><a href="'+escapeHtml(d.whatsappLink)+'" rel="noopener noreferrer" style="display:inline-block;margin-top:8px;word-break:break-all">'+escapeHtml(d.whatsappLink)+'</a><div style="margin-top:12px;color:#c62828;font-weight:700;line-height:1.7">⚠️ بعد الدخول إلى جروب الرفيقات، عودي إلى هذه الصفحة واضغطي «تم الدخول لجروب الرفيقات» لتأكيد أنكِ تمكنتِ من الدخول. إذا لم يفتح واتساب أو لم تتمكني من الدخول، لا تضغطي زر التأكيد ويمكنكِ المحاولة مرة أخرى.</div><button type="button" class="btn companion-confirm-btn" style="margin-top:12px" onclick="confirmCompanionGroupLink()">✅ تم الدخول لجروب الرفيقات</button></div>'):'<div class="hint">سيتم إضافة رابط مجموعة رفيقات من الإدارة.</div>');
+ if(d.status==='rejected'){const rejectionText=escapeHtml(d.rejectionMessage||'نأسف، لم يتم قبول التسجيل.').replace(/(https?:\/\/[^\s<]+)/g,'<a href="$1" target="_blank" rel="noopener noreferrer" style="color:inherit;text-decoration:underline">$1</a>');h+='<div class="msg err">'+rejectionText.replace(/\n/g,'<br>')+'</div>';}
+ if(d.status==='retry'){h+='<div class="msg info">يرجى إعادة التسجيل من نفس المسار.</div>';if(d.retryNote)h+='<div class="retry-note"><b>ملاحظة المعلمة:</b><br>'+escapeHtml(d.retryNote)+'</div>';}
+ h+='</div>'; $('resultBox').innerHTML=h;
+ }catch(e){msg('studentMsg',e.message,'err')}
+}
+async function teacherLogin(){
+ const p=$('teacherPassword').value;if(!p)return msg('teacherMsg','اكتبي كلمة المرور.','err');
+ try{await api('teacher-options',{password:p});teacherPass=p;$('teacherLogin').classList.add('hidden');$('teacherSelector').classList.remove('hidden');await loadTeacherOptions();msg('teacherMsg','','info')}catch(e){msg('teacherMsg',e.message,'err')}
+}
+async function loadTeacherOptions(){
+ try{const d=await api('teacher-options',{password:teacherPass});window._teacherOptions=d.tracks||[];$('teacherTrackChoice').innerHTML='<option value="">اختاري المسار</option>'+window._teacherOptions.map(t=>'<option value="'+t.id+'">'+escapeHtml(t.name)+'</option>').join('');$('teacherNameChoice').innerHTML='<option value="">اختاري الاسم</option>';}
+ catch(e){msg('teacherMsg',e.message,'err')}
+}
+function updateTeacherNames(){
+ const id=$('teacherTrackChoice').value,t=(window._teacherOptions||[]).find(x=>x.id===id),names=(t?.teachers||[]).filter(Boolean);
+ $('teacherNameChoice').innerHTML=names.length===1?'<option value="'+escapeHtml(names[0])+'">'+escapeHtml(names[0])+'</option>':'<option value="">اختاري الاسم</option>'+names.map(n=>'<option value="'+escapeHtml(n)+'">'+escapeHtml(n)+'</option>').join('');
+ $('teacherNameChoice').disabled=names.length===1;
+ if(names.length===1){$('teacherNameChoice').value=names[0];teacherNameSelected()}else{ $('teacherNameChoice').disabled=false;$('enterTeacherQueueBtn').disabled=true;$('teacherPushPrompt').classList.add('hidden');}
+}
+async function teacherNameSelected(){
+ const trackId=$('teacherTrackChoice').value,name=$('teacherNameChoice').value;
+ $('enterTeacherQueueBtn').disabled=!(trackId&&name);
+ if(trackId&&name) await askTeacherPushPermission(trackId,name);
+}
+async function askTeacherPushPermission(trackId,name){
+ const box=$('teacherPushPrompt');box.classList.remove('hidden');
+ if(!('Notification' in window)||!('serviceWorker' in navigator)||!('PushManager' in window)){box.className='msg info';box.textContent='هذا الجهاز/المتصفح لا يدعم إشعارات الموقع. يمكنكِ الدخول للتسجيلات بشكل طبيعي.';return}
+ try{
+  const cfg=await api('push-config',{});
+  const permission=Notification.permission;
+  if(permission==='granted'){await subscribeTeacherPush(trackId,name,cfg.publicKey);box.className='msg ok';box.textContent='🔔 الإشعارات مفعّلة بالفعل لهذا المسار.';return}
+  if(permission==='denied'){box.className='msg info';box.textContent='الإشعارات مرفوضة من إعدادات المتصفح. يمكنكِ الدخول للتسجيلات بشكل طبيعي.';return}
+  box.className='msg info';
+  box.innerHTML='<b>🔔 هل تسمحين لأكاديمية سطور الهدى بإرسال إشعارات لك؟</b><br><span class="hint">سنرسل لك تنبيهًا عندما تصل التسجيلات المعلقة في هذا المسار إلى 50.</span><div class="actions"><button class="btn" type="button" onclick="enableTeacherNotifications(\''+escapeJs(trackId)+'\',\''+escapeJs(name)+'\')">نعم، اسمحي بالإشعارات</button><button class="btn gray" type="button" onclick="skipTeacherNotifications()">ليس الآن</button></div>';
+ }catch(e){box.className='msg info';box.textContent='يمكنكِ الدخول للتسجيلات، وتعذر تجهيز الإشعارات الآن.'}
+}
+function escapeJs(s){return String(s).replace(/\\/g,'\\\\').replace(/'/g,"\\'")}
+async function enableTeacherNotifications(trackId,name){
+ try{const cfg=await api('push-config',{});const permission=await Notification.requestPermission();if(permission!=='granted'){skipTeacherNotifications();return}await subscribeTeacherPush(trackId,name,cfg.publicKey);const box=$('teacherPushPrompt');box.className='msg ok';box.textContent='تم تفعيل الإشعارات بنجاح 🔔';}
+ catch(e){msg('teacherMsg','تعذر تفعيل الإشعارات الآن. يمكنكِ الدخول للتسجيلات بشكل طبيعي.','err')}
+}
+function skipTeacherNotifications(){const box=$('teacherPushPrompt');box.className='msg info';box.textContent='يمكنكِ الدخول للتسجيلات بدون تفعيل الإشعارات.'}
+async function subscribeTeacherPush(trackId,name,publicKey){
+ await navigator.serviceWorker.register('./sw.js');
+ const reg=await navigator.serviceWorker.ready;
+ const sub=await reg.pushManager.subscribe({userVisibleOnly:true,applicationServerKey:urlBase64ToUint8Array(publicKey)});
+ const jsonSub=sub.toJSON();
+ await api('subscribe-teacher-push',{password:teacherPass,trackId,teacherName:name,subscription:{endpoint:jsonSub.endpoint,keys:jsonSub.keys}});
+}
+function urlBase64ToUint8Array(base64String){const padding='='.repeat((4-base64String.length%4)%4),base64=(base64String+padding).replace(/-/g,'+').replace(/_/g,'/'),rawData=window.atob(base64);return Uint8Array.from([...rawData].map(c=>c.charCodeAt(0)))}
+async function enterTeacherQueue(){
+ const trackId=$('teacherTrackChoice').value,name=$('teacherNameChoice').value;if(!trackId||!name)return;
+ $('teacherSelector').classList.add('hidden');$('teacherPanel').classList.remove('hidden');queuePage=1;await loadQueue(1);
+}
+async function loadQueue(page){
+ if(!teacherPass||page<1)return;queuePage=page;$('queue').innerHTML='<div class="msg info">⏳ جاري تحميل التسجيلات المعلقة... برجاء الانتظار قليلًا.</div>';
+ try{const d=await api('teacher-queue',{password:teacherPass,page,pageSize:20,trackId:$('teacherTrackChoice').value});const items=d.items||[];$('queue').innerHTML=items.length?items.map(renderQueue).join(''):'<div class="msg info">لا توجد تسجيلات معلقة.</div>';$('pendingCount').textContent=d.total||0;$('pageLabel').textContent='صفحة '+page;$('prevBtn').disabled=page<=1;$('nextBtn').disabled=!d.hasMore}catch(e){msg('teacherMsg',e.message,'err')}
+}
+async function refreshTeacherQueue(){try{await loadQueue(queuePage);msg("teacherMsg","تم تحديث التسجيلات بنجاح 🔄","ok")}catch(e){msg("teacherMsg",e.message,"err")}
+}
+function setAudioSpeed(id,rate){const audio=$(id);if(audio)audio.playbackRate=Number(rate)||1;}
+function renderQueue(x,i){const audioId='teacher-audio-'+x.submissionId;return '<div class="item teacher-item" id="teacher-item-'+escapeHtml(x.submissionId)+'"><div class="item-head"><div><b>'+escapeHtml(x.studentName)+'</b><div class="hint">'+escapeHtml(x.trackName)+' · '+new Date(x.createdAt).toLocaleString('ar-EG')+'</div></div><span class="badge">معلقة</span></div><audio id="'+escapeHtml(audioId)+'" class="audio" controls preload="metadata" src="'+escapeHtml(x.audioUrl)+'"></audio><div class="audio-speed"><label for="speed-'+escapeHtml(x.submissionId)+'">سرعة التشغيل:</label><select id="speed-'+escapeHtml(x.submissionId)+'" onchange="setAudioSpeed(\''+escapeHtml(audioId)+'\',this.value)"><option value="1" selected>1× عادي</option><option value="1.5">1.5×</option><option value="2">2×</option></select></div><div class="hint" style="margin-bottom:6px">استمعي للتسجيل ثم اختاري التقييم المناسب.</div><div class="actions"><button class="btn" onclick="evaluateItem(\''+x.submissionId+'\',\'accepted\')">مقبولة</button><button class="btn danger" onclick="evaluateItem(\''+x.submissionId+'\',\'rejected\')">مرفوضة</button><button class="btn secondary" onclick="evaluateItem(\''+x.submissionId+'\',\'retry\')">إعادة</button><button class="btn gray" type="button" onclick="nextTeacherItem('+i+')">التالي →</button></div></div>'}
+function nextTeacherItem(index){const items=document.querySelectorAll('.teacher-item');if(index<items.length-1){items[index+1].scrollIntoView({behavior:'smooth',block:'center'});return}if(!$('nextBtn').disabled){loadQueue(queuePage+1).then(()=>setTimeout(()=>{const first=document.querySelector('.teacher-item');if(first)first.scrollIntoView({behavior:'smooth',block:'center'});},100));return}msg('teacherMsg','وصلتِ لآخر تسجيل موجود في الصفحة الحالية.','info')}
+async function evaluateItem(id,status){const question=status==='accepted'?'هل أنتِ متأكدة من قبول هذا التسجيل؟':status==='rejected'?'هل أنتِ متأكدة من رفض هذا التسجيل؟':'هل أنتِ متأكدة من طلب إعادة تسجيل هذه الطالبة؟';if(!window.confirm(question))return;let note='';if(status==='retry'){const entered=window.prompt('ملاحظة للطالبة (اختياري):\n\nيمكنكِ كتابة سبب الإعادة أو أي توجيه لها، ويمكن ترك الخانة فارغة.','');note=entered===null?'':entered.trim();}try{await api('evaluate',{password:teacherPass,submissionId:id,status,note});const item=$('teacher-item-'+id);if(item){const badge=item.querySelector('.badge');if(badge){badge.textContent=status==='accepted'?'مقبولة':status==='rejected'?'مرفوضة':'إعادة';badge.className='badge';}item.querySelectorAll('button').forEach(btn=>{if(!btn.textContent.includes('التالي'))btn.disabled=true;});item.dataset.evaluated='1';}const count=Math.max(0,Number($('pendingCount').textContent||0)-1);$('pendingCount').textContent=count;}catch(e){msg('teacherMsg',e.message,'err')}}
+async function adminLogin(){
+ const p=$('adminPassword').value;if(!p)return msg('adminMsg','اكتبي كلمة المرور.','err');
+ try{
+  const d=await api('admin-data',{password:p});
+  adminPass=p;
+  $('adminLogin').classList.add('hidden');
+  $('adminPanel').classList.remove('hidden');
+  window._adminData=d;
+  renderAdmin(d.tracks||[]);
+  msg('adminMsg','','info');
+ }catch(e){msg('adminMsg',e.message,'err')}
+}
+async function loadAdmin(){try{const d=await api('admin-data',{password:adminPass});window._adminData=(d.students||d.tracks)?{...d,students:(d.students||[]).map(s=>({...s,companionGroupLinkUseCount:Number(s.companionGroupLinkUseCount)||0}))}:d;renderAdmin(d.tracks||[])}catch(e){msg('adminMsg',e.message,'err')}}
+async function refreshAdminData(){
+ try{
+  await loadAdmin();
+  msg('adminMsg','تم تحديث البيانات بنجاح 🔄','ok');
+ }catch(e){
+  msg('adminMsg',e.message,'err');
+ }
+} function makeCompanionListText(t,pairs){const sorted=[...pairs].sort((a,b)=>Number(a.pairNumber||0)-Number(b.pairNumber||0));return 'قائمة أسماء جروب "'+t.name+'"'+'\n'+(sorted.length?sorted.map(p=>'*'+Number(p.pairNumber)+')'+p.student1Name+'🤝'+p.student2Name+'*').join('\n'):'لا توجد رفيقات مسجلة بعد.')} async function copyCompanionList(id){const el=$('pair-text-'+id);try{await navigator.clipboard.writeText(el.innerText);msg('adminMsg','تم نسخ القائمة بنجاح ✅','ok')}catch(e){const ta=document.createElement('textarea');ta.value=el.innerText;document.body.appendChild(ta);ta.select();document.execCommand('copy');ta.remove();msg('adminMsg','تم نسخ القائمة بنجاح ✅','ok')}} async function loadCompanionLists(){try{const d=await api('admin-data',{password:adminPass});const tracks=d.tracks||[],accepted=d.acceptedStudents||[],pairs=d.companionPairs||[];$('companionLists').innerHTML=tracks.map(t=>{const students=accepted.filter(s=>s.trackId===t.id),ps=pairs.filter(p=>p.trackId===t.id).sort((a,b)=>Number(a.pairNumber||0)-Number(b.pairNumber||0));return '<div class="track-card"><div class="name">'+escapeHtml(t.name)+'</div><div class="hint">المقبولات: '+students.length+' · الرفيقات: '+ps.length+'</div><div class="list" style="margin-top:10px">'+(ps.length?ps.map(p=>'<div class="item"><b>رفيقة رقم '+(p.pairNumber==null?'—':Number(p.pairNumber))+'</b><div class="field"><label>رقم الرفيقة</label><input id="pn-'+p.id+'" class="input" type="text" inputmode="numeric" pattern="[0-9٠-٩۰-۹]*" value="'+(p.pairNumber==null?'':Number(p.pairNumber))+'" oninput="this.value=normalizeCompanionNumber(this.value).replace(/\\D/g,\'\')"></div><div class="row"><div class="field"><label>الطالبة الأولى</label><select id="p1-'+p.id+'" class="select">'+students.map(s=>'<option value="'+s.id+'" '+(s.id===p.student1RegistrationId?'selected':'')+'>'+escapeHtml(s.studentName)+'</option>').join('')+'</select></div><div class="field"><label>الطالبة الثانية</label><select id="p2-'+p.id+'" class="select">'+students.map(s=>'<option value="'+s.id+'" '+(s.id===p.student2RegistrationId?'selected':'')+'>'+escapeHtml(s.studentName)+'</option>').join('')+'</select></div></div><div class="field"><label>الرواية</label><select id="r-'+p.id+'" class="select"><option value="حفص" '+(p.riwaya==='حفص'?'selected':'')+'>حفص</option><option value="قالون" '+(p.riwaya==='قالون'?'selected':'')+'>قالون</option></select></div></div>').join(''):'<div class="msg info">لا توجد رفيقات مسجلة بعد.</div>')+'</div><div class="actions"><button class="btn" onclick="saveCompanionList(\''+t.id+'\')">💾 حفظ تعديلات القائمة</button><button class="btn secondary" onclick="copyEditedCompanionList(\''+t.id+'\')">📋 نسخ القائمة</button></div></div>'}).join('')||'<div class="msg info">لا توجد مسارات.</div>'}catch(e){msg('adminMsg',e.message,'err')}}
+async function saveCompanionList(trackId){const d=await api('admin-data',{password:adminPass}),pairs=(d.companionPairs||[]).filter(p=>p.trackId===trackId);const payload=pairs.map(p=>({student1Id:$('p1-'+p.id).value,student2Id:$('p2-'+p.id).value,riwaya:$('r-'+p.id).value,pairNumber:normalizeCompanionNumber($('pn-'+p.id).value)}));if(!payload.length)return msg('adminMsg','لا توجد رفيقات في هذه القائمة لتعديلها.','info');if(payload.some(p=>!/^\\d+$/.test(p.pairNumber)||Number(p.pairNumber)<1))return msg('adminMsg','برجاء إدخال رقم صحيح لكل رفيقة.','err');if(new Set(payload.map(p=>Number(p.pairNumber))).size!==payload.length)return msg('adminMsg','لا يمكن تكرار نفس رقم الرفيقة في القائمة.','err');if(payload.some(p=>p.student1Id===p.student2Id))return msg('adminMsg','لا يمكن أن تكون الطالبة رفيقة لنفسها.','err');if(new Set(payload.flatMap(p=>[p.student1Id,p.student2Id])).size!==payload.length*2)return msg('adminMsg','لا يمكن تكرار نفس الطالبة في أكثر من رفيقة.','err');if(!window.confirm('هل تريدين حفظ تعديلات قائمة هذا المسار؟'))return;try{await api('edit-companion-list',{password:adminPass,trackId,pairs:payload});await loadCompanionLists();msg('adminMsg','تم تحديث قائمة الرفيقات وقاعدة البيانات بنجاح ✅','ok')}catch(e){msg('adminMsg',e.message,'err')}}
+async function copyEditedCompanionList(trackId){const d=await api('admin-data',{password:adminPass}),t=(d.tracks||[]).find(x=>x.id===trackId),pairs=(d.companionPairs||[]).filter(p=>p.trackId===trackId);if(!t)return;const text=makeCompanionListText(t,pairs);try{await navigator.clipboard.writeText(text);msg('adminMsg','تم نسخ القائمة بنجاح ✅','ok')}catch(e){const ta=document.createElement('textarea');ta.value=text;document.body.appendChild(ta);ta.select();document.execCommand('copy');ta.remove();msg('adminMsg','تم نسخ القائمة بنجاح ✅','ok')}}
+function closeAdminViews(){['trackChooser','searchStudentView','addTrackView','statsView','resetView','passwordView','auditView','studentEvaluationView'].forEach(id=>$(id)?.classList.add('hidden'));}
+async function openStudentEvaluationSetting(){
+ closeAdminViews();
+ $('studentEvaluationView').classList.remove('hidden');
+ try{
+  const d=await api('tracks',{});
+  $('studentEvaluationInput').value=d.evaluationText||'';
+ }catch(e){msg('adminMsg',e.message,'err')}
+}
+async function saveStudentEvaluationText(){
+ const text=$('studentEvaluationInput').value.trim();
+ try{
+  const d=await api('admin-student-evaluation',{password:adminPass,text});
+  $('studentEvaluationText').textContent=d.text||'';
+  msg('adminMsg','تم حفظ آيات التقييم بنجاح ✅','ok');
+ }catch(e){msg('adminMsg',e.message,'err')}
+}
+function openAdminTool(id){closeAdminViews();$(id).classList.remove('hidden');}
+async function openAuditLog(){
+ const box=$('auditView');
+ box.classList.remove('hidden');
+ box.innerHTML='<div class="admin-view-title">📝 آخر 100 تغيير</div><div class="msg info">جاري تحميل سجل التغييرات...</div>';
+ try{
+  const d=await api('admin-audit',{password:adminPass});
+  const actionNames={'edit-companion-list':'تعديل قائمة الرفيقات','create-track':'إضافة مسار','update-track':'تعديل مسار','reset-results':'مسح النتائج','change-passwords':'تغيير كلمات السر'};
+  const items=d.items||[];
+  if(!items.length){box.innerHTML='<div class="admin-view-title">📝 آخر 100 تغيير</div><div class="msg info">لا توجد تغييرات مسجلة حتى الآن.</div>';return;}
+  box.innerHTML='<div class="admin-view-title">📝 آخر 100 تغيير</div>'+items.map(x=>{const details=x.details||{};let detail='';if(x.action==='edit-companion-list')detail='عدد الرفيقات: '+Number(details.pairCount||0);else if(x.action==='create-track'||x.action==='update-track')detail='المسار: '+escapeHtml(details.name||x.track_name||'');else if(x.action==='change-passwords'){const changed=[];if(details.teacherPasswordChanged)changed.push('المعلمات');if(details.adminPasswordChanged)changed.push('الإدارة');detail='تم تغيير: '+escapeHtml(changed.join(' و ')||'كلمات المرور');}else if(x.action==='reset-results')detail='تم مسح النتائج والتسجيلات السابقة';return '<div class="item"><div class="item-head"><b>'+escapeHtml(actionNames[x.action]||x.action)+'</b><span class="badge">'+escapeHtml(new Date(x.created_at).toLocaleString('ar-EG'))+'</span></div><div class="hint">'+detail+(x.track_name&&x.action==='edit-companion-list'?' · المسار: '+escapeHtml(x.track_name):'')+'</div></div>'}).join('')+'<div class="actions"><button class="btn gray" onclick="$(\'auditView\').classList.add(\'hidden\')">إخفاء السجل</button></div>';
+ }catch(e){box.innerHTML='<div class="admin-view-title">📝 آخر 100 تغيير</div><div class="msg err">'+escapeHtml(e.message)+'</div>';}
+}
+function openAdminSearch(){closeAdminViews();$('searchStudentView').classList.remove('hidden');$('adminStudentSearch').focus();$('adminStudentSearchResults').innerHTML='<div class="msg info">اكتبي اسم الطالبة للبحث.</div>';}
+async function adminResetCompanionLink(registrationId,studentName){
+ if(!registrationId)return;
+ if(!window.confirm('هل تريدين إعادة فتح رابط جروب الرفيقات للطالبة «'+studentName+'»؟ ستصبح لها محاولتان جديدتان.'))return;
+ try{
+  await api('admin-reset-companion-link',{password:adminPass,registrationId});
+  await loadAdmin();
+  searchAdminStudent();
+  msg('adminMsg','تم إعادة فتح رابط جروب الرفيقات للطالبة بنجاح، وأصبح لها محاولتان جديدتان.','ok');
+ }catch(e){msg('adminMsg',e.message,'err')}
+}
+function searchAdminStudent(){
+ const q=$('adminStudentSearch').value.trim(),box=$('adminStudentSearchResults');
+ if(!q)return box.innerHTML='<div class="msg info">اكتبي اسم الطالبة للبحث.</div>';
+ const d=window._adminData||{},students=d.students||[],pairs=d.companionPairs||[],tracks=d.tracks||[],normalize=n=>String(n||'').trim().replace(/\s+/g,' ').replace(/ة$/u,'ه').toLocaleLowerCase('ar-EG'),nq=normalize(q),matches=students.filter(s=>normalize(s.studentName).includes(nq));
+ if(!matches.length)return box.innerHTML='<div class="msg info">لا توجد طالبة بهذا الاسم.</div>';
+ box.innerHTML=matches.map(s=>{
+  const t=tracks.find(x=>x.id===s.trackId),pair=pairs.find(p=>p.student1RegistrationId===s.id||p.student2RegistrationId===s.id),companion=pair?(pair.student1RegistrationId===s.id?pair.student2Name:pair.student1Name):'لا توجد رفيقة',status=s.status==='accepted'?'مقبولة':s.status==='rejected'?'مرفوضة':s.status==='pending'?'معلقة':s.status==='retry'?'إعادة تسجيل':s.status||'غير معروف',uses=Number(s.companionGroupLinkUseCount)||0;
+  let h='<div class="item"><b>'+escapeHtml(s.studentName)+'</b><div class="hint">المسار: '+escapeHtml(t?.name||'غير محدد')+' · الحالة: '+status+'</div><div class="hint">الرفيقة: '+escapeHtml(companion)+(pair?' · الرواية: '+escapeHtml(pair.riwaya):'')+'</div>';
+  if(s.status==='accepted')h+='<div class="hint">استخدام رابط الرفيقات: '+uses+' من 2</div><div class="actions"><button class="btn secondary" type="button" onclick="adminResetCompanionLink(\''+escapeHtml(s.id)+'\',\''+escapeHtml(s.studentName).replace(/'/g,"&#39;")+'\')">🔗 إعادة فتح رابط الرفيقات</button></div>';
+  return h+'</div>';
+ }).join('');
+}
+
+function openTrackChooser(){closeAdminViews();$('trackChooser').classList.remove('hidden');$('trackChooser').innerHTML='<div class="admin-view-title">🗂️ اختاري المسار</div><button class="btn gray admin-close" onclick="closeAdminViews()">إغلاق</button><div id="trackIcons" class="track-icons"></div>';const d=window._adminData||{};$('trackIcons').innerHTML=(d.tracks||[]).map(t=>'<button class="admin-icon track-icon" onclick="openTrackOptions(\''+t.id+'\')"><span class="ico">📁</span>'+escapeHtml(t.name)+'<small>'+(t.is_open?'التسجيل مفتوح':'التسجيل مغلق')+'</small></button>').join('')||'<div class="msg info">لا توجد مسارات.</div>';}
+function openTrackOptions(id){const d=window._adminData||{},t=(d.tracks||[]).find(x=>x.id===id);if(!t)return;closeAdminViews();$('trackChooser').classList.remove('hidden');$('trackChooser').innerHTML='<div class="admin-view-title">📁 '+escapeHtml(t.name)+'</div><button class="btn gray admin-close" onclick="openTrackChooser()">← المسارات</button><div class="track-option-grid"><button class="admin-icon track-option" onclick="openTrackEdit(\''+t.id+'\')"><span class="ico">🔗</span>روابط الجروبات<small>تعديل رابط الرفيقات والحفظ الأساسي</small></button><button class="admin-icon track-option" onclick="showTrackStats(\''+t.id+'\')"><span class="ico">📊</span>إحصائيات المسار</button><button class="admin-icon track-option" onclick="showTrackList(\''+t.id+'\')"><span class="ico">👭</span>قائمة الرفيقات</button><button class="admin-icon track-option" onclick="openTeacherAssignments(\''+t.id+'\')"><span class="ico">👩‍🏫</span>المعلمات المسؤولات<small>تحديد أو تعديل المعلمات</small></button><button class="admin-icon track-option" onclick="toggleTrackFromChooser(\''+t.id+'\')"><span class="ico">'+(t.is_open?'🔒':'🔓')+'</span>'+(t.is_open?'إغلاق التسجيل':'فتح التسجيل')+'</button></div><div id="trackDetail"></div>';}
+async function openTeacherAssignments(id){
+ const d0=window._adminData||{};
+ let t=(d0.tracks||[]).find(x=>x.id===id);
+ if(!t)return;
+ try{
+  const fresh=await api('admin-data',{password:adminPass});
+  window._adminData=fresh;
+  t=(fresh.tracks||[]).find(x=>x.id===id)||t;
+ }catch(e){
+  msg('adminMsg',e.message,'err');
+  return;
+ }
+ const vals=[t.teacher1_name||'',t.teacher2_name||'',t.teacher3_name||'',t.teacher4_name||''];
+ $('trackDetail').className='admin-view';
+ $('trackDetail').innerHTML='<div class="admin-view-title">👩‍🏫 المعلمات المسؤولات عن '+escapeHtml(t.name)+'</div><div class="field"><label>المعلمة المسؤولة الأولى <b>إجباري</b></label><input id="teacher1-'+id+'" class="input" value="'+escapeHtml(vals[0])+'" placeholder="اكتبي اسم المعلمة الأولى"></div><div class="field"><label>المعلمة المسؤولة الثانية <span class="hint">اختياري</span></label><input id="teacher2-'+id+'" class="input" value="'+escapeHtml(vals[1])+'" placeholder="اختياري"></div><div class="field"><label>المعلمة المسؤولة الثالثة <span class="hint">اختياري</span></label><input id="teacher3-'+id+'" class="input" value="'+escapeHtml(vals[2])+'" placeholder="اختياري"></div><div class="field"><label>المعلمة المسؤولة الرابعة <span class="hint">اختياري</span></label><input id="teacher4-'+id+'" class="input" value="'+escapeHtml(vals[3])+'" placeholder="اختياري"></div><div class="actions"><button class="btn" onclick="saveTeacherAssignments(\''+id+'\')">💾 حفظ</button><button class="btn gray" onclick="openTrackOptions(\''+id+'\')">إلغاء</button></div>';
+}
+async function saveTeacherAssignments(id){
+ const first=$('teacher1-'+id).value.trim(),others=[1,2,3].map(i=>$('teacher'+(i+1)+'-'+id).value.trim());
+ if(!first)return msg('adminMsg','المعلمة المسؤولة الأولى إجباري.','err');
+ const names=[first,...others].filter(Boolean);
+ if(new Set(names.map(x=>x.toLocaleLowerCase('ar-EG'))).size!==names.length)return msg('adminMsg','لا يمكن تكرار نفس اسم المعلمة في أكثر من خانة.','err');
+ const d=window._adminData||{},t=(d.tracks||[]).find(x=>x.id===id);if(!t)return;
+ try{await api('admin-track',{password:adminPass,op:'update',id,name:t.name,whatsappLink:t.whatsapp_link||'',primaryGroupLink:t.primary_group_link||'',isOpen:t.is_open,teacher1Name:first,teacher2Name:others[0],teacher3Name:others[1],teacher4Name:others[2]});await loadAdmin();openTrackOptions(id);msg('adminMsg','تم حفظ المعلمات المسؤولات بنجاح ✅','ok')}catch(e){msg('adminMsg',e.message,'err')}
+}
+async function openTrackEdit(id){let t=(window._adminData?.tracks||[]).find(x=>x.id===id);if(!t)return;try{const fresh=await api('admin-data',{password:adminPass});window._adminData=fresh;t=(fresh.tracks||[]).find(x=>x.id===id)||t;}catch(e){msg('adminMsg',e.message,'err');return;}const box=$('trackDetail');box.className='admin-view';box.innerHTML='<div class="admin-view-title">🔗 روابط '+escapeHtml(t.name)+'</div><div class="field"><label>اسم المسار</label><input id="n-'+t.id+'" class="input" value="'+escapeHtml(t.name)+'"></div><div class="field"><label>رابط جروب الرفيقات</label><input id="w-'+t.id+'" class="input" type="url" value="'+escapeHtml(t.whatsapp_link||'')+'"></div><div class="field"><label>رابط جروب الحفظ الأساسي</label><input id="g-'+t.id+'" class="input" type="url" value="'+escapeHtml(t.primary_group_link||'')+'"></div><div class="actions"><button class="btn" onclick="saveTrack(\''+t.id+'\',null)">حفظ التعديلات</button></div>'}
+async function showTrackStats(id){const d=window._adminData||{},t=(d.tracks||[]).find(x=>x.id===id),s=t?.stats||{},accepted=(d.acceptedStudents||[]).filter(x=>x.trackId===id),pairs=(d.companionPairs||[]).filter(x=>x.trackId===id),pairedIds=new Set(pairs.flatMap(p=>[p.student1RegistrationId,p.student2RegistrationId])),unpaired=accepted.filter(x=>!pairedIds.has(x.id));if(!t)return;const total=(Number(s.accepted)||0)+(Number(s.rejected)||0)+(Number(s.pending)||0)+(Number(s.retry)||0);$('trackDetail').className='admin-view';$('trackDetail').innerHTML='<div class="admin-view-title">📊 إحصائيات '+escapeHtml(t.name)+'</div><div class="stats"><div class="stat"><strong>'+total+'</strong>كل التسجيلات</div><div class="stat"><strong>'+Number(s.accepted||0)+'</strong>مقبولة</div><div class="stat"><strong>'+Number(s.rejected||0)+'</strong>مرفوضة</div><div class="stat"><strong>'+Number(s.pending||0)+'</strong>معلقة</div><div class="stat"><strong>'+pairs.length+'</strong>عدد الرفيقات</div><div class="stat"><strong>'+unpaired.length+'</strong>مقبولات بلا رفيقة</div></div><div class="actions" style="margin-top:12px"><button class="btn secondary" type="button" onclick="toggleUnpairedNames(\''+id+'\')">👁️ إظهار أسماء المقبولات بلا رفيقة</button></div><div id="unpairedNames-'+id+'" class="list" style="margin-top:10px;display:none">'+(unpaired.length?unpaired.map(x=>'<div class="item" style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap"><span>'+escapeHtml(x.studentName)+'</span><button class="btn danger" type="button" onclick="adminRejectAccepted(\''+x.id+'\',\''+escapeHtml(x.studentName).replace(/'/g,"&#39;")+'\',\''+id+'\')">تغيير إلى مرفوضة</button><button class="btn secondary" type="button" onclick="adminResetCompanionLink(\''+x.id+'\',\''+escapeHtml(x.studentName).replace(/'/g,"&#39;")+'\')">🔗 إعادة فتح رابط الرفيقات</button></div>').join(''):'<div class="msg info">كل الطالبات المقبولات لديهن رفيقة.</div>')+'</div>';}
+function toggleUnpairedNames(id){const el=$('unpairedNames-'+id);if(!el)return;el.style.display=el.style.display==='none'?'block':'none';}
+async function adminRejectAccepted(registrationId,studentName,trackId){
+ if(!registrationId||!trackId)return;
+ if(!window.confirm('هل أنتِ متأكدة من تغيير حالة «'+studentName+'» من مقبولة إلى مرفوضة؟'))return;
+ try{
+  await api('admin-change-status',{password:adminPass,registrationId,status:'rejected'});
+  await loadAdmin();
+  await showTrackStats(trackId);
+  msg('adminMsg','تم تغيير حالة الطالبة إلى مرفوضة بنجاح.','ok');
+ }catch(e){msg('adminMsg',e.message,'err')}
+}
+async function showTrackList(id){
+ const d=await api('admin-data',{password:adminPass});
+ const t=(d.tracks||[]).find(x=>x.id===id);
+ const pairs=(d.companionPairs||[]).filter(p=>p.trackId===id);
+ const accepted=(d.acceptedStudents||[]).filter(s=>s.trackId===id);
+ if(!t)return;
+ $('trackDetail').className='admin-view';
+ $('trackDetail').innerHTML='<div class="admin-view-title">👭 قائمة أسماء جروب "'+escapeHtml(t.name)+'</div><div class="hint">المقبولات: '+accepted.length+' · الرفيقات: '+pairs.length+'</div><div id="pair-text-single-'+id+'" class="companion-copy-text" style="background:#fafafa;border:1px solid var(--line);border-radius:14px;padding:14px;margin-top:10px;line-height:2">'+escapeHtml(makeCompanionListText(t,pairs)).replace(/\n/g,'<br>')+'</div><div class="actions"><button class="btn" onclick="copyTrackList(\''+id+'\')">📋 نسخ القائمة</button><button class="btn secondary" onclick="editTrackCompanions(\''+id+'\')">✏️ تعديل قائمة الرفيقات</button></div>';
+}
+async function copyTrackList(id){const el=$('pair-text-single-'+id);try{await navigator.clipboard.writeText(el.innerText);msg('adminMsg','تم نسخ القائمة بنجاح ✅','ok')}catch(e){const ta=document.createElement('textarea');ta.value=el.innerText;document.body.appendChild(ta);ta.select();document.execCommand('copy');ta.remove();msg('adminMsg','تم نسخ القائمة بنجاح ✅','ok')}}
+async function editTrackCompanions(id){
+ const d=await api('admin-data',{password:adminPass});
+ const t=(d.tracks||[]).find(x=>x.id===id);
+ const students=(d.acceptedStudents||[]).filter(s=>s.trackId===id);
+ const pairs=(d.companionPairs||[]).filter(p=>p.trackId===id).sort((a,b)=>Number(a.pairNumber||0)-Number(b.pairNumber||0));
+ if(!t)return;
+ window._companionEditor={trackId:id,track:t,students:students,rows:pairs.map(p=>({student1Id:p.student1RegistrationId,student2Id:p.student2RegistrationId,riwaya:p.riwaya,pairNumber:p.pairNumber==null?'':String(Number(p.pairNumber))}))};
+ renderCompanionEditor();
+}
+function renderCompanionEditor(){
+ const e=window._companionEditor;if(!e)return;
+ let h='<div class="admin-view-title">✏️ تعديل قائمة الرفيقات</div><div class="hint">يمكنكِ إضافة رفيقة، حذف رفيقة، أو تعديل رقمها. سيتم التحقق من البيانات قبل الحفظ.</div>';
+ if(!e.students.length)h+='<div class="msg info">لا توجد طالبات مقبولات في هذا المسار حاليًا.</div>';
+ e.rows.forEach((r,i)=>{
+  h+='<div class="item" style="margin-top:10px"><div class="item-head"><b>رفيقة رقم '+(r.pairNumber||'—')+'</b><button class="btn danger" type="button" onclick="removeCompanionRow('+i+')">🗑️ حذف</button></div>';
+  h+='<div class="field"><label>رقم الرفيقة</label><input id="cen-'+i+'" class="input" type="text" inputmode="numeric" pattern="[0-9٠-٩۰-۹]*" value="'+r.pairNumber+'" oninput="this.value=normalizeCompanionNumber(this.value).replace(/\\D/g,\'\');window._companionEditor.rows['+i+'].pairNumber=this.value"></div>';
+  h+='<div class="row"><div class="field"><label>الطالبة الأولى</label><select id="ce1-'+i+'" class="select">'+e.students.map(s=>'<option value="'+escapeHtml(s.id)+'" '+(s.id===r.student1Id?'selected':'')+'>'+escapeHtml(s.studentName)+'</option>').join('')+'</select></div>';
+  h+='<div class="field"><label>الطالبة الثانية</label><select id="ce2-'+i+'" class="select">'+e.students.map(s=>'<option value="'+escapeHtml(s.id)+'" '+(s.id===r.student2Id?'selected':'')+'>'+escapeHtml(s.studentName)+'</option>').join('')+'</select></div></div>';
+  h+='<div class="field"><label>الرواية</label><select id="cer-'+i+'" class="select"><option value="حفص" '+(r.riwaya==='حفص'?'selected':'')+'>حفص</option><option value="قالون" '+(r.riwaya==='قالون'?'selected':'')+'>قالون</option></select></div></div>';
+ });
+ h+='<div class="actions"><button class="btn secondary" type="button" onclick="addCompanionRow()" '+(!e.students.length?'disabled':'')+'>➕ إضافة رفيقة</button><button class="btn" type="button" onclick="saveCompanionEdits()">💾 حفظ التعديلات</button><button class="btn gray" type="button" onclick="showTrackList(\''+e.trackId+'\')">إلغاء</button></div>';
+ $('trackDetail').className='admin-view';$('trackDetail').innerHTML=h;
+}
+function addCompanionRow(){
+ const e=window._companionEditor;if(!e||!e.students.length)return;
+ e.rows.push({student1Id:'',student2Id:'',riwaya:'حفص',pairNumber:''});renderCompanionEditor();
+}
+function removeCompanionRow(i){
+ const e=window._companionEditor;if(!e)return;
+ e.rows.splice(i,1);renderCompanionEditor();
+}
+async function saveCompanionEdits(){
+ const e=window._companionEditor;if(!e)return;
+ const payload=[];
+ for(let i=0;i<e.rows.length;i++){
+  const s1=$('ce1-'+i)?.value||'',s2=$('ce2-'+i)?.value||'',riwaya=$('cer-'+i)?.value||'',pairNumber=normalizeCompanionNumber($('cen-'+i)?.value||e.rows[i].pairNumber||'');
+  if(!s1||!s2)return msg('adminMsg','برجاء اختيار الطالبتين في كل رفيقة.','err');
+  if(!/^\d+$/.test(pairNumber)||Number(pairNumber)<1)return msg('adminMsg','برجاء إدخال رقم صحيح لكل رفيقة.','err');
+  if(s1===s2)return msg('adminMsg','لا يمكن أن تكون الطالبة رفيقة لنفسها.','err');
+  if(!['حفص','قالون'].includes(riwaya))return msg('adminMsg','برجاء اختيار رواية صحيحة لكل رفيقة.','err');
+  payload.push({student1Id:s1,student2Id:s2,riwaya,pairNumber});
+ }
+ if(new Set(payload.map(p=>Number(p.pairNumber))).size!==payload.length)return msg('adminMsg','لا يمكن تكرار نفس رقم الرفيقة في القائمة.','err');
+ const used=new Set();
+ for(const p of payload){
+  if(used.has(p.student1Id)||used.has(p.student2Id))return msg('adminMsg','لا يمكن تكرار نفس الطالبة في أكثر من رفيقة.','err');
+  used.add(p.student1Id);used.add(p.student2Id);
+ }
+ if(!window.confirm('هل أنتِ متأكدة أن جميع البيانات الموجودة في هذه القائمة صحيحة، وأن التعديل الذي أجريته صحيح؟'))return;
+ try{
+  await api('edit-companion-list',{password:adminPass,trackId:e.trackId,pairs:payload});
+  await showTrackList(e.trackId);
+  msg('adminMsg','تم تحديث قائمة الرفيقات بنجاح ✅','ok');
+ }catch(err){msg('adminMsg',err.message,'err')}
+}
+
+async function toggleTrackFromChooser(id){const d=window._adminData||{},t=(d.tracks||[]).find(x=>x.id===id);if(!t)return;try{await api('admin-track',{password:adminPass,op:'update',id,name:t.name,whatsappLink:t.whatsapp_link||'',primaryGroupLink:t.primary_group_link||'',isOpen:!t.is_open,teacher1Name:t.teacher1_name||'',teacher2Name:t.teacher2_name||'',teacher3Name:t.teacher3_name||'',teacher4Name:t.teacher4_name||''});await loadAdmin();openTrackChooser();msg('adminMsg','تم تحديث حالة التسجيل للمسار.','ok')}catch(e){msg('adminMsg',e.message,'err')}}
+function renderAdmin(tracks){
+window._adminData={...(window._adminData||{}),tracks};
+let a=0,r=0,p=0,total=0;
+tracks.forEach(t=>{const st=t.stats||{};a+=Number(st.accepted)||0;r+=Number(st.rejected)||0;p+=Number(st.pending)||0;total+=Number(st.accepted||0)+Number(st.rejected||0)+Number(st.pending||0)+Number(st.retry||0)});
+const pairs=window._adminData.companionPairs||[];
+const acceptedStudents=window._adminData.acceptedStudents||[];
+const pairedIds=new Set(pairs.flatMap(x=>[x.student1RegistrationId,x.student2RegistrationId]));
+$('totalReg').textContent=total;$('totalAccepted').textContent=a;$('totalRejected').textContent=r;$('totalPending').textContent=p;
+$('totalPairs').textContent=pairs.length;$('totalUnpaired').textContent=acceptedStudents.filter(x=>!pairedIds.has(x.id)).length;
+$('adminIcons').innerHTML='<button class="admin-icon" onclick="openTrackChooser()"><span class="ico">📁</span>المسارات<small>اختاري مسارًا لإدارته</small></button><button class="admin-icon" onclick="openAdminTool(\'addTrackView\')"><span class="ico">➕</span>إضافة مسار<small>إنشاء مسار جديد</small></button><button class="admin-icon" onclick="openAdminSearch()"><span class="ico">🔍</span>البحث عن طالبة<small>البحث بالاسم وعرض الحالة والرفيقة</small></button><button class="admin-icon" onclick="openAdminTool(\'statsView\')"><span class="ico">📊</span>إحصائيات عامة<small>ملخص النتائج</small></button><button class="admin-icon" onclick="openAdminTool(\'resetView\')"><span class="ico">🗑️</span>مسح النتائج<small>حذف النتائج والتسجيلات</small></button><button class="admin-icon" onclick="openAdminTool(\'passwordView\')"><span class="ico">🔑</span>تغيير كلمات السر<small>تعديل كلمات المرور</small></button><div class="student-evaluation-setting"><button type="button" onclick="openStudentEvaluationSetting()">تحديد آيات التقييم</button></div>';
+$('trackStatsAdmin').innerHTML=tracks.map(t=>{const st=t.stats||{},tp=pairs.filter(x=>x.trackId===t.id),ids=new Set(tp.flatMap(x=>[x.student1RegistrationId,x.student2RegistrationId])),acc=acceptedStudents.filter(x=>x.trackId===t.id),up=acc.filter(x=>!ids.has(x.id)),tt=Number(st.accepted||0)+Number(st.rejected||0)+Number(st.pending||0)+Number(st.retry||0);return '<div class="item"><b>'+escapeHtml(t.name)+'</b><div class="hint">إجمالي: '+tt+' · مقبولة: '+Number(st.accepted||0)+' · مرفوضة: '+Number(st.rejected||0)+' · معلقة: '+Number(st.pending||0)+'</div><div class="hint">الرفيقات: '+tp.length+' · مقبولات بلا رفيقة: '+up.length+'</div></div>'}).join('')||'<div class="msg info">لا توجد مسارات.</div>';
+}
+
+async function saveTrack(id,toggle){try{const current=await api('admin-data',{password:adminPass});const t=(current.tracks||[]).find(x=>x.id===id);const whatsappLink=$('w-'+id).value.trim(),primaryGroupLink=$('g-'+id).value.trim();await api('admin-track',{password:adminPass,op:'update',id,name:$('n-'+id).value.trim(),whatsappLink,primaryGroupLink,isOpen:toggle===null?t.is_open:toggle,teacher1Name:t.teacher1_name||'',teacher2Name:t.teacher2_name||'',teacher3Name:t.teacher3_name||'',teacher4Name:t.teacher4_name||''});await loadAdmin();msg('adminMsg','تم حفظ المسار.','ok')}catch(e){msg('adminMsg',e.message,'err')}}
+async function createTrack(){const name=$('newTrackName').value.trim();if(!name)return msg('adminMsg','اكتبي اسم المسار.','err');try{await api('admin-track',{password:adminPass,op:'create',name,whatsappLink:$('newTrackLink').value.trim(),primaryGroupLink:$('newPrimaryLink').value.trim()});$('newTrackName').value='';$('newTrackLink').value='';$('newPrimaryLink').value='';await loadAdmin();msg('adminMsg','تمت إضافة المسار.','ok')}catch(e){msg('adminMsg',e.message,'err')}}
+async function resetAllResults(){if(!adminPass)return;const ok=window.confirm('هل أنتِ متأكدة من مسح جميع النتائج السابقة لكل المسارات؟ سيتم حذف المقبولات والمرفوضات والمعلقات والتسجيلات الصوتية، ولا يمكن التراجع عن ذلك.');if(!ok)return;const ok2=window.confirm('تأكيد أخير: هل تريدين مسح كل النتائج والتسجيلات السابقة الآن؟');if(!ok2)return;try{await api('reset-results',{password:adminPass});await loadAdmin();msg('adminMsg','تم مسح جميع النتائج والتسجيلات السابقة بنجاح.','ok')}catch(e){msg('adminMsg',e.message,'err')}}
+async function changePasswords(){const tp=$('newTeacherPassword').value,ap=$('newAdminPassword').value;if(!tp&&!ap)return msg('adminMsg','اكتبي كلمة مرور واحدة على الأقل لتغييرها.','err');try{await api('change-passwords',{password:adminPass,teacherPassword:tp,adminPassword:ap});$('newTeacherPassword').value='';$('newAdminPassword').value='';msg('adminMsg','تم تغيير كلمات المرور بنجاح.','ok')}catch(e){msg('adminMsg',e.message,'err')}}
+if('serviceWorker' in navigator){navigator.serviceWorker.register('./sw.js').catch(()=>{});}
+show('home');
+</script>
+</body>
+<!-- companion-list-pages-refresh-2026-10-04 -->
+</html>
