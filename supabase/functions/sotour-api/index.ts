@@ -154,6 +154,22 @@ async function findRegistrationsByFlexibleName(name:string,trackId:string){
  const flexible=rows.filter((row:any)=>flexibleNamePartsMatch(name,row.student_name||row.student_name_normalized||""));
  return flexible.length===1?flexible:[];
 }
+async function findAcceptedCompanionPrefixCandidates(name:string,trackId:string){
+ const entered=canonicalParts(name);
+ if(entered.length<2)return [];
+ const {data,error}=await db.from("registrations")
+   .select("id,student_name,student_name_normalized,latest_status,updated_at,companion_group_link_used_at,companion_group_link_use_count,track_id,tracks(name,whatsapp_link,primary_group_link)")
+   .eq("track_id",trackId)
+   .eq("latest_status","accepted")
+   .order("updated_at",{ascending:false});
+ if(error)throw error;
+ return (data||[]).filter((row:any)=>{
+   const stored=canonicalParts(row.student_name||row.student_name_normalized||"");
+   if(stored.length<entered.length)return false;
+   for(let i=0;i<entered.length;i++)if(stored[i]!==entered[i])return false;
+   return true;
+ });
+}
 async function findFlexibleResultCandidates(name:string,trackId:string){
  const key=canonicalName(name);
  if(!key)return [];
@@ -302,7 +318,17 @@ Deno.serve(async(req)=>{
    const {data:track,error:trackError}=await db.from("tracks").select("id,name").eq("id",trackId).maybeSingle();
    if(trackError)throw trackError;
    if(!track)return json({error:"المسار المختار غير موجود."},400);
-   const getAccepted=async(n:string,selectedId?:string)=>{const matches=await findRegistrationsByFlexibleName(n,trackId);const evaluated=matches.filter((row:any)=>row.latest_status==="accepted"||row.latest_status==="rejected"||row.latest_status==="retry");if(selectedId){return evaluated.find((row:any)=>row.id===selectedId&&row.latest_status==="accepted")||null}const accepted=evaluated.filter((row:any)=>row.latest_status==="accepted");if(accepted.length>1)return {ambiguous:true,candidates:accepted.map((row:any)=>({id:row.id,name:row.student_name}))};return accepted[0]||null};
+   const getAccepted=async(n:string,selectedId?:string)=>{
+    const matches=await findRegistrationsByFlexibleName(n,trackId);
+    const evaluated=matches.filter((row:any)=>row.latest_status==="accepted"||row.latest_status==="rejected"||row.latest_status==="retry");
+    if(selectedId){
+      return evaluated.find((row:any)=>row.id===selectedId&&row.latest_status==="accepted")||null;
+    }
+    let accepted=evaluated.filter((row:any)=>row.latest_status==="accepted");
+    if(!accepted.length)accepted=await findAcceptedCompanionPrefixCandidates(n,trackId);
+    if(accepted.length>1)return {ambiguous:true,candidates:accepted.map((row:any)=>({id:row.id,name:row.student_name}))};
+    return accepted[0]||null;
+   };
    const a:any=await getAccepted(n1,String(body.student1RegistrationId||"")),b:any=await getAccepted(n2,String(body.student2RegistrationId||""));
    if(a?.ambiguous)return json({error:"وجدنا أكثر من اسم مقبول مشابه، من فضلك اختاري اسم الطالبة الأولى.",code:"ambiguous_student1",candidates:a.candidates},409);
    if(b?.ambiguous)return json({error:"وجدنا أكثر من اسم مقبول مشابه، من فضلك اختاري اسم الطالبة الثانية.",code:"ambiguous_student2",candidates:b.candidates},409);
