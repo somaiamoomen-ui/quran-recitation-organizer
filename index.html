@@ -120,7 +120,7 @@ async function api(action,body,form=false){
  if(form) opts.body=body; else {opts.headers['Content-Type']='application/json';opts.body=JSON.stringify(body||{});}
  const r=await fetch(API+'?action='+encodeURIComponent(action),opts);
  const data=await r.json().catch(()=>({error:'استجابة غير صالحة'}));
- if(!r.ok){const err=new Error(data.error||'حدث خطأ في الاتصال');err.code=data.code||'';err.primaryGroupLink=data.primaryGroupLink||'';throw err;}
+ if(!r.ok){const err=new Error(data.error||'حدث خطأ في الاتصال');err.code=data.code||'';err.primaryGroupLink=data.primaryGroupLink||'';err.retryRegistrationId=data.retryRegistrationId||'';err.retryStudentName=data.retryStudentName||'';throw err;}
  return data;
 }
 async function loadTracks(){
@@ -213,7 +213,19 @@ async function sendRecording(){
   const audioType=String(pendingBlob.type||'').toLowerCase();
  const audioExtension=audioType.includes('mp4')?'mp4':audioType.includes('ogg')?'ogg':audioType.includes('mpeg')||audioType.includes('mp3')?'mp3':audioType.includes('wav')?'wav':'webm';
  f.append('audio',pendingBlob,'recitation.'+audioExtension);
-  await api('submit',f,true);
+  try{
+   await api('submit',f,true);
+  }catch(e){
+   if(e.code!=='RETRY_NAME_CONFIRM')throw e;
+   const studentName=e.retryStudentName||'الطالبة التي طلبت منها المعلمة إعادة التسجيل';
+   const sameStudent=window.confirm(e.message+'\n\nاختاري «موافق» إذا كنتِ هي، أو «إلغاء» إذا لم تكوني هي.');
+   if(sameStudent){
+    f.append('confirmedRetryRegistrationId',e.retryRegistrationId||'');
+   }else{
+    f.append('retryDecision','no');
+   }
+   await api('submit',f,true);
+  }
   msg('studentMsg','تم إرسال التسجيل للمعلمة بنجاح.','ok');
   $('recordInfo').textContent='تظهر النتيجة خلال ساعات من إرسال الريكورد';$('recordInfo').classList.add('result-notice');
   $('recordPreview').classList.add('hidden');
