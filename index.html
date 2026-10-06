@@ -136,8 +136,8 @@ async function toggleRecording(){
  try{
   const stream=await navigator.mediaDevices.getUserMedia({audio:true});
   chunks=[];seconds=0;
-  const preferred='audio/webm;codecs=opus';
-  const mimeType=MediaRecorder.isTypeSupported(preferred)?preferred:(MediaRecorder.isTypeSupported('audio/webm')?'audio/webm':'');
+  const recordingTypes=['audio/webm;codecs=opus','audio/webm','audio/ogg;codecs=opus','audio/ogg','audio/mp4;codecs=mp4a.40.2','audio/mp4'];
+  const mimeType=recordingTypes.find(type=>MediaRecorder.isTypeSupported(type))||'';
   const options={audioBitsPerSecond:128000};
   if(mimeType)options.mimeType=mimeType;
   mediaRecorder=new MediaRecorder(stream,options);
