@@ -141,7 +141,19 @@ async function toggleRecording(){
   const options={audioBitsPerSecond:128000};
   if(mimeType)options.mimeType=mimeType;
   mediaRecorder=new MediaRecorder(stream,options);
-  mediaRecorder.ondataavailable=e=>{if(e.data.size)chunks.push(e.data)};
+  let recordingInterrupted=false;
+  stream.getTracks().forEach(track=>{
+   track.addEventListener('ended',()=>{
+    if(mediaRecorder&&mediaRecorder.state==='recording'){
+     recordingInterrupted=true;
+     try{mediaRecorder.stop()}catch(_){}
+    }
+   });
+  });
+  mediaRecorder.ondataavailable=e=>{if(e.data&&e.data.size)chunks.push(e.data)};
+  mediaRecorder.onerror=()=>{
+   recordingInterrupted=true;
+  };
   mediaRecorder.onstart=()=>{
    $('recordBtn').textContent='⏹️ إيقاف التسجيل';
    $('recordInfo').textContent='جاري التسجيل…';
@@ -154,9 +166,16 @@ async function toggleRecording(){
   };
   mediaRecorder.onstop=()=>{
    clearInterval(recordTimer);
-   stream.getTracks().forEach(t=>t.stop());
    const recordedMimeType=mediaRecorder?.mimeType||mimeType||chunks[0]?.type||'audio/webm';
+   stream.getTracks().forEach(t=>t.stop());
    mediaRecorder=null;
+   if(recordingInterrupted){
+    chunks=[];
+    $('recordInfo').textContent='';
+    $('recordBtn').textContent='🎙️ بدء التسجيل';
+    msg('studentMsg','توقف الميكروفون أو حدث خطأ أثناء التسجيل، لذلك لم يتم حفظ تسجيل غير مكتمل. حاولي التسجيل مرة أخرى.','err');
+    return;
+   }
    const blob=new Blob(chunks,{type:recordedMimeType});
    if(blob.size>MAX_BYTES){
     msg('studentMsg','حجم التسجيل أكبر من الحد المسموح. حاولي تسجيله مرة أخرى.','err');
@@ -175,6 +194,7 @@ async function toggleRecording(){
   };
   mediaRecorder.start(250);
  }catch(e){
+  try{stream?.getTracks?.().forEach(t=>t.stop())}catch(_){}
   let message='لم نتمكن من الوصول إلى الميكروفون. عند ظهور رسالة السماح من الموبايل اختاري «السماح»، ثم حاولي مرة أخرى.';
   if(e&&e.name==='NotAllowedError') message='⚠️ تم رفض إذن الميكروفون. هل أنتِ متأكدة من رفضه؟ بدون السماح بالميكروفون لن تتمكني من تسجيل اختبارك في الأكاديمية. إذا كان الرفض بالخطأ، فعّلي الميكروفون للموقع من إعدادات المتصفح ثم حاولي التسجيل مرة أخرى.';
   else if(e&&e.name==='NotFoundError') message='لم يتم العثور على ميكروفون في الجهاز. تأكدي من وجود الميكروفون ثم حاولي مرة أخرى.';
