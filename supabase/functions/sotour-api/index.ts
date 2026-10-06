@@ -56,12 +56,150 @@ async function checkPendingAlert(trackId:string){
  if(sent>0)await db.from("tracks").update({pending_alert_active:true,updated_at:new Date().toISOString()}).eq("id",trackId).eq("pending_alert_active",false);
 }
 function normalizeName(name:string){return name.trim().replace(/\s+/g," ").split(" ").map((part:string)=>part.replace(/^[اأإآ]/u,"ا").replace(/ى$/u,"ي").replace(/ة$/u,"ه")).join(" ")}
+function canonicalName(name:string){
+ return normalizeName(String(name||"")).toLocaleLowerCase("ar-EG").replace(/\s+/g,"");
+}
+function canonicalParts(name:string){
+ return normalizeName(String(name||"")).toLocaleLowerCase("ar-EG").split(" ").filter(Boolean).map(part=>part.replace(/\s+/g,""));
+}
+function partCanMatchEntered(enteredPart:string,storedParts:string[],startIndex:number){
+ const target=String(enteredPart||"");
+ if(!target)return [];
+ let joined="";
+ const ends:number[]=[];
+ for(let i=startIndex;i<storedParts.length;i++){
+   joined+=storedParts[i];
+   ends.push(i);
+   if(joined===target)return ends;
+   if(joined.length>target.length)break;
+ }
+ return [];
+}
+function flexibleNamePartsMatch(entered:string,stored:string){
+ const a=canonicalParts(entered),b=canonicalParts(stored);
+ if(a.length<2||b.length<2)return false;
+ // الاسم الثنائي لا يطابق اسمًا ثلاثيًا أو رباعيًا؛ المطابقة الجزئية مسموحة من 3 أسماء فأكثر.
+ if((a.length===2)!==(b.length===2))return false;
+ if(a[0]!==b[0]){
+  const enteredCanonical=a.join("");
+  const storedCanonical=b.join("");
+  if(enteredCanonical.length>=2&&storedCanonical.startsWith(enteredCanonical))return true;
+  return false;
+ }
+ const secondEnds=partCanMatchEntered(a[1],b,1);
+ if(!secondEnds.length){
+  const enteredCanonical=a.join("");
+  const storedCanonical=b.join("");
+  if(enteredCanonical.length>=2&&storedCanonical.startsWith(enteredCanonical))return true;
+  return false;
+ }
+ for(const secondEnd of secondEnds){
+   let ai=2;
+   let searchFrom=secondEnd+1;
+   let ok=true;
+   while(ai<a.length){
+     let matched=false;
+     for(let bi=searchFrom;bi<b.length;bi++){
+       const ends=partCanMatchEntered(a[ai],b,bi);
+       if(ends.length){
+         matched=true;
+         searchFrom=ends[ends.length-1]+1;
+         break;
+       }
+     }
+     if(!matched){ok=false;break}
+     ai++;
+   }
+   if(ok)return true;
+ }
+ return false;
+}
+function literalNameParts(name:string){
+ return String(name||"").trim().replace(/\\s+/g," ").toLocaleLowerCase("ar-EG").split(" ").filter(Boolean);
+}
+function literalNamePartsMatch(entered:string,stored:string){
+ const a=literalNameParts(entered),b=literalNameParts(stored);
+ if(a.length<2||b.length<2)return false;
+ // الاسم الثنائي لا يطابق اسمًا ثلاثيًا أو رباعيًا؛ من 3 أسماء فأكثر نسمح بالمطابقة على نفس البداية.
+ if((a.length===2)!==(b.length===2))return false;
+ if(a[0]!==b[0]||a[1]!==b[1])return false;
+ let ai=2,searchFrom=2;
+ while(ai<a.length){
+  let matched=false;
+  for(let bi=searchFrom;bi<b.length;bi++){
+   if(a[ai]===b[bi]){
+    matched=true;
+    searchFrom=bi+1;
+    break;
+   }
+  }
+  if(!matched)return false;
+  ai++;
+ }
+ return true;
+}
+async function findRegistrationsByFlexibleName(name:string,trackId:string){
+ const key=canonicalName(name);
+ if(!key)return [];
+ const {data,error}=await db.from("registrations")
+   .select("id,student_name,student_name_normalized,latest_status,updated_at,companion_group_link_used_at,companion_group_link_use_count,track_id,tracks(name,whatsapp_link,primary_group_link)")
+   .eq("track_id",trackId)
+   .order("updated_at",{ascending:false});
+ if(error)throw error;
+ const rows=data||[];
+ const literal=rows.filter((row:any)=>literalNamePartsMatch(name,row.student_name||row.student_name_normalized||""));
+ if(literal.length===1)return literal;
+ const exact=rows.filter((row:any)=>canonicalName(row.student_name||row.student_name_normalized||"")===key);
+ if(exact.length)return exact;
+ const flexible=rows.filter((row:any)=>flexibleNamePartsMatch(name,row.student_name||row.student_name_normalized||""));
+ return flexible.length===1?flexible:[];
+}
+async function findFlexibleResultCandidates(name:string,trackId:string){
+ const key=canonicalName(name);
+ if(!key)return [];
+ const {data,error}=await db.from("registrations")
+   .select("id,student_name,student_name_normalized,latest_status,updated_at,companion_group_link_used_at,companion_group_link_use_count,track_id,tracks(name,whatsapp_link,primary_group_link)")
+   .eq("track_id",trackId)
+   .order("updated_at",{ascending:false});
+ if(error)throw error;
+ const rows=data||[];
+ const exact=rows.filter((row:any)=>canonicalName(row.student_name||row.student_name_normalized||"")===key);
+ if(exact.length)return exact;
+ const literal=rows.filter((row:any)=>literalNamePartsMatch(name,row.student_name||row.student_name_normalized||""));
+ if(literal.length)return literal;
+ return rows.filter((row:any)=>flexibleNamePartsMatch(name,row.student_name||row.student_name_normalized||""));
+}
 function validName(name:string){return normalizeName(name).length>0}
 async function getOpenTracks(){const {data,error}=await db.from("tracks").select("id,name,whatsapp_link,is_open,sort_order").eq("is_open",true).order("sort_order");if(error)throw error;return data||[]}
 async function getResult(name:string,trackId:string){
- const normalized=normalizeName(name).toLocaleLowerCase("ar-EG");
- const {data,error}=await db.from("registrations").select("id,student_name,latest_status,updated_at,companion_group_link_used_at,companion_group_link_use_count,track_id,tracks(name,whatsapp_link)").eq("student_name_normalized",normalized).eq("track_id",trackId).order("updated_at",{ascending:false}).limit(1);
- if(error)throw error; const row=data?.[0]; if(!row)return {found:false};
+ const matches=await findFlexibleResultCandidates(name,trackId);
+ const evaluatedMatches=matches.filter((row:any)=>row.latest_status==="accepted"||row.latest_status==="rejected"||row.latest_status==="retry");
+ if(evaluatedMatches.length)matches.splice(0,matches.length,...evaluatedMatches.slice(0,1));
+ else {
+  const pendingMatch=matches.find((row:any)=>row.latest_status==="pending");
+  if(pendingMatch)matches.splice(0,matches.length,pendingMatch);
+  else matches.splice(0,matches.length);
+ }
+ if(!matches.length){
+  const key=canonicalName(name);
+  const {data:otherRows,error:otherError}=await db.from("registrations").select("id,student_name,student_name_normalized,track_id,tracks(name)").neq("track_id",trackId);
+  if(otherError)throw otherError;
+  const otherMatches=(otherRows||[]).filter((row:any)=>canonicalName(row.student_name||row.student_name_normalized||"")===key||flexibleNamePartsMatch(name,row.student_name||row.student_name_normalized||""));
+  const uniqueTrackIds=[...new Set(otherMatches.map((row:any)=>String(row.track_id||"")).filter(Boolean))];
+  if(uniqueTrackIds.length===1){
+    const row=otherMatches.find((x:any)=>String(x.track_id||"")===uniqueTrackIds[0]);
+    const track:any=Array.isArray(row?.tracks)?row.tracks[0]:row?.tracks;
+    return {found:false,wrongTrack:true,correctTrackId:uniqueTrackIds[0],correctTrackName:String(track?.name||"")};
+  }
+  if(uniqueTrackIds.length>1)return {found:false,wrongTrack:true};
+  return {found:false};
+}
+ if(matches.length>1){
+  const parts=canonicalParts(name);
+  const message=parts.length<=2?"برجاء كتابة الاسم ثلاثيًا للوصول إلى النتيجة.":"برجاء كتابة الاسم بصورة أكثر تحديدًا للوصول إلى النتيجة.";
+  return {found:false,ambiguous:true,message};
+ }
+ const row=matches[0];
  const track:any=Array.isArray(row.tracks)?row.tracks[0]:row.tracks;
  let retryNote="";
  if(row.latest_status==="retry"){
@@ -155,7 +293,7 @@ Deno.serve(async(req)=>{
    if(!retryAllowed)return json({error:"تم استخدام رابط جروب الرفيقات من قبل، ولا يمكن استخدامه مرة أخرى من الموقع."},409);
    return Response.redirect(link,302);
   }
-  if(action==="result"){const body=await req.json();const name=normalizeName(String(body.name||"")),trackId=String(body.trackId||"");if(!validName(name))return json({error:"برجاء إدخال الاسم."},400);if(!trackId)return json({error:"برجاء اختيار المسار."},400);return json(await getResult(name,trackId))}
+  if(action==="result"){const body=await req.json();const name=String(body.name||"").trim().replace(/\s+/g," "),trackId=String(body.trackId||"");if(!validName(name))return json({error:"برجاء إدخال الاسم."},400);if(!trackId)return json({error:"برجاء اختيار المسار."},400);return json(await getResult(name,trackId))}
   if(action==="register-companion"){
    const body=await req.json(),name=normalizeName(String(body.name||"")),name2=normalizeName(String(body.name2||"")),trackId=String(body.trackId||""),pairNumber=Number(String(body.pairNumber||"")),riwaya=String(body.riwaya||"");
    if(!validName(name)||!validName(name2)||!trackId||!Number.isInteger(pairNumber)||pairNumber<1||!["حفص","قالون"].includes(riwaya))return json({error:"بيانات الرفقة غير مكتملة."},400);
@@ -164,8 +302,10 @@ Deno.serve(async(req)=>{
    const {data:track,error:trackError}=await db.from("tracks").select("id,name").eq("id",trackId).maybeSingle();
    if(trackError)throw trackError;
    if(!track)return json({error:"المسار المختار غير موجود."},400);
-   const getAccepted=async(n:string)=>{const {data,error}=await db.from("registrations").select("id,student_name,student_name_normalized,track_id,latest_status,updated_at,tracks(name,primary_group_link)").eq("student_name_normalized",n).eq("track_id",trackId).eq("latest_status","accepted").order("updated_at",{ascending:false}).limit(1).maybeSingle();if(error)throw error;return data};
-   const a:any=await getAccepted(n1),b:any=await getAccepted(n2);
+   const getAccepted=async(n:string,selectedId?:string)=>{const matches=await findRegistrationsByFlexibleName(n,trackId);const evaluated=matches.filter((row:any)=>row.latest_status==="accepted"||row.latest_status==="rejected"||row.latest_status==="retry");if(selectedId){return evaluated.find((row:any)=>row.id===selectedId&&row.latest_status==="accepted")||null}const accepted=evaluated.filter((row:any)=>row.latest_status==="accepted");if(accepted.length>1)return {ambiguous:true,candidates:accepted.map((row:any)=>({id:row.id,name:row.student_name}))};return accepted[0]||null};
+   const a:any=await getAccepted(n1,String(body.student1RegistrationId||"")),b:any=await getAccepted(n2,String(body.student2RegistrationId||""));
+   if(a?.ambiguous)return json({error:"وجدنا أكثر من اسم مقبول مشابه، من فضلك اختاري اسم الطالبة الأولى.",code:"ambiguous_student1",candidates:a.candidates},409);
+   if(b?.ambiguous)return json({error:"وجدنا أكثر من اسم مقبول مشابه، من فضلك اختاري اسم الطالبة الثانية.",code:"ambiguous_student2",candidates:b.candidates},409);
    if(!a||a.latest_status!=="accepted")return json({error:"الطالبة الأولى غير موجودة ضمن الطالبات المقبولات في المسار المختار."},403);
    if(!b||b.latest_status!=="accepted")return json({error:"الطالبة الثانية غير موجودة ضمن الطالبات المقبولات في المسار المختار."},403);
    const {data:existing,error:pe}=await db.from("companion_pairs").select("id,student1_registration_id,student2_registration_id,pair_number");if(pe)throw pe;
@@ -196,8 +336,32 @@ Deno.serve(async(req)=>{
    const {data:track,error:trackError}=await db.from("tracks").select("id,name,is_open").eq("id",trackId).single();
    if(trackError||!track||!track.is_open)return json({error:"هذا المسار مغلق حاليًا."},400);
    const normalized=name.toLocaleLowerCase("ar-EG");
-   let {data:registration,error:regError}=await db.from("registrations").select("*").eq("track_id",trackId).eq("student_name_normalized",normalized).maybeSingle();
+   const lookupKey=canonicalName(name);
+   let {data:registration,error:regError}=await db.from("registrations").select("*").eq("track_id",trackId).order("updated_at",{ascending:false});
    if(regError)throw regError;
+   const rows=registration||[];
+   const literalRows=rows.filter((row:any)=>{
+     const stored=row.student_name||row.student_name_normalized||"";
+     return literalNamePartsMatch(name,stored);
+   });
+   const canonicalRows=rows.filter((row:any)=>{
+     const stored=row.student_name||row.student_name_normalized||"";
+     return canonicalName(stored)===lookupKey;
+   });
+   const flexibleRows=rows.filter((row:any)=>{
+     const stored=row.student_name||row.student_name_normalized||"";
+     return flexibleNamePartsMatch(name,stored);
+   });
+   const prioritizedRows=(rows:any[])=>rows.slice().sort((a:any,b:any)=>{
+     const rank=(row:any)=>row?.latest_status==="retry"?0:row?.latest_status==="pending"?1:2;
+     const rr=rank(a)-rank(b);
+     if(rr!==0)return rr;
+     return new Date(b?.updated_at||0).getTime()-new Date(a?.updated_at||0).getTime();
+   });
+   if(canonicalRows.length) registration=prioritizedRows(canonicalRows)[0];
+   else if(literalRows.length) registration=prioritizedRows(literalRows)[0];
+   else if(flexibleRows.length===1) registration=flexibleRows[0];
+   else registration=null;
    if(registration?.latest_status==="pending")return json({error:"لديك تسجيل بالفعل قيد التقييم."},409);
    if(registration?.latest_status==="accepted"||registration?.latest_status==="rejected")return json({error:"تم تقييم آخر تسجيل لك بالفعل. يمكنك الرجوع لمعرفة النتيجة."},409);
    if(registration?.latest_status!=="retry"){
@@ -205,10 +369,8 @@ Deno.serve(async(req)=>{
      if(pendingError)throw pendingError;
      if((pendingCount||0)>=50)return json({error:"يوجد عدد كبير من التسجيلات قيد التقييم حاليًا. برجاء المحاولة بعد قليل إن شاء الله."},429);
    }
-   if(!registration){
+   if(!registration||registration.latest_status==="retry"){
     const created=await db.from("registrations").insert({student_name:name,student_name_normalized:normalized,track_id:trackId,latest_status:"pending"}).select().single();if(created.error)throw created.error;registration=created.data;
-   }else{
-    const updated=await db.from("registrations").update({latest_status:"pending",updated_at:new Date().toISOString()}).eq("id",registration.id).select().single();if(updated.error)throw updated.error;registration=updated.data;
    }
    const ext=audio.type.includes("ogg")?"ogg":audio.type.includes("mp4")?"mp4":"webm",path=`${registration.id}/${crypto.randomUUID()}.${ext}`;
    const upload=await db.storage.from(BUCKET).upload(path,new Uint8Array(await audio.arrayBuffer()),{contentType:audio.type||"audio/webm",upsert:false});
