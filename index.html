@@ -115,6 +115,8 @@ async function registerCompanion(student1RegistrationId='',student2RegistrationI
  }}
 function msg(id,text,type='info'){ $(id).innerHTML=text?'<div class="msg '+type+'">'+escapeHtml(text)+'</div>':'' }
 function escapeHtml(s){return String(s??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]))}
+function safeSessionGet(key){try{return window.sessionStorage.getItem(key)}catch{return null}}
+function safeSessionSet(key,value){try{window.sessionStorage.setItem(key,value);return true}catch{return false}}
 async function api(action,body,form=false){
  const opts={method:'POST',headers:{apikey:API_KEY}};
  if(form) opts.body=body; else {opts.headers['Content-Type']='application/json';opts.body=JSON.stringify(body||{});}
@@ -258,7 +260,7 @@ async function startCompanionWhatsApp(event,registrationId,trackId,link){
   w=window.open('about:blank','_blank');
   if(!w)return msg('studentMsg','لم يتمكن المتصفح من فتح واتساب. اسمحي بالنوافذ المنبثقة ثم حاولي مرة أخرى.','err');
   const d=await api('companion-start',{registrationId,trackId});
-  sessionStorage.setItem('companionAttempt',JSON.stringify({registrationId,trackId,token:d.token,whatsappLink:d.whatsappLink,createdAt:Date.now()}));
+  safeSessionSet('companionAttempt',JSON.stringify({registrationId,trackId,token:d.token,whatsappLink:d.whatsappLink,createdAt:Date.now()}));
   w.location.href=d.whatsappLink;
  }catch(e){
   try{if(w)w.close()}catch{}
@@ -267,7 +269,7 @@ async function startCompanionWhatsApp(event,registrationId,trackId,link){
 }
 function retryCompanionWhatsApp(){
  try{
-  const raw=sessionStorage.getItem('companionAttempt');
+  const raw=safeSessionGet('companionAttempt');
   if(!raw)return msg('studentMsg','لم توجد محاولة فتح محفوظة. اضغطي على رابط جروب الرفيقات أولًا.','err');
   const attempt=JSON.parse(raw);
   if(!attempt?.whatsappLink)return msg('studentMsg','تعذر إعادة فتح الرابط. اضغطي على رابط جروب الرفيقات وابدئي محاولة جديدة.','err');
@@ -281,7 +283,7 @@ function retryCompanionWhatsApp(){
 function confirmCompanionGroupLink(){
  try{
   const key='companionConfirmed:'+nameValue().trim()+':'+($('resultTrack')?.value||'');
-  sessionStorage.setItem(key,'1');
+  safeSessionSet(key,'1');
   $('resultBox').innerHTML='<div class="msg ok">تم تأكيد الدخول لجروب الرفيقات بنجاح 🌷</div>';
  }catch(e){
   msg('studentMsg','تعذر تأكيد الدخول.','err');
@@ -292,7 +294,7 @@ async function checkResult(nameOverride='',trackIdOverride=''){
  try{const d=await api('result',{name,trackId});if(!d.found){if(d.wrongTrack){$('resultBox').innerHTML='<div class="msg err">المسار المختار غير صحيح، برجاء اختيار المسار الصحيح.'+(d.correctTrackName?'<br><br>المسار الصحيح: <b>'+escapeHtml(d.correctTrackName)+'</b>':'')+'</div>';return}if(d.ambiguous&&d.message){$('resultBox').innerHTML='<div class="msg info">'+escapeHtml(d.message)+'</div>';return}$('resultBox').innerHTML='<div class="msg info">لا توجد نتيجة مسجلة بهذا الاسم حتى الآن.</div>';return}
  let h='<div class="card" style="box-shadow:none;margin:14px 0"><b>الاسم:</b> '+escapeHtml(d.studentName)+'<br><b>المسار:</b> '+escapeHtml(d.trackName)+'<br><br>';
  if(d.status==='pending')h+='<div class="msg info">التسجيل قيد التقييم من المعلمة.</div>';
- if(d.status==='accepted')h+='<div class="msg ok">مبارك، تم قبول التلاوة 🌷</div>'+(d.whatsappLink?(sessionStorage.getItem('companionConfirmed:'+name.trim()+':'+trackId)?'<div class="msg info">تم تأكيد الدخول لجروب الرفيقات من قبل.</div>':'<div class="companion-link" style="padding:14px;text-align:center">🔗 رابط جروب الرفيقات:<br><a href="'+escapeHtml(d.whatsappLink)+'" rel="noopener noreferrer" style="display:inline-block;margin-top:8px;word-break:break-all">'+escapeHtml(d.whatsappLink)+'</a><div style="margin-top:12px;color:#c62828;font-weight:700;line-height:1.7">⚠️ بعد الدخول إلى جروب الرفيقات، عودي إلى هذه الصفحة واضغطي «تم الدخول لجروب الرفيقات» لتأكيد أنكِ تمكنتِ من الدخول. إذا لم يفتح واتساب أو لم تتمكني من الدخول، لا تضغطي زر التأكيد ويمكنكِ المحاولة مرة أخرى.</div><button type="button" class="btn companion-confirm-btn" style="margin-top:12px" onclick="confirmCompanionGroupLink()">✅ تم الدخول لجروب الرفيقات</button></div>'):'<div class="hint">سيتم إضافة رابط مجموعة رفيقات من الإدارة.</div>');
+ if(d.status==='accepted')h+='<div class="msg ok">مبارك، تم قبول التلاوة 🌷</div>'+(d.whatsappLink?(safeSessionGet('companionConfirmed:'+name.trim()+':'+trackId)?'<div class="msg info">تم تأكيد الدخول لجروب الرفيقات من قبل.</div>':'<div class="companion-link" style="padding:14px;text-align:center">🔗 رابط جروب الرفيقات:<br><a href="'+escapeHtml(d.whatsappLink)+'" rel="noopener noreferrer" style="display:inline-block;margin-top:8px;word-break:break-all">'+escapeHtml(d.whatsappLink)+'</a><div style="margin-top:12px;color:#c62828;font-weight:700;line-height:1.7">⚠️ بعد الدخول إلى جروب الرفيقات، عودي إلى هذه الصفحة واضغطي «تم الدخول لجروب الرفيقات» لتأكيد أنكِ تمكنتِ من الدخول. إذا لم يفتح واتساب أو لم تتمكني من الدخول، لا تضغطي زر التأكيد ويمكنكِ المحاولة مرة أخرى.</div><button type="button" class="btn companion-confirm-btn" style="margin-top:12px" onclick="confirmCompanionGroupLink()">✅ تم الدخول لجروب الرفيقات</button></div>'):'<div class="hint">سيتم إضافة رابط مجموعة رفيقات من الإدارة.</div>');
  if(d.status==='rejected'){const rejectionText=escapeHtml(d.rejectionMessage||'نأسف، لم يتم قبول التسجيل.').replace(/(https?:\/\/[^\s<]+)/g,'<a href="$1" target="_blank" rel="noopener noreferrer" style="color:inherit;text-decoration:underline">$1</a>');h+='<div class="msg err">'+rejectionText.replace(/\n/g,'<br>')+'</div>';}
  if(d.status==='retry'){h+='<div class="msg info">يرجى إعادة التسجيل من نفس المسار.</div>';if(d.retryNote)h+='<div class="retry-note"><b>ملاحظة المعلمة:</b><br>'+escapeHtml(d.retryNote)+'</div>';}
  h+='</div>'; $('resultBox').innerHTML=h;
