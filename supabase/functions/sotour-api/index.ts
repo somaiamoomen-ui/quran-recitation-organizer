@@ -138,11 +138,23 @@ function literalNamePartsMatch(entered:string,stored:string){
  }
  return true;
 }
+async function findRetryNameCandidates(name:string,trackId:string){
+ const entered=canonicalParts(name);
+ if(entered.length<2)return [];
+ const {data,error}=await db.from("registrations").select("id,student_name,student_name_normalized,latest_status,updated_at,track_id").eq("track_id",trackId).eq("latest_status","retry").order("updated_at",{ascending:false});
+ if(error)throw error;
+ return (data||[]).filter((row:any)=>{
+  const stored=canonicalParts(row.student_name||row.student_name_normalized||"");
+  if(stored.length<=entered.length)return false;
+  for(let i=0;i<entered.length;i++)if(stored[i]!==entered[i])return false;
+  return true;
+ });
+}
 async function findRegistrationsByFlexibleName(name:string,trackId:string){
  const key=canonicalName(name);
  if(!key)return [];
  const {data,error}=await db.from("registrations")
-   .select("id,student_name,student_name_normalized,latest_status,updated_at,companion_group_link_used_at,companion_group_link_use_count,track_id,tracks(name,whatsapp_link,primary_group_link)")
+   .select("id,student_name,student_name_normalized,result_aliases,latest_status,updated_at,companion_group_link_used_at,companion_group_link_use_count,track_id,tracks(name,whatsapp_link,primary_group_link)")
    .eq("track_id",trackId)
    .order("updated_at",{ascending:false});
  if(error)throw error;
@@ -154,22 +166,6 @@ async function findRegistrationsByFlexibleName(name:string,trackId:string){
  const flexible=rows.filter((row:any)=>flexibleNamePartsMatch(name,row.student_name||row.student_name_normalized||""));
  return flexible.length===1?flexible:[];
 }
-async function findAcceptedCompanionPrefixCandidates(name:string,trackId:string){
- const entered=canonicalParts(name);
- if(entered.length<2)return [];
- const {data,error}=await db.from("registrations")
-   .select("id,student_name,student_name_normalized,latest_status,updated_at,companion_group_link_used_at,companion_group_link_use_count,track_id,tracks(name,whatsapp_link,primary_group_link)")
-   .eq("track_id",trackId)
-   .eq("latest_status","accepted")
-   .order("updated_at",{ascending:false});
- if(error)throw error;
- return (data||[]).filter((row:any)=>{
-   const stored=canonicalParts(row.student_name||row.student_name_normalized||"");
-   if(stored.length<entered.length)return false;
-   for(let i=0;i<entered.length;i++)if(stored[i]!==entered[i])return false;
-   return true;
- });
-}
 async function findFlexibleResultCandidates(name:string,trackId:string){
  const key=canonicalName(name);
  if(!key)return [];
@@ -179,11 +175,16 @@ async function findFlexibleResultCandidates(name:string,trackId:string){
    .order("updated_at",{ascending:false});
  if(error)throw error;
  const rows=data||[];
- const exact=rows.filter((row:any)=>canonicalName(row.student_name||row.student_name_normalized||"")===key);
- if(exact.length)return exact;
  const literal=rows.filter((row:any)=>literalNamePartsMatch(name,row.student_name||row.student_name_normalized||""));
  if(literal.length)return literal;
+ const exact=rows.filter((row:any)=>canonicalName(row.student_name||row.student_name_normalized||"")===key);
+ if(exact.length)return exact;
  return rows.filter((row:any)=>flexibleNamePartsMatch(name,row.student_name||row.student_name_normalized||""));
+}
+function resultAliasMatches(name:string,row:any){
+ const key=canonicalName(name);
+ const aliases=Array.isArray(row?.result_aliases)?row.result_aliases:[];
+ return !!key&&aliases.some((alias:string)=>canonicalName(alias)===key);
 }
 function validName(name:string){return normalizeName(name).length>0}
 async function getOpenTracks(){const {data,error}=await db.from("tracks").select("id,name,whatsapp_link,is_open,sort_order").eq("is_open",true).order("sort_order");if(error)throw error;return data||[]}
@@ -318,17 +319,7 @@ Deno.serve(async(req)=>{
    const {data:track,error:trackError}=await db.from("tracks").select("id,name").eq("id",trackId).maybeSingle();
    if(trackError)throw trackError;
    if(!track)return json({error:"المسار المختار غير موجود."},400);
-   const getAccepted=async(n:string,selectedId?:string)=>{
-    const matches=await findRegistrationsByFlexibleName(n,trackId);
-    const evaluated=matches.filter((row:any)=>row.latest_status==="accepted"||row.latest_status==="rejected"||row.latest_status==="retry");
-    if(selectedId){
-      return evaluated.find((row:any)=>row.id===selectedId&&row.latest_status==="accepted")||null;
-    }
-    let accepted=evaluated.filter((row:any)=>row.latest_status==="accepted");
-    if(!accepted.length)accepted=await findAcceptedCompanionPrefixCandidates(n,trackId);
-    if(accepted.length>1)return {ambiguous:true,candidates:accepted.map((row:any)=>({id:row.id,name:row.student_name}))};
-    return accepted[0]||null;
-   };
+   const getAccepted=async(n:string,selectedId?:string)=>{const matches=await findRegistrationsByFlexibleName(n,trackId);const evaluated=matches.filter((row:any)=>row.latest_status==="accepted"||row.latest_status==="rejected"||row.latest_status==="retry");if(selectedId){return evaluated.find((row:any)=>row.id===selectedId&&row.latest_status==="accepted")||null}const accepted=evaluated.filter((row:any)=>row.latest_status==="accepted");if(accepted.length>1)return {ambiguous:true,candidates:accepted.map((row:any)=>({id:row.id,name:row.student_name}))};return accepted[0]||null};
    const a:any=await getAccepted(n1,String(body.student1RegistrationId||"")),b:any=await getAccepted(n2,String(body.student2RegistrationId||""));
    if(a?.ambiguous)return json({error:"وجدنا أكثر من اسم مقبول مشابه، من فضلك اختاري اسم الطالبة الأولى.",code:"ambiguous_student1",candidates:a.candidates},409);
    if(b?.ambiguous)return json({error:"وجدنا أكثر من اسم مقبول مشابه، من فضلك اختاري اسم الطالبة الثانية.",code:"ambiguous_student2",candidates:b.candidates},409);
@@ -355,7 +346,7 @@ Deno.serve(async(req)=>{
    const now=new Date().toISOString();const updated=await db.from("registrations").update({companion_group_link_used_at:now}).eq("id",row.id).is("companion_group_link_used_at",null).eq("latest_status","accepted").select("id").maybeSingle();if(updated.error)throw updated.error;if(!updated.data){const {data:check}=await db.from("registrations").select("companion_group_link_used_at,companion_group_link_use_count").eq("id",row.id).maybeSingle();const checkAt=check?.companion_group_link_used_at?new Date(check.companion_group_link_used_at).getTime():0;if((Number(check?.companion_group_link_use_count)||0)<1||(checkAt>0&&Date.now()-checkAt<15*60*1000))return Response.redirect(link,302);return json({error:"تم استخدام رابط جروب الرفيقات من قبل، ولا يمكن استخدامه مرة أخرى من الموقع."},409);}return Response.redirect(link,302);
   }
   if(action==="submit"){
-   const form=await req.formData(),name=normalizeName(String(form.get("name")||"")),trackId=String(form.get("trackId")||""),audio=form.get("audio");
+   const form=await req.formData(),name=normalizeName(String(form.get("name")||"")),trackId=String(form.get("trackId")||""),audio=form.get("audio"),confirmedRetryId=String(form.get("confirmedRetryRegistrationId")||""),retryDecision=String(form.get("retryDecision")||"");
    if(!validName(name)||!trackId||!(audio instanceof File))return json({error:"بيانات التسجيل غير مكتملة."},400);
    if(audio.size<1000)return json({error:"التسجيل فارغ أو قصير جدًا."},400);
    if(audio.size>10*1024*1024)return json({error:"التسجيل أكبر من الحد المسموح (10 ميجابايت)."},400);
@@ -366,6 +357,22 @@ Deno.serve(async(req)=>{
    let {data:registration,error:regError}=await db.from("registrations").select("*").eq("track_id",trackId).order("updated_at",{ascending:false});
    if(regError)throw regError;
    const rows=registration||[];
+   if(!confirmedRetryId&&retryDecision!=="no"){
+     const retryCandidates=await findRetryNameCandidates(name,trackId);
+     if(retryCandidates.length===1){
+       return json({error:"وجدنا طالبة مسجلة باسم "+String(retryCandidates[0].student_name||"")+" وحالتها إعادة. هل أنتِ هذه الطالبة التي طلبت منها المعلمة إعادة التسجيل؟",code:"RETRY_NAME_CONFIRM",retryRegistrationId:String(retryCandidates[0].id),retryStudentName:String(retryCandidates[0].student_name||"")},409);
+     }
+     if(retryCandidates.length>1){
+       return json({error:"يوجد أكثر من طالبة لها اسم قريب من الاسم المكتوب وحالتها إعادة. برجاء كتابة الاسم كما تم تسجيله كاملًا حتى نحدد الطالبة الصحيحة.",code:"RETRY_NAME_AMBIGUOUS"},409);
+     }
+   }else{
+     const confirmed=rows.find((row:any)=>String(row.id)===confirmedRetryId&&row.latest_status==="retry");
+     const enteredParts=canonicalParts(name),storedParts=canonicalParts(confirmed?.student_name||confirmed?.student_name_normalized||"");
+     const prefixMatch=enteredParts.length>=2&&storedParts.length>enteredParts.length&&enteredParts.every((part:string,i:number)=>part===storedParts[i]);
+     if(!confirmed||(!flexibleNamePartsMatch(name,String(confirmed.student_name||confirmed.student_name_normalized||""))&&!prefixMatch)){
+       return json({error:"لا يمكن ربط التسجيل بطلب الإعادة بهذا الاسم. برجاء التأكد من الاسم.",code:"RETRY_NAME_CONFIRM_INVALID"},400);
+     }
+   }
    const literalRows=rows.filter((row:any)=>{
      const stored=row.student_name||row.student_name_normalized||"";
      return literalNamePartsMatch(name,stored);
@@ -384,13 +391,22 @@ Deno.serve(async(req)=>{
      if(rr!==0)return rr;
      return new Date(b?.updated_at||0).getTime()-new Date(a?.updated_at||0).getTime();
    });
-   if(canonicalRows.length) registration=prioritizedRows(canonicalRows)[0];
+   if(confirmedRetryId){
+     registration=rows.find((row:any)=>String(row.id)===confirmedRetryId&&row.latest_status==="retry")||null;
+   }else if(canonicalRows.length) registration=prioritizedRows(canonicalRows)[0];
    else if(literalRows.length) registration=prioritizedRows(literalRows)[0];
    else if(flexibleRows.length===1) registration=flexibleRows[0];
    else registration=null;
    if(registration?.latest_status==="pending")return json({error:"لديك تسجيل بالفعل قيد التقييم."},409);
    if(registration?.latest_status==="accepted"||registration?.latest_status==="rejected")return json({error:"تم تقييم آخر تسجيل لك بالفعل. يمكنك الرجوع لمعرفة النتيجة."},409);
-   if(registration?.latest_status!=="retry"){
+   if(registration?.latest_status==="retry"){
+     const aliases=Array.isArray(registration.result_aliases)?registration.result_aliases.slice():[];
+     if(!aliases.some((alias:string)=>canonicalName(alias)===lookupKey))aliases.push(name);
+     const linked=await db.from("registrations").update({result_aliases:aliases,latest_status:"pending",updated_at:new Date().toISOString()}).eq("id",registration.id).eq("latest_status","retry").select().single();
+     if(linked.error)throw linked.error;
+     registration=linked.data;
+   }
+   if(!registration){
      const {count:pendingCount,error:pendingError}=await db.from("registrations").select("id",{count:"exact",head:true}).eq("track_id",trackId).eq("latest_status","pending");
      if(pendingError)throw pendingError;
      if((pendingCount||0)>=50)return json({error:"يوجد عدد كبير من التسجيلات قيد التقييم حاليًا. برجاء المحاولة بعد قليل إن شاء الله."},429);
