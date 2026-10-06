@@ -134,16 +134,7 @@ async function toggleRecording(){
  if(!nameValue()) return msg('studentMsg','برجاء إدخال الاسم أولًا.','err');
  if(!$('studentTrack').value) return msg('studentMsg','برجاء اختيار المسار.','err');
  try{
-  const stream=await navigator.mediaDevices.getUserMedia({
-   audio:{
-    channelCount:1,
-    sampleRate:48000,
-    sampleSize:16,
-    echoCancellation:false,
-    noiseSuppression:false,
-    autoGainControl:false
-   }
-  });
+  const stream=await navigator.mediaDevices.getUserMedia({audio:true});
   chunks=[];seconds=0;
   const preferred='audio/webm;codecs=opus';
   const mimeType=MediaRecorder.isTypeSupported(preferred)?preferred:(MediaRecorder.isTypeSupported('audio/webm')?'audio/webm':'');
