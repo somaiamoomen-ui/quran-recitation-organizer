@@ -155,8 +155,9 @@ async function toggleRecording(){
   mediaRecorder.onstop=()=>{
    clearInterval(recordTimer);
    stream.getTracks().forEach(t=>t.stop());
+   const recordedMimeType=mediaRecorder?.mimeType||mimeType||chunks[0]?.type||'audio/webm';
    mediaRecorder=null;
-   const blob=new Blob(chunks,{type:mimeType||'audio/webm'});
+   const blob=new Blob(chunks,{type:recordedMimeType});
    if(blob.size>MAX_BYTES){
     msg('studentMsg','حجم التسجيل أكبر من الحد المسموح. حاولي تسجيله مرة أخرى.','err');
     chunks=[];$('recordInfo').textContent='';
@@ -189,7 +190,9 @@ async function sendRecording(){
   const f=new FormData();
   f.append('name',nameValue());
   f.append('trackId',$('studentTrack').value);
-  f.append('audio',pendingBlob,'recitation.webm');
+  const audioType=String(pendingBlob.type||'').toLowerCase();
+ const audioExtension=audioType.includes('mp4')?'mp4':audioType.includes('ogg')?'ogg':audioType.includes('mpeg')||audioType.includes('mp3')?'mp3':audioType.includes('wav')?'wav':'webm';
+ f.append('audio',pendingBlob,'recitation.'+audioExtension);
   await api('submit',f,true);
   msg('studentMsg','تم إرسال التسجيل للمعلمة بنجاح.','ok');
   $('recordInfo').textContent='تظهر النتيجة خلال ساعات من إرسال الريكورد';$('recordInfo').classList.add('result-notice');
