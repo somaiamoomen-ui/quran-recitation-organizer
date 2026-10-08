@@ -524,6 +524,15 @@ Deno.serve(async(req)=>{
    const companionPairs=(pairs||[]).map((p:any)=>({id:p.id,riwaya:p.riwaya,pairNumber:p.pair_number,student1RegistrationId:p.student1_registration_id,student2RegistrationId:p.student2_registration_id,student1Name:byId[p.student1_registration_id]?.student_name||"",student2Name:byId[p.student2_registration_id]?.student_name||"",trackId:byId[p.student1_registration_id]?.track_id||""})).filter((p:any)=>p.trackId);
    return json({tracks:(tracks||[]).map(t=>({...t,stats:stats[t.id]})),rejectionMessage:REJECTION_MESSAGE,students,acceptedStudents,companionPairs});
   }
+  if(action==="admin-track-unpaired"){
+   const body=await req.json();if(!(await requireRole(body,"admin")))return json({error:"كلمة مرور الإدارة غير صحيحة."},401);
+   const trackId=String(body.trackId||"");if(!trackId)return json({error:"المسار غير محدد."},400);
+   const {data:accepted,error:ae}=await db.from("registrations").select("id,student_name,track_id,latest_status,companion_group_link_use_count").eq("track_id",trackId).eq("latest_status","accepted");if(ae)throw ae;
+   const {data:pairs,error:pe}=await db.from("companion_pairs").select("id,student1_registration_id,student2_registration_id,riwaya,pair_number");if(pe)throw pe;
+   const pairedIds=new Set((pairs||[]).flatMap((p:any)=>[String(p.student1_registration_id),String(p.student2_registration_id)]));
+   const students=(accepted||[]).filter((r:any)=>!pairedIds.has(String(r.id))).map((r:any)=>({id:r.id,studentName:r.student_name,trackId:r.track_id,status:r.latest_status,companionGroupLinkUseCount:Number(r.companion_group_link_use_count)||0}));
+   return json({students,count:students.length});
+  }
   if(action==="edit-companion-list"){
    const body=await req.json();if(!(await requireRole(body,"admin")))return json({error:"كلمة مرور الإدارة غير صحيحة."},401);
    const trackId=String(body.trackId||""),pairs=Array.isArray(body.pairs)?body.pairs:[];
