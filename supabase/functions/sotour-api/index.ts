@@ -507,6 +507,7 @@ Deno.serve(async(req)=>{
    const body=await req.json();if(!(await requireRole(body,"admin")))return json({error:"كلمة مرور الإدارة غير صحيحة."},401);
    const {data:tracks,error}=await db.from("tracks").select("*").order("sort_order");if(error)throw error;
    const {data:regs,error:re}=await db.from("registrations").select("id,student_name,track_id,latest_status").limit(1000);if(re)throw re;
+   const {data:acceptedAll,error:aae}=await db.from("registrations").select("id,student_name,track_id,latest_status,companion_group_link_use_count").eq("latest_status","accepted");if(aae)throw aae;
    const {data:pairs,error:pe}=await db.from("companion_pairs").select("id,riwaya,pair_number,student1_registration_id,student2_registration_id");if(pe)throw pe;
    const stats:Record<string,any>={};
    await Promise.all((tracks||[]).map(async(t:any)=>{
@@ -519,8 +520,8 @@ Deno.serve(async(req)=>{
      stats[t.id]=counts;
    }));
    const students=(regs||[]).map((r:any)=>({id:r.id,studentName:r.student_name,trackId:r.track_id,status:r.latest_status}));
-   const acceptedStudents=students.filter((r:any)=>r.status==="accepted");
-   const byId:Record<string,any>={};for(const r of regs||[])byId[r.id]=r;
+   const acceptedStudents=(acceptedAll||[]).map((r:any)=>({id:r.id,studentName:r.student_name,trackId:r.track_id,status:r.latest_status,companionGroupLinkUseCount:Number(r.companion_group_link_use_count)||0}));
+   const byId:Record<string,any>={};for(const r of [...(regs||[]),...(acceptedAll||[])])byId[r.id]=r;
    const companionPairs=(pairs||[]).map((p:any)=>({id:p.id,riwaya:p.riwaya,pairNumber:p.pair_number,student1RegistrationId:p.student1_registration_id,student2RegistrationId:p.student2_registration_id,student1Name:byId[p.student1_registration_id]?.student_name||"",student2Name:byId[p.student2_registration_id]?.student_name||"",trackId:byId[p.student1_registration_id]?.track_id||""})).filter((p:any)=>p.trackId);
    return json({tracks:(tracks||[]).map(t=>({...t,stats:stats[t.id]})),rejectionMessage:REJECTION_MESSAGE,students,acceptedStudents,companionPairs});
   }
