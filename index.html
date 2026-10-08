@@ -477,8 +477,9 @@ async function showTrackStats(id){
  $('trackDetail').className='admin-view';
  $('trackDetail').innerHTML='<div class="admin-view-title">📊 إحصائيات '+escapeHtml(t.name)+'</div><div class="msg info">جاري تحميل قائمة المقبولات بلا رفيقة...</div>';
  try{
-  const u=await api('admin-track-unpaired',{password:adminPass,trackId:id});
-  const unpaired=u.students||[];
+  const acceptedStudents=d.acceptedStudents||[];
+  const pairedIds=new Set(pairs.flatMap(x=>[x.student1RegistrationId,x.student2RegistrationId]));
+  const unpaired=acceptedStudents.filter(x=>x.trackId===id&&!pairedIds.has(x.id));
   const total=(Number(s.accepted)||0)+(Number(s.rejected)||0)+(Number(s.pending)||0)+(Number(s.retry)||0);
   $('trackDetail').innerHTML='<div class="admin-view-title">📊 إحصائيات '+escapeHtml(t.name)+'</div><div class="stats"><div class="stat"><strong>'+total+'</strong>كل التسجيلات</div><div class="stat"><strong>'+Number(s.accepted||0)+'</strong>مقبولة</div><div class="stat"><strong>'+Number(s.rejected||0)+'</strong>مرفوضة</div><div class="stat"><strong>'+Number(s.pending||0)+'</strong>معلقة</div><div class="stat"><strong>'+pairs.length+'</strong>عدد الرفيقات</div><div class="stat"><strong>'+unpaired.length+'</strong>مقبولات بلا رفيقة</div></div><div class="actions" style="margin-top:12px"><button class="btn secondary" type="button" onclick="toggleUnpairedNames(\''+id+'\')">👁️ إظهار أسماء المقبولات بلا رفيقة</button></div><div id="unpairedNames-'+id+'" class="list" style="margin-top:10px;display:none">'+(unpaired.length?unpaired.map(x=>'<div class="item" style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap"><span>'+escapeHtml(x.studentName)+'</span><button class="btn secondary" type="button" onclick="adminResetCompanionLink(\''+x.id+'\',\''+escapeHtml(x.studentName).replace(/'/g,"&#39;")+'\')">🔗 إظهار رابط جروب الرفيقات مرة أخرى</button><button class="btn danger" type="button" onclick="adminRejectAccepted(\''+x.id+'\',\''+escapeHtml(x.studentName).replace(/'/g,"&#39;")+'\',\''+id+'\')">تغيير الحالة إلى مرفوضة</button></div>').join(''):'<div class="msg info">كل الطالبات المقبولات لديهن رفيقة.</div>')+'</div>';
  }catch(e){
