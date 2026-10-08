@@ -472,6 +472,37 @@ Deno.serve(async(req)=>{
    await audit("admin-correct-status",reg.track_id,{registrationId,studentName:reg.student_name,from:"accepted",to:"rejected"});
    return json({ok:true,status:"rejected"});
   }
+  if(action==="admin-search-student"){
+   const body=await req.json();
+   if(!(await requireRole(body,"admin")))return json({error:"كلمة مرور الإدارة غير صحيحة."},401);
+   const q=String(body.query||"").trim().replace(/\s+/g," ");
+   if(!q)return json({students:[],tracks:[],companionPairs:[]});
+   const {data:tracks,error:te}=await db.from("tracks").select("id,name").order("sort_order");
+   if(te)throw te;
+   const pattern="%"+q+"%";
+   const {data:regs,error:re}=await db.from("registrations").select("id,student_name,student_name_normalized,track_id,latest_status,companion_group_link_use_count").or("student_name.ilike."+pattern+",student_name_normalized.ilike."+pattern).order("updated_at",{ascending:false}).limit(50);
+   if(re)throw re;
+   const ids=(regs||[]).map((r:any)=>r.id);
+   let pairs:any[]=[];
+   if(ids.length){
+     const {data:p,error:pe}=await db.from("companion_pairs").select("id,riwaya,pair_number,student1_registration_id,student2_registration_id").or("student1_registration_id.in.("+ids.join(",")+"),student2_registration_id.in.("+ids.join(",")+")");
+     if(pe)throw pe;
+     pairs=p||[];
+   }
+   const otherIds=[...new Set(pairs.flatMap((p:any)=>[p.student1_registration_id,p.student2_registration_id]))].filter((id:string)=>!ids.includes(id));
+   if(otherIds.length){
+     const {data:other,error:oe}=await db.from("registrations").select("id,student_name,track_id").in("id",otherIds);
+     if(oe)throw oe;
+     for(const r of other||[]) (regs as any[]).push({...r,latest_status:""});
+   }
+   const byId:Record<string,any>={};
+   for(const r of regs||[])byId[r.id]=r;
+   return json({
+     students:(regs||[]).slice(0,50).map((r:any)=>({id:r.id,studentName:r.student_name,trackId:r.track_id,status:r.latest_status,companionGroupLinkUseCount:Number(r.companion_group_link_use_count)||0})),
+     tracks:tracks||[],
+     companionPairs:pairs.map((p:any)=>({id:p.id,riwaya:p.riwaya,pairNumber:p.pair_number,student1RegistrationId:p.student1_registration_id,student2RegistrationId:p.student2_registration_id,student1Name:byId[p.student1_registration_id]?.student_name||"",student2Name:byId[p.student2_registration_id]?.student_name||""}))
+   });
+  }
   if(action==="admin-data"){
    const body=await req.json();if(!(await requireRole(body,"admin")))return json({error:"كلمة مرور الإدارة غير صحيحة."},401);
    const {data:tracks,error}=await db.from("tracks").select("*").order("sort_order");if(error)throw error;
