@@ -423,17 +423,25 @@ async function adminResetCompanionLink(registrationId,studentName){
   msg('adminMsg','تم إعادة فتح رابط جروب الرفيقات للطالبة بنجاح، وأصبح لها محاولتان جديدتان.','ok');
  }catch(e){msg('adminMsg',e.message,'err')}
 }
-function searchAdminStudent(){
+async function searchAdminStudent(){
  const q=$('adminStudentSearch').value.trim(),box=$('adminStudentSearchResults');
  if(!q)return box.innerHTML='<div class="msg info">اكتبي اسم الطالبة للبحث.</div>';
- const d=window._adminData||{},students=d.students||[],pairs=d.companionPairs||[],tracks=d.tracks||[],normalize=n=>String(n||'').trim().replace(/\s+/g,' ').replace(/ة$/u,'ه').toLocaleLowerCase('ar-EG'),nq=normalize(q),matches=students.filter(s=>normalize(s.studentName).includes(nq));
- if(!matches.length)return box.innerHTML='<div class="msg info">لا توجد طالبة بهذا الاسم.</div>';
- box.innerHTML=matches.map(s=>{
-  const t=tracks.find(x=>x.id===s.trackId),pair=pairs.find(p=>p.student1RegistrationId===s.id||p.student2RegistrationId===s.id),companion=pair?(pair.student1RegistrationId===s.id?pair.student2Name:pair.student1Name):'لا توجد رفيقة',status=s.status==='accepted'?'مقبولة':s.status==='rejected'?'مرفوضة':s.status==='pending'?'معلقة':s.status==='retry'?'إعادة تسجيل':s.status||'غير معروف',uses=Number(s.companionGroupLinkUseCount)||0;
-  let h='<div class="item"><b>'+escapeHtml(s.studentName)+'</b><div class="hint">المسار: '+escapeHtml(t?.name||'غير محدد')+' · الحالة: '+status+'</div><div class="hint">الرفيقة: '+escapeHtml(companion)+(pair?' · الرواية: '+escapeHtml(pair.riwaya):'')+'</div>';
-  if(s.status==='accepted')h+='<div class="hint">استخدام رابط الرفيقات: '+uses+' من 2</div><div class="actions"><button class="btn secondary" type="button" onclick="adminResetCompanionLink(\''+escapeHtml(s.id)+'\',\''+escapeHtml(s.studentName).replace(/'/g,"&#39;")+'\')">🔗 إعادة فتح رابط الرفيقات</button></div>';
-  return h+'</div>';
- }).join('');
+ box.innerHTML='<div class="msg info">جاري البحث...</div>';
+ try{
+  const d=await api('admin-search-student',{password:adminPass,query:q});
+  const students=d.students||[],pairs=d.companionPairs||[],tracks=d.tracks||[];
+  const normalize=n=>String(n||'').trim().replace(/\s+/g,' ').replace(/ة$/u,'ه').toLocaleLowerCase('ar-EG');
+  const nq=normalize(q),matches=students.filter(s=>normalize(s.studentName).includes(nq));
+  if(!matches.length)return box.innerHTML='<div class="msg info">لا توجد طالبة بهذا الاسم.</div>';
+  box.innerHTML=matches.map(s=>{
+   const t=tracks.find(x=>x.id===s.trackId),pair=pairs.find(p=>p.student1RegistrationId===s.id||p.student2RegistrationId===s.id),companion=pair?(pair.student1RegistrationId===s.id?pair.student2Name:pair.student1Name):'لا توجد رفيقة',status=s.status==='accepted'?'مقبولة':s.status==='rejected'?'مرفوضة':s.status==='pending'?'معلقة':s.status==='retry'?'إعادة تسجيل':s.status||'غير معروف',uses=Number(s.companionGroupLinkUseCount)||0;
+   let h='<div class="item"><b>'+escapeHtml(s.studentName)+'</b><div class="hint">المسار: '+escapeHtml(t?.name||'غير محدد')+' · الحالة: '+status+'</div><div class="hint">الرفيقة: '+escapeHtml(companion)+(pair?' · الرواية: '+escapeHtml(pair.riwaya):'')+'</div>';
+   if(s.status==='accepted')h+='<div class="hint">استخدام رابط الرفيقات: '+uses+' من 2</div><div class="actions"><button class="btn secondary" type="button" onclick="adminResetCompanionLink(\''+escapeHtml(s.id)+'\',\''+escapeHtml(s.studentName).replace(/'/g,"&#39;")+'\')">🔗 إعادة فتح رابط الرفيقات</button></div>';
+   return h+'</div>';
+  }).join('');
+ }catch(e){
+  box.innerHTML='<div class="msg err">'+escapeHtml(e.message||'تعذر تنفيذ البحث.')+'</div>';
+ }
 }
 
 function openTrackChooser(){closeAdminViews();$('trackChooser').classList.remove('hidden');$('trackChooser').innerHTML='<div class="admin-view-title">🗂️ اختاري المسار</div><button class="btn gray admin-close" onclick="closeAdminViews()">إغلاق</button><div id="trackIcons" class="track-icons"></div>';const d=window._adminData||{};$('trackIcons').innerHTML=(d.tracks||[]).map(t=>'<button class="admin-icon track-icon" onclick="openTrackOptions(\''+t.id+'\')"><span class="ico">📁</span>'+escapeHtml(t.name)+'<small>'+(t.is_open?'التسجيل مفتوح':'التسجيل مغلق')+'</small></button>').join('')||'<div class="msg info">لا توجد مسارات.</div>';}
