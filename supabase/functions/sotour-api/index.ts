@@ -506,10 +506,18 @@ Deno.serve(async(req)=>{
   if(action==="admin-data"){
    const body=await req.json();if(!(await requireRole(body,"admin")))return json({error:"كلمة مرور الإدارة غير صحيحة."},401);
    const {data:tracks,error}=await db.from("tracks").select("*").order("sort_order");if(error)throw error;
-   const {data:regs,error:re}=await db.from("registrations").select("id,student_name,track_id,latest_status");if(re)throw re;
+   const {data:regs,error:re}=await db.from("registrations").select("id,student_name,track_id,latest_status").limit(1000);if(re)throw re;
    const {data:pairs,error:pe}=await db.from("companion_pairs").select("id,riwaya,pair_number,student1_registration_id,student2_registration_id");if(pe)throw pe;
-   const stats:Record<string,any>={};for(const t of tracks||[])stats[t.id]={accepted:0,rejected:0,pending:0,retry:0};
-   for(const r of regs||[])if(stats[r.track_id])stats[r.track_id][r.latest_status]=(stats[r.track_id][r.latest_status]||0)+1;
+   const stats:Record<string,any>={};
+   await Promise.all((tracks||[]).map(async(t:any)=>{
+     const counts:Record<string,number>={};
+     for(const status of ["accepted","rejected","pending","retry"]){
+       const {count,error}=await db.from("registrations").select("id",{count:"exact",head:true}).eq("track_id",t.id).eq("latest_status",status);
+       if(error)throw error;
+       counts[status]=count||0;
+     }
+     stats[t.id]=counts;
+   }));
    const students=(regs||[]).map((r:any)=>({id:r.id,studentName:r.student_name,trackId:r.track_id,status:r.latest_status}));
    const acceptedStudents=students.filter((r:any)=>r.status==="accepted");
    const byId:Record<string,any>={};for(const r of regs||[])byId[r.id]=r;
