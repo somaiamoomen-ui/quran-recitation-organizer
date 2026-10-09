@@ -325,15 +325,20 @@ Deno.serve(async(req)=>{
    if(b?.ambiguous)return json({error:"وجدنا أكثر من اسم مقبول مشابه، من فضلك اختاري اسم الطالبة الثانية.",code:"ambiguous_student2",candidates:b.candidates},409);
    if(!a||a.latest_status!=="accepted")return json({error:"الطالبة الأولى غير موجودة ضمن الطالبات المقبولات في المسار المختار."},403);
    if(!b||b.latest_status!=="accepted")return json({error:"الطالبة الثانية غير موجودة ضمن الطالبات المقبولات في المسار المختار."},403);
-   const {data:existing,error:pe}=await db.from("companion_pairs").select("id,student1_registration_id,student2_registration_id,pair_number");if(pe)throw pe;
+   // احصر البحث في تسجيلات المسار المختار بدل تحميل كل الرفيقات في الأكاديمية.
+   const {data:trackRegistrations,error:tre}=await db.from("registrations").select("id").eq("track_id",trackId);if(tre)throw tre;
+   const trackRegistrationIds=(trackRegistrations||[]).map((r:any)=>String(r.id)).filter(Boolean);
+   const pairSelect="id,student1_registration_id,student2_registration_id,pair_number";
+   const firstSide:any=trackRegistrationIds.length?await db.from("companion_pairs").select(pairSelect).in("student1_registration_id",trackRegistrationIds):{data:[],error:null};
+   if(firstSide.error)throw firstSide.error;
+   const secondSide:any=trackRegistrationIds.length?await db.from("companion_pairs").select(pairSelect).in("student2_registration_id",trackRegistrationIds):{data:[],error:null};
+   if(secondSide.error)throw secondSide.error;
+   const pairById:Record<string,any>={};for(const p of [...(firstSide.data||[]),...(secondSide.data||[])])pairById[String(p.id)]=p;
+   const existing=Object.values(pairById);
    const samePair=(existing||[]).find((p:any)=>(p.student1_registration_id===a.id&&p.student2_registration_id===b.id)||(p.student1_registration_id===b.id&&p.student2_registration_id===a.id));
    if(samePair){const {data:primaryTrack,error:primaryTrackError}=await db.from("tracks").select("primary_group_link").eq("id",trackId).maybeSingle();if(primaryTrackError)throw primaryTrackError;return json({error:"رفيقتك بالفعل سجلت رفقتكم، وتم تسجيلها بنجاح.",code:"same_pair_already_registered",pairNumber:Number(samePair.pair_number)||pairNumber,student1Name:a.student_name,student2Name:b.student_name,primaryGroupLink:String(primaryTrack?.primary_group_link||"")},409);}
    if((existing||[]).some((p:any)=>p.student1_registration_id===a.id||p.student2_registration_id===a.id||p.student1_registration_id===b.id||p.student2_registration_id===b.id))return json({error:"إحدى الطالبتين مسجلة بالفعل مع رفيقة أخرى."},409);
-   const existingIds=[...(existing||[])].flatMap((p:any)=>[p.student1_registration_id,p.student2_registration_id]);
-   const {data:existingRegs,error:ere}=existingIds.length?await db.from("registrations").select("id,track_id").in("id",existingIds):{data:[],error:null};
-   if(ere)throw ere;
-   const trackByReg:Record<string,string>={};for(const r of existingRegs||[])trackByReg[r.id]=r.track_id;
-   if((existing||[]).some((p:any)=>trackByReg[p.student1_registration_id]===a.track_id&&Number(p.pair_number)===pairNumber||trackByReg[p.student2_registration_id]===a.track_id&&Number(p.pair_number)===pairNumber))return json({error:"رقم الرفيقة مستخدم بالفعل في هذا المسار، برجاء إدخال رقم آخر."},409);
+   if((existing||[]).some((p:any)=>Number(p.pair_number)===pairNumber))return json({error:"رقم الرفيقة مستخدم بالفعل في هذا المسار، برجاء إدخال رقم آخر."},409);
    const inserted=await db.from("companion_pairs").insert({student1_registration_id:a.id,student2_registration_id:b.id,riwaya,pair_number:pairNumber}).select("id").single();if(inserted.error)throw inserted.error;
    return json({ok:true,pairNumber,student1Name:a.student_name,student2Name:b.student_name,riwaya,primaryGroupLink:(Array.isArray(a.tracks)?a.tracks[0]:a.tracks)?.primary_group_link||""});
   }
