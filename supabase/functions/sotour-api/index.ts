@@ -329,11 +329,17 @@ Deno.serve(async(req)=>{
    const {data:trackRegistrations,error:tre}=await db.from("registrations").select("id").eq("track_id",trackId);if(tre)throw tre;
    const trackRegistrationIds=(trackRegistrations||[]).map((r:any)=>String(r.id)).filter(Boolean);
    const pairSelect="id,student1_registration_id,student2_registration_id,pair_number";
-   const firstSide:any=trackRegistrationIds.length?await db.from("companion_pairs").select(pairSelect).in("student1_registration_id",trackRegistrationIds):{data:[],error:null};
-   if(firstSide.error)throw firstSide.error;
-   const secondSide:any=trackRegistrationIds.length?await db.from("companion_pairs").select(pairSelect).in("student2_registration_id",trackRegistrationIds):{data:[],error:null};
-   if(secondSide.error)throw secondSide.error;
-   const pairById:Record<string,any>={};for(const p of [...(firstSide.data||[]),...(secondSide.data||[])])pairById[String(p.id)]=p;
+   const pairById:Record<string,any>={};
+   // أرسل مجموعات صغيرة من معرّفات هذا المسار لتجنب طلب REST طويل جدًا.
+   const batchSize=50;
+   for(let i=0;i<trackRegistrationIds.length;i+=batchSize){
+    const batch=trackRegistrationIds.slice(i,i+batchSize);
+    const firstSide:any=await db.from("companion_pairs").select(pairSelect).in("student1_registration_id",batch);
+    if(firstSide.error)throw firstSide.error;
+    const secondSide:any=await db.from("companion_pairs").select(pairSelect).in("student2_registration_id",batch);
+    if(secondSide.error)throw secondSide.error;
+    for(const p of [...(firstSide.data||[]),...(secondSide.data||[])])pairById[String(p.id)]=p;
+   }
    const existing=Object.values(pairById);
    const samePair=(existing||[]).find((p:any)=>(p.student1_registration_id===a.id&&p.student2_registration_id===b.id)||(p.student1_registration_id===b.id&&p.student2_registration_id===a.id));
    if(samePair){const {data:primaryTrack,error:primaryTrackError}=await db.from("tracks").select("primary_group_link").eq("id",trackId).maybeSingle();if(primaryTrackError)throw primaryTrackError;return json({error:"رفيقتك بالفعل سجلت رفقتكم، وتم تسجيلها بنجاح.",code:"same_pair_already_registered",pairNumber:Number(samePair.pair_number)||pairNumber,student1Name:a.student_name,student2Name:b.student_name,primaryGroupLink:String(primaryTrack?.primary_group_link||"")},409);}
