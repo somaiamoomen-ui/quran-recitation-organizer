@@ -123,7 +123,9 @@ function literalNameParts(name:string){
 function literalNamePartsMatch(entered:string,stored:string){
  const a=literalNameParts(entered),b=literalNameParts(stored);
  if(a.length<2||b.length<2)return false;
- // الاسم الثنائي لا يطابق اسمًا ثلاثيًا أو رباعيًا؛ من 3 أسماء فأكثر نسمح بالمطابقة على نفس البداية.
+ // عند إدخال اسم أطول، اسمحي بمطابقته مع تسجيل ثنائي فقط إذا تطابق أول اسمين حرفيًا.
+ if(b.length===2&&a.length>=3)return a[0]===b[0]&&a[1]===b[1];
+ // الاسم الثنائي الذي تدخله الطالبة لا يطابق تسجيلًا أطول.
  if((a.length===2)!==(b.length===2))return false;
  if(a[0]!==b[0]||a[1]!==b[1])return false;
  let ai=2,searchFrom=2;
