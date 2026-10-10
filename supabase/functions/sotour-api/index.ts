@@ -78,7 +78,10 @@ function partCanMatchEntered(enteredPart:string,storedParts:string[],startIndex:
 function flexibleNamePartsMatch(entered:string,stored:string){
  const a=canonicalParts(entered),b=canonicalParts(stored);
  if(a.length<2||b.length<2)return false;
- // الاسم الثنائي لا يطابق اسمًا ثلاثيًا أو رباعيًا؛ المطابقة الجزئية مسموحة من 3 أسماء فأكثر.
+ // إذا كان التسجيل الأصلي باسم ثنائي، نقبل الاسم الأطول فقط عندما يبدأ بنفس الاسمين
+ // المسجلين بالضبط؛ ثم تظل الدالة تشترط أن تكون المطابقة فريدة داخل المسار.
+ if(b.length===2&&a.length>=3&&a[0]===b[0]&&a[1]===b[1])return true;
+ // الاسم الثنائي الذي تدخله الطالبة لا يطابق تسجيلًا ثلاثيًا أو رباعيًا.
  if((a.length===2)!==(b.length===2))return false;
  if(a[0]!==b[0]){
   const enteredCanonical=a.join("");
