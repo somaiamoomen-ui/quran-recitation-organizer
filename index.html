@@ -134,7 +134,7 @@ async function api(action,body,form=false){
  return data;
 }
 async function loadTracks(){
- try{const d=await api('tracks',{});currentTracks=d.tracks||[];const options='<option value="">اختاري المسار</option>'+currentTracks.map(t=>'<option value="'+t.id+'">'+escapeHtml(t.name)+'</option>').join('');$('studentTrack').innerHTML=options;$('resultTrack').innerHTML=options;$('companionTrack').innerHTML=options;$('studentEvaluationText').textContent=d.evaluationText||'';}
+ try{const d=await api('tracks',{});currentTracks=d.tracks||[];const makeOptions=tracks=>'<option value="">اختاري المسار</option>'+tracks.map(t=>'<option value="'+t.id+'">'+escapeHtml(t.name)+'</option>').join('');$('studentTrack').innerHTML=makeOptions(currentTracks.filter(t=>t.is_open));const allOptions=makeOptions(currentTracks);$('resultTrack').innerHTML=allOptions;$('companionTrack').innerHTML=allOptions;$('studentEvaluationText').textContent=d.evaluationText||'';}
  catch(e){msg('studentMsg',e.message,'err')}
 }
 function nameValue(){return cleanStudentName($('studentName').value)}
