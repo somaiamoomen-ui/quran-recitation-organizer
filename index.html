@@ -437,8 +437,9 @@ function renderSupportFaqEditor(items){
  const box=$('supportFaqItems');if(!box)return;
  box.innerHTML=supportFaqDraft.length?supportFaqDraft.map((item,i)=>'<div class="support-faq-edit-item"><div class="field"><label>السؤال '+(i+1)+'</label><input class="input faq-question" maxlength="300" value="'+escapeHtml(item.question)+'" placeholder="اكتبي السؤال"></div><div class="field"><label>الإجابة</label><textarea class="input faq-answer" maxlength="3000" placeholder="اكتبي الإجابة">'+escapeHtml(item.answer)+'</textarea></div><button class="btn danger" type="button" onclick="removeSupportFaqItem('+i+')">حذف السؤال</button></div>').join(''):'<div class="msg info">لا توجد أسئلة مضافة حتى الآن. اضغطي «إضافة سؤال» للبدء.</div>';
 }
-function addSupportFaqItem(){supportFaqDraft.push({question:"",answer:""});renderSupportFaqEditor(supportFaqDraft)}
-function removeSupportFaqItem(index){supportFaqDraft.splice(index,1);renderSupportFaqEditor(supportFaqDraft)}
+function collectSupportFaqEditor(){const box=$('supportFaqItems');if(!box)return;const questions=[...box.querySelectorAll('.faq-question')].map(x=>x.value);const answers=[...box.querySelectorAll('.faq-answer')].map(x=>x.value);supportFaqDraft=questions.map((question,i)=>({question,answer:answers[i]||""}))}
+function addSupportFaqItem(){collectSupportFaqEditor();supportFaqDraft.push({question:"",answer:""});renderSupportFaqEditor(supportFaqDraft)}
+function removeSupportFaqItem(index){collectSupportFaqEditor();supportFaqDraft.splice(index,1);renderSupportFaqEditor(supportFaqDraft)}
 async function openSupportFaqSetting(){
  closeAdminViews();$('supportFaqView').classList.remove('hidden');$('supportFaqItems').innerHTML='<div class="hint">جاري تحميل الأسئلة…</div>';
  try{const d=await api('tracks',{});renderSupportFaqEditor(d.supportFaq||[])}catch(e){$('supportFaqItems').innerHTML='<div class="msg err">'+escapeHtml(e.message)+'</div>'}
