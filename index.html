@@ -236,8 +236,8 @@ async function sendRecording(){
    }
    await api('submit',f,true);
   }
-  msg('studentMsg','تم ارسال التسجيل للمعلمة بنجاح','ok');
-  $('recordInfo').textContent='برجاء العودة بعد ٢٤ ساعة إلى الموقع نفسه مرة أخرى لمعرفة النتيجة';$('recordInfo').classList.add('result-notice');
+  $('studentMsg').innerHTML='<div class="msg ok">تم ارسال التسجيل للمعلمة بنجاح</div><div class="result-notice" style="margin-top:8px">برجاء العودة بعد ٢٤ ساعة إلى الموقع نفسه مرة أخرى لمعرفة النتيجة</div>';
+  $('recordInfo').textContent='';$('recordInfo').classList.remove('result-notice');
   $('recordPreview').classList.add('hidden');
   if(pendingObjectUrl)URL.revokeObjectURL(pendingObjectUrl);
   pendingObjectUrl='';pendingBlob=null;
