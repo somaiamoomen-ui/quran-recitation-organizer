@@ -236,8 +236,8 @@ async function sendRecording(){
    }
    await api('submit',f,true);
   }
-  msg('studentMsg','تم إرسال التسجيل للمعلمة بنجاح.','ok');
-  $('recordInfo').textContent='تظهر النتيجة خلال ساعات من إرسال الريكورد';$('recordInfo').classList.add('result-notice');
+  msg('studentMsg','تم ارسال التسجيل للمعلمة بنجاح','ok');
+  $('recordInfo').textContent='برجاء العودة بعد ٢٤ ساعة إلى الموقع نفسه مرة أخرى لمعرفة النتيجة';$('recordInfo').classList.add('result-notice');
   $('recordPreview').classList.add('hidden');
   if(pendingObjectUrl)URL.revokeObjectURL(pendingObjectUrl);
   pendingObjectUrl='';pendingBlob=null;
